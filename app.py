@@ -2,6 +2,16 @@
 import streamlit as st
 import openai
 
+# テキストデータの読み込み関数
+@st.cache_data
+def load_text_data(file_path):
+    with open(file_path, "r", encoding="utf-8") as file:
+        text_data = file.read()
+    return text_data
+
+# テキストデータを読み込む
+text_data = load_text_data("toshishun.txt")
+
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
 
