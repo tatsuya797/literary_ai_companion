@@ -1,22 +1,6 @@
 
 import streamlit as st
 import openai
-import os
-
-# テキストデータの読み込み関数
-@st.cache_data
-def load_text_data(file_path):
-    # Streamlit が実行されているディレクトリのファイルを読み込む
-    abs_path = os.path.join(os.path.dirname(__file__), file_path)
-    with open(abs_path, "r", encoding="utf-8") as file:
-        text_data = file.read()
-    return text_data
-
-# テキストデータを読み込む
-text_data = load_text_data("toshishun.txt")
-
-# テキストを表示
-st.text_area("テキストデータ", text_data, height=300)
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
