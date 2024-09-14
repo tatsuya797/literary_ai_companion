@@ -1,34 +1,6 @@
 
 import streamlit as st
 import openai
-import os
-import chardet
-
-# エンコーディングを自動検出する関数
-def detect_encoding(file_path):
-    with open(file_path, 'rb') as file:
-        raw_data = file.read(10000)
-    result = chardet.detect(raw_data)
-    return result['encoding']
-
-# テキストデータの読み込み関数
-@st.cache_data
-def load_text_data(file_path):
-    abs_path = os.path.join(os.path.dirname(__file__), file_path)
-    
-    # エンコーディングを自動判定して読み込む
-    encoding = detect_encoding(abs_path)
-    with open(abs_path, "r", encoding=encoding) as file:
-        text_data = file.read()
-    
-    return text_data
-
-# Toshishunのテキストを読み込む
-toshishun_text = load_text_data("toshishun.txt")
-
-st.write("Toshishunのテキストデータ:")
-st.text_area("テキストデータ", toshishun_text, height=300)
-
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
