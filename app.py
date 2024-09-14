@@ -10,6 +10,9 @@ if "messages" not in st.session_state:
     st.session_state["messages"] = [
         {"role": "system", "content": st.secrets.AppSettings.chatbot_setting} 
     ]
+    
+# テキストデータを読み込む
+text_data = load_text_data("toshishun.txt")
 
 # チャットボットとやりとりする関数
 def communicate():
