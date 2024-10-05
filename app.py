@@ -4,14 +4,6 @@ import os
 from pathlib import Path
 from text_preprocessing import save_cleanse_text  # 前処理の関数をインポート
 
-# ZIPファイルを解凍する関数
-@st.cache_resource
-def extract_zip(zip_path):
-    temp_dir = tempfile.mkdtemp()
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        zip_ref.extractall(temp_dir)
-    return temp_dir
-
 # テキストデータを再帰的に読み込む関数
 @st.cache_data
 def load_all_texts_from_directory(directory):
@@ -35,12 +27,6 @@ def load_all_texts_from_directory(directory):
                         st.warning(f"ファイル {file_path} の読み込みに失敗しました。")
 
     return all_texts
-
-# ZIPファイルのパスを指定
-zip_file_path = Path("txtfile_879.zip")  # 実際のZIPファイル名に合わせて変更してください
-
-# ZIPファイルを解凍
-txtfile_879_directory = Path(extract_zip(zip_file_path))
 
 # テキストデータを処理する関数
 def process_text_files():
