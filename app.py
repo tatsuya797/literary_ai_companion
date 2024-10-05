@@ -1,14 +1,25 @@
 import streamlit as st
 import openai
 import os
+import zipfile
+import tempfile
 from pathlib import Path
 from text_preprocessing import save_cleanse_text  # 前処理の関数をインポート
+
+# ZIPファイルを解凍する関数
+@st.cache_resource
+def extract_zip(zip_path, last_modified):
+    temp_dir = tempfile.mkdtemp()
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        zip_ref.extractall(temp_dir)
+    return temp_dir
 
 # テキストデータを再帰的に読み込む関数
 @st.cache_data
 def load_all_texts_from_directory(directory):
     all_texts = ""
-    
+    file_count = 0  # 読み込んだファイルの数
+
     for root, dirs, files in os.walk(directory):
         for file in files:
             if file.endswith(".txt"):
@@ -17,16 +28,36 @@ def load_all_texts_from_directory(directory):
                     # まずはutf-8で試す
                     with open(file_path, "r", encoding="utf-8") as f:
                         all_texts += f.read() + "\n"
+                    file_count += 1
                 except UnicodeDecodeError:
                     try:
                         # 次にshift_jisで試す
                         with open(file_path, "r", encoding="shift_jis") as f:
                             all_texts += f.read() + "\n"
+                        file_count += 1
                     except UnicodeDecodeError:
                         # それでも失敗した場合はスキップ
                         st.warning(f"ファイル {file_path} の読み込みに失敗しました。")
 
+    st.write(f"読み込んだファイル数: {file_count}個")
     return all_texts
+
+# ZIPファイルのパスを指定
+zip_file_path = Path("txtfile_879.zip")  # 実際のZIPファイル名に合わせて変更してください
+
+# ZIPファイルの最終更新日時を取得
+try:
+    last_modified = os.path.getmtime(zip_file_path)
+except FileNotFoundError:
+    st.error("指定されたZIPファイルが見つかりません。パスを確認してください。")
+    st.stop()
+
+# ZIPファイルを解凍
+try:
+    txtfile_879_directory = Path(extract_zip(zip_file_path, last_modified))
+except zipfile.BadZipFile:
+    st.error("ZIPファイルが壊れています。正しいZIPファイルをアップロードしてください。")
+    st.stop()
 
 # テキストデータを処理する関数
 def process_text_files():
@@ -43,16 +74,28 @@ def process_text_files():
 # 全テキストデータを読み込む
 all_akutagawa_texts = load_all_texts_from_directory(txtfile_879_directory)
 
+# デバッグ用: 読み込んだテキストの長さを表示
+st.write(f"読み込んだテキストの長さ: {len(all_akutagawa_texts)}文字")
+
 # 読み込んだテキストを確認
 st.text_area("テキストデータ", all_akutagawa_texts, height=300)
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
-openai.api_key = st.secrets.OpenAIAPI.openai_api_key
+try:
+    openai.api_key = st.secrets["OpenAIAPI"]["openai_api_key"]
+except KeyError as e:
+    st.error(f"シークレットの設定に問題があります: {e}")
+    st.stop()
 
 # st.session_stateを使いメッセージのやりとりを保存
 if "messages" not in st.session_state:
+    try:
+        chatbot_setting = st.secrets["AppSettings"]["chatbot_setting"]
+    except KeyError as e:
+        st.error(f"シークレットの設定に問題があります: {e}")
+        st.stop()
     st.session_state["messages"] = [
-        {"role": "system", "content": st.secrets.AppSettings.chatbot_setting} 
+        {"role": "system", "content": chatbot_setting} 
     ]
 
 # チャットボットとやりとりする関数
@@ -61,10 +104,14 @@ def communicate():
     user_message = {"role": "user", "content": st.session_state["user_input"]}
     messages.append(user_message)
 
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=messages
-    )
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=messages
+        )
+    except Exception as e:
+        st.error(f"OpenAI API エラー: {e}")
+        return
 
     bot_message = response["choices"][0]["message"]
     messages.append(bot_message)
@@ -92,3 +139,4 @@ if st.session_state["messages"]:
     for message in reversed(messages[1:]):  # 直近のメッセージを上に
         speaker = "🙂" if message["role"] == "user" else "🤖"
         st.write(speaker + ": " + message["content"])
+
