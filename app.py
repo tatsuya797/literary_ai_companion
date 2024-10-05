@@ -34,7 +34,7 @@ txtfile_879_directory = Path("txtfile_879")
 # テキストデータを処理する関数
 def process_text_files():
     processed_texts = []  # 処理後のテキストを格納するリスト
-    text_files = list(txtfile_129_directory.glob('**/*.txt'))  # サブフォルダも含む
+    text_files = list(txtfile_879_directory.glob('**/*.txt'))  # サブフォルダも含む
     for text_file in text_files:
         save_cleanse_text(text_file)  # 前処理関数を呼び出し
         # 前処理後の結果をリストに追加（保存場所に応じて変更）
