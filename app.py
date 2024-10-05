@@ -44,10 +44,10 @@ def process_text_files():
     return processed_texts
 
 # 全テキストデータを読み込む
-all_mori_ogai_texts = load_all_texts_from_directory(txtfile_129_directory)
+all_akutagawa_texts = load_all_texts_from_directory(txtfile_879_directory)
 
 # 読み込んだテキストを確認
-st.text_area("テキストデータ", all_mori_ogai_texts, height=300)
+st.text_area("テキストデータ", all_akutagawa_texts, height=300)
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
