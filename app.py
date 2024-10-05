@@ -74,8 +74,8 @@ def communicate():
     st.session_state["user_input"] = ""  # 入力欄を消去
 
 # ユーザーインターフェイスの構築
-st.title("森鴎外AIアシスタント")
-st.write("森鴎外の作品に基づくチャットボットです。")
+st.title("芥川龍之介AIアシスタント")
+st.write("芥川龍之介の作品に基づくチャットボットです。")
 
 # テキストファイルを処理するボタン
 if st.button("テキストファイルを処理する"):
