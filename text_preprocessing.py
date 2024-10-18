@@ -1,4 +1,3 @@
-#text_preprocessing.py
 import pandas as pd
 from pathlib import Path
 
@@ -60,45 +59,28 @@ def text_cleanse_df(df):
     df_e = df_e[~(df_e['text'] == '')]
 
     # インデックスがずれるので振り直し、文字の長さの列を削除する
-    df_e = df_e.reset_index().drop(['index', 'length'], axis=1)
+    df_e = df_e.reset_index().drop(['length'], axis=1)
+
     return df_e
 
 
-def save_cleanse_text(target_file):
-    try:
-        # ファイルの読み込み
-        print(target_file)
-        # Pandas DataFrameとして読み込む（cp932で読み込まないと異体字が読めない）
-        df_tmp = pd.read_csv(target_file, encoding='cp932', names=['text'])
-        # 元データをUTF-8に変換してテキストファイルを保存
-        if save_utf8_org:
-            out_org_file_nm = Path(target_file.stem + '_org_utf-8.tsv')
-            df_tmp.to_csv(Path(tx_org_dir / out_org_file_nm), sep='\t',
-                          encoding='utf-8', index=None)
-        # テキスト整形
-        df_tmp_e = text_cleanse_df(df_tmp)
-        if write_title:
-            # タイトル列を作る
-            df_tmp_e['title'] = df_tmp['text'][0]
-        out_edit_file_nm = Path(target_file.stem + '_clns_utf-8.txt')
-        df_tmp_e.to_csv(Path(tx_edit_dir / out_edit_file_nm), sep='\t',
-                        encoding='utf-8', index=None, header=write_header)
-    except:
-        print(f'ERROR: {target_file}')
+def save_cleanse_text(file_path):
+    # テキストファイルの読み込み
+    with open(file_path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
 
+    # DataFrameに変換
+    df = pd.DataFrame(lines, columns=["text"])
 
-def main():
-    tx_dir = Path(author_id + './files/')
-    # zipファイルのリストを作成
-    zip_list = list(tx_dir.glob('*.zip'))
-    # 保存ディレクトリを作成しておく
-    tx_edit_dir.mkdir(exist_ok=True, parents=True)
+    # データのクリーニング
+    df_cleaned = text_cleanse_df(df)
+
+    # 結果をUTF-8形式で保存
+    cleaned_file_path = Path(tx_edit_dir) / (file_path.stem + "_clns_utf-8.txt")
+    df_cleaned.to_csv(cleaned_file_path, index=False, encoding="utf-8")
+
     if save_utf8_org:
-        tx_org_dir.mkdir(exist_ok=True, parents=True)
-
-    for target_file in zip_list:
-        save_cleanse_text(target_file)
-
-
-if __name__ == '__main__':
-    main()
+        # 元データをUTF-8に変換して保存
+        org_file_path = Path(tx_org_dir) / (file_path.stem + "_org_utf-8.txt")
+        with open(org_file_path, "w", encoding="utf-8") as f:
+            f.writelines(lines)
