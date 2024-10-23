@@ -1,5 +1,6 @@
 import pandas as pd
 from pathlib import Path
+import zipfile
 
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
