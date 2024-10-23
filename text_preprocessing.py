@@ -1,5 +1,6 @@
 import pandas as pd
 from pathlib import Path
+import zipfile
 
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
@@ -40,7 +41,6 @@ def text_cleanse_df(df):
     df_e = df_e.replace({'text': {'^.$': ''}}, regex=True)
     df_e = df_e.replace({'text': {'^―――.*$': ''}}, regex=True)
     df_e = df_e.replace({'text': {'^＊＊＊.*$': ''}}, regex=True)
-    df_e = df_e.replace({'text': {'^×××.*$': ''}}, regex=True)
 
     # 記号、および記号削除によって残ったカッコを削除
     df_e = df_e.replace({'text': {'―': ''}}, regex=True)
@@ -59,28 +59,57 @@ def text_cleanse_df(df):
     df_e = df_e[~(df_e['text'] == '')]
 
     # インデックスがずれるので振り直し、文字の長さの列を削除する
-    df_e = df_e.reset_index().drop(['length'], axis=1)
-
+    df_e = df_e.reset_index().drop(['index', 'length'], axis=1)
     return df_e
 
 
-def save_cleanse_text(file_path):
-    # テキストファイルの読み込み
-    with open(file_path, "r", encoding="utf-8") as f:
-        lines = f.readlines()
+def save_cleanse_text(target_file, zip_extract_dir):
+    try:
+        # ZIPファイルから展開されたテキストファイルを処理
+        print(f"Processing file: {target_file}")
+        # Pandas DataFrameとして読み込む（cp932で読み込まないと異体字が読めない）
+        df_tmp = pd.read_csv(target_file, encoding='cp932', names=['text'])
+        # 元データをUTF-8に変換してテキストファイルを保存
+        if save_utf8_org:
+            out_org_file_nm = Path(target_file.stem + '_org_utf-8.tsv')
+            df_tmp.to_csv(Path(tx_org_dir / out_org_file_nm), sep='\t',
+                          encoding='utf-8', index=None)
+        # テキスト整形
+        df_tmp_e = text_cleanse_df(df_tmp)
+        if write_title:
+            # タイトル列を作る
+            df_tmp_e['title'] = df_tmp['text'][0]
+        out_edit_file_nm = Path(target_file.stem + '_clns_utf-8.txt')
+        df_tmp_e.to_csv(Path(tx_edit_dir / out_edit_file_nm), sep='\t',
+                        encoding='utf-8', index=None, header=write_header)
+    except Exception as e:
+        print(f'ERROR processing {target_file}: {e}')
 
-    # DataFrameに変換
-    df = pd.DataFrame(lines, columns=["text"])
 
-    # データのクリーニング
-    df_cleaned = text_cleanse_df(df)
+def extract_and_process_zip(zip_file_path, extract_dir):
+    # ZIPファイルを展開
+    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+        zip_ref.extractall(extract_dir)
+        print(f"Extracted {zip_file_path} to {extract_dir}")
 
-    # 結果をUTF-8形式で保存
-    cleaned_file_path = Path(tx_edit_dir) / (file_path.stem + "_clns_utf-8.txt")
-    df_cleaned.to_csv(cleaned_file_path, index=False, encoding="utf-8")
+    # 展開されたファイルを処理
+    for txt_file in Path(extract_dir).glob('*.txt'):
+        save_cleanse_text(txt_file, extract_dir)
 
+
+def main():
+    tx_dir = Path(f'{author_id}/files/')
+    zip_file_path = tx_dir / f'{author_id}.zip'
+    extract_dir = Path(f'{author_id}/extracted_files/')
+
+    # ZIPファイルの展開と処理
+    extract_and_process_zip(zip_file_path, extract_dir)
+
+    # 保存ディレクトリを作成
+    tx_edit_dir.mkdir(exist_ok=True, parents=True)
     if save_utf8_org:
-        # 元データをUTF-8に変換して保存
-        org_file_path = Path(tx_org_dir) / (file_path.stem + "_org_utf-8.txt")
-        with open(org_file_path, "w", encoding="utf-8") as f:
-            f.writelines(lines)
+        tx_org_dir.mkdir(exist_ok=True, parents=True)
+
+
+if __name__ == '__main__':
+    main()
