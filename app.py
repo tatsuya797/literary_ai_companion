@@ -38,7 +38,7 @@ def process_text_files():
     for text_file in text_files:
         save_cleanse_text(text_file)  # 前処理関数を呼び出し
         # 前処理後のファイルパスを取得
-        processed_file = Path('unzipped_files/out_edit/') / f"{text_file.stem}_clns_utf-8.txt"
+        processed_file = Path(f'unzipped_files/out_{author_id}/edit/{text_file.stem}_clns_utf-8.txt')
         if processed_file.exists():
             processed_texts.append(processed_file)
         else:
@@ -47,7 +47,7 @@ def process_text_files():
     return processed_texts
 
 # すべてのZIPファイルを指定したディレクトリから読み込む
-zip_files_directory = Path("000129/files")
+zip_files_directory = Path("000879/files")
 zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
 
 # 全テキストデータを読み込む（すべてのZIPファイルに対して処理を行う）
@@ -79,33 +79,22 @@ def communicate():
 
     bot_message = response["choices"][0]["message"]
     messages.append(bot_message)
-    st.session_state["user_input"] = ""  # 入力欄を消去
 
-# ユーザーインターフェイスの構築
-st.title("芥川龍之介AIアシスタント")
-st.write("芥川龍之介の作品に基づくチャットボットです。")
+    st.session_state["user_input"] = ""  # 入力欄をクリア
 
-# テキストファイルを処理するボタン
-if st.button("テキストファイルを処理する"):
-    with st.spinner("テキストファイルを処理中..."):
-        processed_files = process_text_files()  # テキストファイルの処理を実行
-    st.success("テキストファイルの処理が完了しました。")
-    
-    # 処理後のテキストを表示
-    st.subheader("処理後のテキスト内容")
-    for processed_file in processed_files:
-        try:
-            with open(processed_file, "r", encoding="utf-8") as f:
-                content = f.read()
-                st.text_area(f"{processed_file.name}", content, height=200)
-        except Exception as e:
-            st.warning(f"ファイル {processed_file} の読み込みに失敗しました。")
+# ユーザーインターフェイス
+st.title("芥川龍之介 チャットボット")
+st.write("芥川龍之介の作品に基づいたチャットボットです。")
 
-# ユーザーのメッセージ入力
-user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
+# ユーザー入力
+st.text_input("メッセージを入力してください", key="user_input", on_change=communicate)
 
-if st.session_state["messages"]:
-    messages = st.session_state["messages"]
-    for message in reversed(messages[1:]):  # 直近のメッセージを上に
-        speaker = "🙂" if message["role"] == "user" else "🤖"
-        st.write(speaker + ": " + message["content"])
+# チャット履歴を表示
+messages = st.session_state.get("messages", [])
+for message in messages:
+    if message["role"] == "system":
+        st.write("システム: " + message["content"])
+    elif message["role"] == "user":
+        st.write("ユーザー: " + message["content"])
+    else:
+        st.write("チャットボット: " + message["content"])
