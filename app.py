@@ -89,7 +89,7 @@ def communicate():
     st.session_state["user_input"] = ""  # 入力欄をクリア
 
 # ユーザーインターフェイス
-st.title("芥川龍之介 チャットボット")
+st.title(author_name+"チャットボット")
 st.write("芥川龍之介の作品に基づいたチャットボットです。")
 
 # ユーザーのメッセージ入力
