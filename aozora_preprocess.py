@@ -23,7 +23,7 @@ def text_cleanse_df(df):
     if head_tx == []:
         # もし'---…'区切りが無い場合は、作家名の直後に本文が始まる前提
         head_tx = list(df[df['text'].str.contains(author_name)].index)
-        head_tx_num = head_tx[0] - 1
+        head_tx_num = head_tx[0] + 1
     else:
         # 2個目の'---…'区切り直後から本文が始まる
         head_tx_num = head_tx[1] + 1
