@@ -93,7 +93,7 @@ st.text_input("メッセージを入力してください", key="user_input", on
 messages = st.session_state.get("messages", [])
 for message in messages:
     if message["role"] == "system":
-      # st.write("システム: " + message["content"])
+        st.write("システム: " + message["content"])
     elif message["role"] == "user":
         st.write("ユーザー: " + message["content"])
     else:
