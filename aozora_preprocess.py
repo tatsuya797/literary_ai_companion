@@ -66,9 +66,6 @@ def text_cleanse_df(df):
 
 def save_cleanse_text(target_file, zip_extract_dir):
     try:
-        # 整形後のファイルの保存先を確認または作成
-        edit_dir = Path(zip_extract_dir / f'out_{author_id}/edit/')
-        edit_dir.mkdir(parents=True, exist_ok=True)  # ディレクトリを作成
         # ファイルの読み込み
         print(target_file)
         # Pandas DataFrameとして読み込む（cp932で読み込まないと異体字が読めない）
@@ -86,15 +83,11 @@ def save_cleanse_text(target_file, zip_extract_dir):
         out_edit_file_nm = Path(target_file.stem + '_clns_utf-8.txt')
         df_tmp_e.to_csv(Path(zip_extract_dir / out_edit_file_nm), sep='\t',
                         encoding='utf-8', index=None, header=write_header)
-        # 整形後のデータを表示（デバッグ用）
-        st.write(f"Processed file: {out_edit_file_nm}")
-        st.write(df_tmp_e.head())  # 整形後のテキストの先頭を表示
-    
-    
+        return df_tmp_e  # 整形後のデータフレームを返す
     
     except Exception as e:
         print(f'ERROR: {target_file} - {e}')
-
+        return None  # エラー時はNoneを返す
 
 def process_text_files(zip_extract_dir):
     text_files = list(zip_extract_dir.glob('**/*.txt'))  # サブフォルダも含む
