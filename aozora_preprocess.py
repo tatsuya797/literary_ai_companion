@@ -83,6 +83,12 @@ def save_cleanse_text(target_file, zip_extract_dir):
         out_edit_file_nm = Path(target_file.stem + '_clns_utf-8.txt')
         df_tmp_e.to_csv(Path(zip_extract_dir / out_edit_file_nm), sep='\t',
                         encoding='utf-8', index=None, header=write_header)
+        # 整形後のデータを表示（デバッグ用）
+        st.write(f"Processed file: {out_edit_file_nm}")
+        st.write(df_tmp_e.head())  # 整形後のテキストの先頭を表示
+    
+    
+    
     except Exception as e:
         print(f'ERROR: {target_file} - {e}')
 
