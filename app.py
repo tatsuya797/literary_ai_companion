@@ -3,7 +3,9 @@ import openai
 import os
 from pathlib import Path
 import zipfile
+import chardet  # エンコーディング自動検出ライブラリ
 from text_preprocessing import save_cleanse_text  # 前処理の関数をインポート
+
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
@@ -13,21 +15,23 @@ def load_all_texts_from_zip(zip_file):
     all_texts = ""
     unzip_dir = Path("unzipped_files")
     unzip_dir.mkdir(exist_ok=True)
-    
+
     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
         zip_ref.extractall(unzip_dir)  # 解凍先のディレクトリ
 
     text_files = list(unzip_dir.glob('**/*.txt'))
     for file_path in text_files:
+        # まずバイト形式でファイルを読み込み、エンコーディングを検出
+        with open(file_path, 'rb') as f:
+            raw_data = f.read()
+            result = chardet.detect(raw_data)
+            encoding = result['encoding']  # 検出されたエンコーディングを取得
+
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, "r", encoding=encoding) as f:
                 all_texts += f.read() + "\n"
         except UnicodeDecodeError:
-            try:
-                with open(file_path, "r", encoding="shift_jis") as f:
-                    all_texts += f.read() + "\n"
-            except UnicodeDecodeError:
-                st.warning(f"ファイル {file_path} の読み込みに失敗しました。")
+            st.warning(f"ファイル {file_path} の読み込みに失敗しました。")
 
     return all_texts
 
@@ -36,7 +40,7 @@ def process_text_files():
     processed_texts = []  # 処理後のテキストを格納するリスト
     unzip_dir = Path("unzipped_files")
     text_files = list(unzip_dir.glob('**/*.txt'))  # サブフォルダも含む
-    
+
     for text_file in text_files:
         cleaned_df = save_cleanse_text(text_file, unzip_dir)  # 前処理関数を呼び出し
         if cleaned_df is not None:
@@ -58,7 +62,6 @@ for zip_file_path in zip_files:
 
 # 整形後のテキストを表示
 st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
-
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
