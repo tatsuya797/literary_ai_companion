@@ -27,7 +27,7 @@ def text_cleanse_df(df):
     else:
         # 2個目の'---…'区切り直後から本文が始まる
         head_tx_num = head_tx[1] + 1
-    df_e = pd.concat([df[head_tx_num-3:head_tx_num], df[head_tx_num:atx[0]]])
+    df_e = df[head_tx_num:atx[0]]
 
     # 青空文庫の書式削除
     df_e = df_e.replace({'text': {'《.*?》': ''}}, regex=True)
