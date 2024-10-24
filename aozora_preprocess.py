@@ -19,7 +19,7 @@ def text_cleanse_df(df):
     head_tx = list(df[df['text'].str.contains(
         '-------------------------------------------------------')].index)
     # 本文の末尾を探す（'底本：'の直前に本文が終わる前提）
-    atx = list(df[df['text'].str.contains('底本：')].index)
+    atx = list(df[df['text'].str.contains('入力：')].index)
     if head_tx == []:
         # もし'---…'区切りが無い場合は、作家名の直後に本文が始まる前提
         head_tx = list(df[df['text'].str.contains(author_name)].index)
