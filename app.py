@@ -55,7 +55,7 @@ all_akutagawa_ryunosuke_texts = ""
 for zip_file_path in zip_files:
     all_akutagawa_ryunosuke_texts += load_all_texts_from_zip(zip_file_path) + "\n"
 
-# st.text_area("テキストデータ", all_akutagawa_ryunosuke_texts, height=300)
+ st.text_area("テキストデータ", all_akutagawa_ryunosuke_texts, height=300)
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
