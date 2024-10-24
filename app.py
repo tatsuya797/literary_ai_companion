@@ -41,10 +41,6 @@ def process_text_files():
         processed_file = Path(f'unzipped_files/out_{author_id}/edit/{text_file.stem}_clns_utf-8.txt')
         if processed_file.exists():
             processed_texts.append(processed_file)
-             # デバッグ用に整形後のテキスト内容を一時的に表示
-            with open(processed_file, "r", encoding="utf-8") as f:
-                content = f.read()
-                st.text_area(f"整形後のテキスト: {processed_file.name}", content, height=200)
         else:
             st.warning(f"処理後のファイル {processed_file} が存在しません。")
 
