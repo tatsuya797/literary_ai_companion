@@ -58,6 +58,7 @@ zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
 # 全テキストデータを読み込む（すべてのZIPファイルに対して処理を行う）
 all_akutagawa_ryunosuke_texts = ""
 for zip_file_path in zip_files:
+    st.write(f"Loading ZIP file: {zip_file_path}")  # デバッグ: ZIPファイル読み込み中の表示
     all_akutagawa_ryunosuke_texts += load_all_texts_from_zip(zip_file_path) + "\n"
 
 st.text_area("テキストデータ", all_akutagawa_ryunosuke_texts, height=300)
