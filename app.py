@@ -86,15 +86,11 @@ def communicate():
 st.title("芥川龍之介 チャットボット")
 st.write("芥川龍之介の作品に基づいたチャットボットです。")
 
-# ユーザー入力
-st.text_input("メッセージを入力してください", key="user_input", on_change=communicate)
+# ユーザーのメッセージ入力
+user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
 
-# チャット履歴を表示
-messages = st.session_state.get("messages", [])
-for message in messages:
-    if message["role"] == "system":
-        st.write("システム: " + message["content"])
-    elif message["role"] == "user":
-        st.write("ユーザー: " + message["content"])
-    else:
-        st.write("チャットボット: " + message["content"])
+if st.session_state["messages"]:
+    messages = st.session_state["messages"]
+    for message in reversed(messages[1:]):  # 直近のメッセージを上に
+        speaker = "🙂" if message["role"] == "user" else "🤖"
+        st.write(speaker + ": " + message["content"])
