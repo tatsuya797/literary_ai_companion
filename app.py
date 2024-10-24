@@ -46,9 +46,6 @@ def process_text_files():
 
     return processed_texts
 
-a = process_text_files()
-st.text_area(a,heigt=200)
-
 # すべてのZIPファイルを指定したディレクトリから読み込む
 zip_files_directory = Path("000879/files")
 zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
