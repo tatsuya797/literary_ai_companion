@@ -5,8 +5,6 @@ import zipfile
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
-write_title = True  # 2カラム目に作品名を入れるか
-write_header = True  # 1行目をカラム名にするか（カラム名「text」「title」）
 save_utf8_org = True  # 元データをUTF-8にしたテキストファイルを保存するか
 
 out_dir = Path(f'./out_{author_id}/')  # ファイル出力先
@@ -15,18 +13,20 @@ tx_edit_dir = Path(out_dir / './edit/')  # テキスト整形後のファイル�
 
 
 def text_cleanse_df(df):
-      # 本文の先頭を探す（'---…'区切りの直後から本文が始まる前提）
+    # 本文の先頭を探す（'---…'区切りの直後から本文が始まる前提）
     head_tx = list(df[df['text'].str.contains(
         '-------------------------------------------------------')].index)
     # 本文の末尾を探す（'底本：'の直前に本文が終わる前提）
     atx = list(df[df['text'].str.contains('底本：')].index)
+    
     if head_tx == []:
-        # もし'---…'区切りが無い場合は、作家名の直後に本文が始まる前提
+        # '---…'区切りが無い場合は、author_nameの1つ上の行を本文の先頭に設定
         head_tx = list(df[df['text'].str.contains(author_name)].index)
-        head_tx_num = head_tx[0] + 1
+        head_tx_num = head_tx[0] - 1  # author_nameの1つ上の行から本文を開始
     else:
         # 2個目の'---…'区切り直後から本文が始まる
         head_tx_num = head_tx[1] + 1
+
     df_e = df[head_tx_num:atx[0]]
 
     # 青空文庫の書式削除
@@ -77,12 +77,10 @@ def save_cleanse_text(target_file, zip_extract_dir):
                           encoding='utf-8', index=None)
         # テキスト整形
         df_tmp_e = text_cleanse_df(df_tmp)
-        if write_title:
-            # タイトル列を作る
-            df_tmp_e['title'] = df_tmp['text'][0]
+        
         out_edit_file_nm = Path(target_file.stem + '_clns_utf-8.txt')
         df_tmp_e.to_csv(Path(zip_extract_dir / out_edit_file_nm), sep='\t',
-                        encoding='utf-8', index=None, header=write_header)
+                        encoding='utf-8', index=None, header=False)  # ヘッダーを削除
         return df_tmp_e  # 整形後のデータフレームを返す
     
     except Exception as e:
