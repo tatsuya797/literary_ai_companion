@@ -66,6 +66,9 @@ def text_cleanse_df(df):
 
 def save_cleanse_text(target_file, zip_extract_dir):
     try:
+        # 整形後のファイルの保存先を確認または作成
+        edit_dir = Path(zip_extract_dir / f'out_{author_id}/edit/')
+        edit_dir.mkdir(parents=True, exist_ok=True)  # ディレクトリを作成
         # ファイルの読み込み
         print(target_file)
         # Pandas DataFrameとして読み込む（cp932で読み込まないと異体字が読めない）
