@@ -3,22 +3,31 @@ import openai
 import os
 from pathlib import Path
 import zipfile
+import requests
+from io import BytesIO
 import chardet  # エンコーディング自動検出ライブラリ
 from aozora_preprocess import save_cleanse_text  # 前処理の関数をインポート
 
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
-# ZIPファイルを解凍してテキストデータを読み込む関数
-@st.cache_data
-def load_all_texts_from_zip(zip_file):
-    all_texts = ""
+# GitHubから000879.zipをダウンロードして解凍する関数
+def download_and_extract_zip_from_github():
+    url = "https://github.com/tatsuya797/openai_api_bot_akutagawa/blob/main/000879.zip?raw=true"
     unzip_dir = Path("unzipped_files")
     unzip_dir.mkdir(exist_ok=True)
 
-    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+    # ZIPファイルをダウンロード
+    response = requests.get(url)
+    with zipfile.ZipFile(BytesIO(response.content)) as zip_ref:
         zip_ref.extractall(unzip_dir)  # 解凍先のディレクトリ
 
+    return unzip_dir
+
+# ZIPファイルを解凍してテキストデータを読み込む関数
+@st.cache_data
+def load_all_texts_from_zip(unzip_dir):
+    all_texts = ""
     text_files = list(unzip_dir.glob('**/*.txt'))
     for file_path in text_files:
         # まずバイト形式でファイルを読み込み、エンコーディングを検出
@@ -36,9 +45,8 @@ def load_all_texts_from_zip(zip_file):
     return all_texts
 
 # テキストデータを処理する関数
-def process_text_files():
+def process_text_files(unzip_dir):
     processed_texts = []  # 処理後のテキストを格納するリスト
-    unzip_dir = Path("unzipped_files")
     text_files = list(unzip_dir.glob('**/*.txt'))  # サブフォルダも含む
 
     for text_file in text_files:
@@ -49,19 +57,14 @@ def process_text_files():
 
     return processed_texts
 
-# すべてのZIPファイルを指定したディレクトリから読み込む
-zip_files_directory = Path("000879/files")
-zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
+# ZIPファイルをGitHubからダウンロードして解凍
+unzip_dir = download_and_extract_zip_from_github()
 
-# 全テキストデータを読み込む（すべてのZIPファイルに対して処理を行う）
-all_processed_texts = []
-for zip_file_path in zip_files:
-    load_all_texts_from_zip(zip_file_path)  # ZIPファイルの読み込み
-    processed_texts = process_text_files()  # テキストの処理
-    all_processed_texts.extend(processed_texts)  # すべての処理されたテキストを追加
+# テキストの処理を実行
+processed_texts = process_text_files(unzip_dir)
 
 # 整形後のテキストを表示
-st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
+st.text_area("整形後のテキストデータ", "\n\n".join(processed_texts), height=300)
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
@@ -102,6 +105,5 @@ if st.session_state["messages"]:
         st.write(speaker + ": " + message["content"])
 
 # 整形後のテキストを表示
-processed_texts = process_text_files()
 for i, text in enumerate(processed_texts):
     st.text_area(f"整形後のテキスト {i+1}", text, height=300)
