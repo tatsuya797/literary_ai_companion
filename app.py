@@ -5,6 +5,7 @@ from pathlib import Path
 import zipfile
 import chardet  # エンコーディング自動検出ライブラリ
 import requests
+import shutil  # ディレクトリ削除用
 from aozora_preprocess import save_cleanse_text  # 前処理の関数をインポート
 
 author_id = '000879'  # 青空文庫の作家番号
@@ -26,11 +27,8 @@ def download_and_extract_zip_from_github():
     
     # 解凍前に既存のディレクトリをクリア
     if unzip_dir.exists():
-        for item in unzip_dir.iterdir():
-            if item.is_file():
-                item.unlink()
-            elif item.is_dir():
-                item.rmdir()  # ディレクトリの場合は rmdir() を使用
+        shutil.rmtree(unzip_dir)  # ディレクトリごと削除
+        unzip_dir.mkdir(exist_ok=True)  # 再作成
 
     # ZIPファイルを解凍
     with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
