@@ -9,40 +9,81 @@ from aozora_preprocess import save_cleanse_text  # 前処理の関数をイン�
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
-# ZIPファイルを解凍し、テキストデータを読み込む関数
+# ディレクトリを再帰的に削除する関数
+def remove_directory(path: Path):
+    for item in path.iterdir():
+        if item.is_dir():
+            remove_directory(item)
+        else:
+            item.unlink()
+    path.rmdir()
+
+# ZIPファイルをダウンロードと展開する関数
+def download_and_extract_zip_from_github():
+    zip_file_path = Path("000879.zip")
+    unzip_dir = Path("unzipped_files")
+    
+    # 既存の解凍ディレクトリを削除
+    if unzip_dir.exists():
+        for item in unzip_dir.iterdir():
+            # `__MACOSX` フォルダはスキップ
+            if item.name == "__MACOSX":
+                continue
+            if item.is_dir():
+                remove_directory(item)  # 再帰的に削除
+            else:
+                item.unlink()
+                
+    # ZIPファイルを解凍
+    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+        zip_ref.extractall(unzip_dir)
+
+    return unzip_dir
+
+# ZIPファイルを解凍してテキストデータを読み込む関数
 @st.cache_data
-def load_and_process_texts(zip_files_directory):
-    all_processed_texts = []
-    zip_files = list(zip_files_directory.glob('*.zip'))
+def load_all_texts_from_extracted_dir(unzip_dir):
+    all_texts = ""
+    text_files = list(unzip_dir.glob('**/*.txt'))
+    for file_path in text_files:
+        # まずバイト形式でファイルを読み込み、エンコーディングを検出
+        with open(file_path, 'rb') as f:
+            raw_data = f.read()
+            result = chardet.detect(raw_data)
+            encoding = result['encoding']  # 検出されたエンコーディングを取得
 
-    for zip_file_path in zip_files:
-        unzip_dir = Path("unzipped_files")
-        unzip_dir.mkdir(exist_ok=True)
-        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-            zip_ref.extractall(unzip_dir)
+        try:
+            with open(file_path, "r", encoding=encoding) as f:
+                all_texts += f.read() + "\n"
+        except UnicodeDecodeError:
+            st.warning(f"ファイル {file_path} の読み込みに失敗しました。")
 
-        text_files = list(unzip_dir.glob('**/*.txt'))
-        for file_path in text_files:
-            with open(file_path, 'rb') as f:
-                raw_data = f.read()
-                result = chardet.detect(raw_data)
-                encoding = result['encoding']
+    return all_texts
 
-            try:
-                with open(file_path, "r", encoding=encoding) as f:
-                    cleaned_df = save_cleanse_text(file_path, unzip_dir)
-                    if cleaned_df is not None:
-                        all_processed_texts.append(cleaned_df.to_string(index=False))
-            except UnicodeDecodeError:
-                st.warning(f"ファイル {file_path} の読み込みに失敗しました。")
+# テキストデータを処理する関数
+def process_text_files():
+    processed_texts = []  # 処理後のテキストを格納するリスト
+    unzip_dir = Path("unzipped_files")
+    text_files = list(unzip_dir.glob('**/*.txt'))  # サブフォルダも含む
 
-    return all_processed_texts
+    for text_file in text_files:
+        cleaned_df = save_cleanse_text(text_file, unzip_dir)  # 前処理関数を呼び出し
+        if cleaned_df is not None:
+            # 整形後のテキストをリストに追加
+            processed_texts.append(cleaned_df.to_string(index=False))
 
-# テキストを読み込み整形後のデータを表示
-zip_files_directory = Path("000879/files")
-all_processed_texts = load_and_process_texts(zip_files_directory)
+    return processed_texts
 
-# 整形後のテキストデータを表示
+# ZIPファイルのダウンロードと展開
+unzip_dir = download_and_extract_zip_from_github()
+
+# 全テキストデータを読み込む
+all_texts = load_all_texts_from_extracted_dir(unzip_dir)
+
+# 整形後のテキストデータを処理
+all_processed_texts = process_text_files()
+
+# Streamlit上に表示
 st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
@@ -70,9 +111,9 @@ def communicate():
 
     st.session_state["user_input"] = ""  # 入力欄をクリア
 
-# ユーザーインターフェース
-st.title(author_name+"チャットボット")
-st.write(author_name+"の作品に基づいたチャットボットです。")
+# ユーザーインターフェイス
+st.title(author_name + "チャットボット")
+st.write(author_name + "の作品に基づいたチャットボットです。")
 
 # ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
