@@ -66,23 +66,28 @@ def text_cleanse_df(df):
 
 def save_cleanse_text(target_file, zip_extract_dir):
     try:
+        # ファイルの読み込み
         print(target_file)
+        # Pandas DataFrameとして読み込む（cp932で読み込まないと異体字が読めない）
         df_tmp = pd.read_csv(target_file, encoding='cp932', names=['text'])
+        # 元データをUTF-8に変換してテキストファイルを保存
         if save_utf8_org:
             out_org_file_nm = Path(target_file.stem + '_org_utf-8.tsv')
             df_tmp.to_csv(Path(zip_extract_dir / out_org_file_nm), sep='\t',
                           encoding='utf-8', index=None)
+        # テキスト整形
         df_tmp_e = text_cleanse_df(df_tmp)
         if write_title:
+            # タイトル列を作る
             df_tmp_e['title'] = df_tmp['text'][0]
         out_edit_file_nm = Path(target_file.stem + '_clns_utf-8.txt')
         df_tmp_e.to_csv(Path(zip_extract_dir / out_edit_file_nm), sep='\t',
-                        encoding='utf-8', index=None)
-        return df_tmp_e
-
+                        encoding='utf-8', index=None, header=write_header)
+        return df_tmp_e  # 整形後のデータフレームを返す
+    
     except Exception as e:
-        print(e)
-        return None
+        print(f'ERROR: {target_file} - {e}')
+        return None  # エラー時はNoneを返す
 
 def process_text_files(zip_extract_dir):
     text_files = list(zip_extract_dir.glob('**/*.txt'))  # サブフォルダも含む
