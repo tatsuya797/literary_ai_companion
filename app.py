@@ -16,16 +16,28 @@ def load_all_texts_from_zip(zip_file):
     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
         zip_ref.extractall(unzip_dir)  # 解凍先のディレクトリ
 
+    extracted_files = list(unzip_dir.glob('**/*.txt'))
+    if not extracted_files:
+        st.warning(f"{zip_file} からテキストファイルが抽出されませんでした。")
+    else:
+        st.write(f"{zip_file} から {len(extracted_files)} 件のテキストファイルが抽出されました。")
+
 # テキストデータを処理する関数
 def process_text_files():
     processed_texts = []
     unzip_dir = Path("unzipped_files")
     text_files = list(unzip_dir.glob('**/*.txt'))
 
+    if not text_files:
+        st.warning("解凍されたテキストファイルが見つかりません。")
+
     for text_file in text_files:
+        st.write(f"処理中のファイル: {text_file}")
         cleaned_df = save_cleanse_text(text_file, unzip_dir)
         if cleaned_df is not None:
             processed_texts.append(cleaned_df.to_string(index=False))
+        else:
+            st.warning(f"{text_file} の処理に失敗しました。")
 
     return processed_texts
 
