@@ -10,7 +10,6 @@ author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
 # ZIPファイルを解凍してテキストデータを読み込む関数
-@st.cache_data
 def load_all_texts_from_zip(zip_file):
     all_texts = ""
     unzip_dir = Path("unzipped_files")
@@ -21,11 +20,10 @@ def load_all_texts_from_zip(zip_file):
 
     text_files = list(unzip_dir.glob('**/*.txt'))
     for file_path in text_files:
-        # まずバイト形式でファイルを読み込み、エンコーディングを検出
         with open(file_path, 'rb') as f:
             raw_data = f.read()
             result = chardet.detect(raw_data)
-            encoding = result['encoding']  # 検出されたエンコーディングを取得
+            encoding = result['encoding']
 
         try:
             with open(file_path, "r", encoding=encoding) as f:
@@ -37,30 +35,29 @@ def load_all_texts_from_zip(zip_file):
 
 # テキストデータを処理する関数
 def process_text_files():
-    processed_texts = []  # 処理後のテキストを格納するリスト
+    processed_texts = []
     unzip_dir = Path("unzipped_files")
-    text_files = list(unzip_dir.glob('**/*.txt'))  # サブフォルダも含む
+    text_files = list(unzip_dir.glob('**/*.txt'))
 
     for text_file in text_files:
-        cleaned_df = save_cleanse_text(text_file, unzip_dir)  # 前処理関数を呼び出し
+        cleaned_df = save_cleanse_text(text_file, unzip_dir)
         if cleaned_df is not None:
-            # 整形後のテキストをリストに追加
             processed_texts.append(cleaned_df.to_string(index=False))
 
     return processed_texts
 
 # すべてのZIPファイルを指定したディレクトリから読み込む
 zip_files_directory = Path("000879/files")
-zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
+zip_files = list(zip_files_directory.glob('*.zip'))
 
 # 全テキストデータを読み込む（すべてのZIPファイルに対して処理を行う）
 all_processed_texts = []
 for zip_file_path in zip_files:
     load_all_texts_from_zip(zip_file_path)  # ZIPファイルの読み込み
     processed_texts = process_text_files()  # テキストの処理
-    all_processed_texts.extend(processed_texts)  # すべての処理されたテキストを追加
+    all_processed_texts.extend(processed_texts)
 
-# 整形後のテキストを表示
+# 整形後のテキストを一つのテキストエリアにまとめて表示
 st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
@@ -88,7 +85,7 @@ def communicate():
 
     st.session_state["user_input"] = ""  # 入力欄をクリア
 
-# ユーザーインターフェイス
+# ユーザーインターフェース
 st.title(author_name+"チャットボット")
 st.write(author_name+"の作品に基づいたチャットボットです。")
 
@@ -97,11 +94,6 @@ user_input = st.text_input("メッセージを入力してください。", key=
 
 if st.session_state["messages"]:
     messages = st.session_state["messages"]
-    for message in reversed(messages[1:]):  # 直近のメッセージを上に
+    for message in reversed(messages[1:]):
         speaker = "🙂" if message["role"] == "user" else "🤖"
         st.write(speaker + ": " + message["content"])
-
-# 整形後のテキストを表示
-processed_texts = process_text_files()
-for i, text in enumerate(processed_texts):
-    st.text_area(f"整形後のテキスト {i+1}", text, height=300)
