@@ -1,6 +1,5 @@
 import streamlit as st
 import openai
-import os
 from pathlib import Path
 import zipfile
 import chardet  # エンコーディング自動検出ライブラリ
@@ -11,27 +10,11 @@ author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
 # ZIPファイルを解凍してテキストデータを読み込む関数
 def load_all_texts_from_zip(zip_file):
-    all_texts = ""
     unzip_dir = Path("unzipped_files")
     unzip_dir.mkdir(exist_ok=True)
 
     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
         zip_ref.extractall(unzip_dir)  # 解凍先のディレクトリ
-
-    text_files = list(unzip_dir.glob('**/*.txt'))
-    for file_path in text_files:
-        with open(file_path, 'rb') as f:
-            raw_data = f.read()
-            result = chardet.detect(raw_data)
-            encoding = result['encoding']
-
-        try:
-            with open(file_path, "r", encoding=encoding) as f:
-                all_texts += f.read() + "\n"
-        except UnicodeDecodeError:
-            st.warning(f"ファイル {file_path} の読み込みに失敗しました。")
-
-    return all_texts
 
 # テキストデータを処理する関数
 def process_text_files():
@@ -57,8 +40,11 @@ for zip_file_path in zip_files:
     processed_texts = process_text_files()  # テキストの処理
     all_processed_texts.extend(processed_texts)
 
-# 整形後のテキストを一つのテキストエリアにまとめて表示
-st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
+# テキストデータが空でないか確認し、整形後のテキストを一つのテキストエリアにまとめて表示
+if all_processed_texts:
+    st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
+else:
+    st.warning("整形後のテキストデータが表示できませんでした。データが存在するか確認してください。")
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
@@ -86,8 +72,8 @@ def communicate():
     st.session_state["user_input"] = ""  # 入力欄をクリア
 
 # ユーザーインターフェース
-st.title(author_name+"チャットボット")
-st.write(author_name+"の作品に基づいたチャットボットです。")
+st.title(author_name + "チャットボット")
+st.write(author_name + "の作品に基づいたチャットボットです。")
 
 # ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
