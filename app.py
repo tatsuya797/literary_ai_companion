@@ -100,8 +100,3 @@ if st.session_state["messages"]:
     for message in reversed(messages[1:]):  # 直近のメッセージを上に
         speaker = "🙂" if message["role"] == "user" else "🤖"
         st.write(speaker + ": " + message["content"])
-
-# 整形後のテキストを表示
-processed_texts = process_text_files()
-for i, text in enumerate(processed_texts):
-    st.text_area(f"整形後のテキスト {i+1}", text, height=300)
