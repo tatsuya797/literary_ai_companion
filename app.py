@@ -3,52 +3,30 @@ import openai
 import os
 from pathlib import Path
 import zipfile
-import requests
-from io import BytesIO
 import chardet  # エンコーディング自動検出ライブラリ
 from aozora_preprocess import save_cleanse_text  # 前処理の関数をインポート
 
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
-github_url = "https://github.com/tatsuya797/openai_api_bot_akutagawa/blob/main/000879.zip?raw=true"
 
-# GitHubからZIPファイルをダウンロードして解凍する関数
-def download_and_extract_zip():
-    zip_file_path = Path("000879.zip")
-    unzip_dir = Path("unzipped_files")
-
-    # 古いファイルやディレクトリがある場合は削除してから再取得
-    if zip_file_path.exists():
-        zip_file_path.unlink()
-    if unzip_dir.exists():
-        for file in unzip_dir.glob("*"):
-            file.unlink()
-
-    # ZIPファイルをダウンロード
-    response = requests.get(github_url)
-    with open(zip_file_path, "wb") as f:
-        f.write(response.content)
-
-    # ZIPファイルを解凍
-    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-        zip_ref.extractall(unzip_dir)
-
-    return unzip_dir
-
-# テキストデータを読み込む関数
+# ZIPファイルを解凍してテキストデータを読み込む関数
 @st.cache_data
-def load_all_texts_from_extracted_dir(extracted_dir):
+def load_all_texts_from_zip(zip_file):
     all_texts = ""
-    text_files = list(extracted_dir.glob('**/*.txt'))
+    unzip_dir = Path("unzipped_files")
+    unzip_dir.mkdir(exist_ok=True)
 
+    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+        zip_ref.extractall(unzip_dir)  # 解凍先のディレクトリ
+
+    text_files = list(unzip_dir.glob('**/*.txt'))
     for file_path in text_files:
-        # ファイルをバイトで読み込み、エンコーディングを検出
+        # まずバイト形式でファイルを読み込み、エンコーディングを検出
         with open(file_path, 'rb') as f:
             raw_data = f.read()
             result = chardet.detect(raw_data)
-            encoding = result['encoding']  # 検出されたエンコーディング
+            encoding = result['encoding']  # 検出されたエンコーディングを取得
 
-        # テキストを読み込む
         try:
             with open(file_path, "r", encoding=encoding) as f:
                 all_texts += f.read() + "\n"
@@ -57,27 +35,33 @@ def load_all_texts_from_extracted_dir(extracted_dir):
 
     return all_texts
 
-# テキストファイルを処理する関数
+# テキストデータを処理する関数
 def process_text_files():
-    processed_texts = []
-    extracted_dir = download_and_extract_zip()
-    text_files = list(extracted_dir.glob('**/*.txt'))
+    processed_texts = []  # 処理後のテキストを格納するリスト
+    unzip_dir = Path("unzipped_files")
+    text_files = list(unzip_dir.glob('**/*.txt'))  # サブフォルダも含む
 
     for text_file in text_files:
-        cleaned_df = save_cleanse_text(text_file, extracted_dir)
+        cleaned_df = save_cleanse_text(text_file, unzip_dir)  # 前処理関数を呼び出し
         if cleaned_df is not None:
+            # 整形後のテキストをリストに追加
             processed_texts.append(cleaned_df.to_string(index=False))
 
     return processed_texts
 
-# ZIPファイルをGitHubからダウンロードして解凍
-unzip_dir = download_and_extract_zip_from_github()
+# すべてのZIPファイルを指定したディレクトリから読み込む
+zip_files_directory = Path("000879/files")
+zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
 
-# テキストの処理を実行
-processed_texts = process_text_files(unzip_dir)
+# 全テキストデータを読み込む（すべてのZIPファイルに対して処理を行う）
+all_processed_texts = []
+for zip_file_path in zip_files:
+    load_all_texts_from_zip(zip_file_path)  # ZIPファイルの読み込み
+    processed_texts = process_text_files()  # テキストの処理
+    all_processed_texts.extend(processed_texts)  # すべての処理されたテキストを追加
 
 # 整形後のテキストを表示
-st.text_area("整形後のテキストデータ", "\n\n".join(processed_texts), height=300)
+st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
@@ -118,8 +102,6 @@ if st.session_state["messages"]:
         st.write(speaker + ": " + message["content"])
 
 # 整形後のテキストを表示
-st.title(author_name + "チャットボット")
-st.write(author_name + "の作品に基づいたチャットボットです。")
-
-all_texts = load_all_texts_from_extracted_dir(download_and_extract_zip())
-st.text_area("テキストデータ", all_texts, height=300)
+processed_texts = process_text_files()
+for i, text in enumerate(processed_texts):
+    st.text_area(f"整形後のテキスト {i+1}", text, height=300)
