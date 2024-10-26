@@ -70,3 +70,28 @@ def save_cleanse_text(target_file, zip_extract_dir):
     except Exception as e:
         print(e)
         return None
+
+def main():
+    tx_dir = Path(author_id + './files/')  # zipファイルのディレクトリ
+    # zipファイルのリストを作成
+    zip_list = list(tx_dir.glob('*.zip'))
+    
+    # 保存ディレクトリを作成しておく
+    tx_edit_dir.mkdir(exist_ok=True, parents=True)
+    if save_utf8_org:
+        tx_org_dir.mkdir(exist_ok=True, parents=True)
+
+    for target_file in zip_list:
+        # ZIPファイルを解凍するディレクトリ
+        zip_extract_dir = Path('unzipped_files')
+        zip_extract_dir.mkdir(exist_ok=True, parents=True)  # 解凍先ディレクトリを作成
+        # ZIPファイルを解凍
+        with zipfile.ZipFile(target_file, 'r') as zip_ref:
+            zip_ref.extractall(zip_extract_dir)
+
+        # 解凍したテキストファイルを処理
+        process_text_files(zip_extract_dir)
+
+
+if __name__ == '__main__':
+    main()
