@@ -60,9 +60,8 @@ def load_all_texts_from_extracted_dir(unzip_dir):
     return all_texts
 
 # テキストデータを処理する関数
-def process_text_files():
+def process_text_files(unzip_dir):
     processed_texts = []  # 処理後のテキストを格納するリスト
-    unzip_dir = Path("unzipped_files")
     text_files = list(unzip_dir.glob('**/*.txt'))  # サブフォルダも含む
 
     for text_file in text_files:
@@ -81,9 +80,12 @@ all_texts = load_all_texts_from_extracted_dir(unzip_dir)
 st.text_area("テキストデータ", all_texts, height=300)
 
 # 整形後のテキストを表示
-processed_texts = process_text_files()
-for i, text in enumerate(processed_texts):
-    st.text_area(f"整形後のテキスト {i+1}", text, height=300)
+processed_texts = process_text_files(unzip_dir)
+if processed_texts:
+    for i, text in enumerate(processed_texts):
+        st.text_area(f"整形後のテキスト {i+1}", text, height=300)
+else:
+    st.warning("整形後のテキストデータが見つかりませんでした。")
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
