@@ -105,3 +105,9 @@ if st.session_state["messages"]:
 processed_texts = process_text_files()
 for i, text in enumerate(processed_texts):
     st.text_area(f"整形後のテキスト {i+1}", text, height=300)
+
+# デバッグ用：processed_texts の内容を表示
+for i, text in enumerate(processed_texts):
+    st.write(f"整形後のテキスト {i+1}:", text)
+
+
