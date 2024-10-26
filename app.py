@@ -88,7 +88,7 @@ def communicate():
 
     st.session_state["user_input"] = ""  # 入力欄をクリア
 
-# ユーザーインターフェース
+# ユーザーインターフェイス
 st.title(author_name+"チャットボット")
 st.write(author_name+"の作品に基づいたチャットボットです。")
 
