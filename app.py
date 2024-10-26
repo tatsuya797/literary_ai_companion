@@ -123,3 +123,8 @@ if st.session_state["messages"]:
     for message in reversed(messages[1:]):  # 直近のメッセージを上に
         speaker = "🙂" if message["role"] == "user" else "🤖"
         st.write(speaker + ": " + message["content"])
+
+# キャッシュクリアボタン
+if st.button("キャッシュをクリア"):
+    st.cache_data.clear()
+
