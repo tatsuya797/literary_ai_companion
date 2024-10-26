@@ -4,21 +4,47 @@ import os
 from pathlib import Path
 import zipfile
 import chardet  # エンコーディング自動検出ライブラリ
+import requests
 from aozora_preprocess import save_cleanse_text  # 前処理の関数をインポート
 
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
-# ZIPファイルを解凍してテキストデータを読み込む関数
-@st.cache_data
-def load_all_texts_from_zip(zip_file):
-    all_texts = ""
+# GitHubからZIPファイルをダウンロードして解凍する関数
+def download_and_extract_zip_from_github():
+    url = "https://github.com/tatsuya797/openai_api_bot_akutagawa/blob/main/000879.zip?raw=true"
     unzip_dir = Path("unzipped_files")
     unzip_dir.mkdir(exist_ok=True)
 
-    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-        zip_ref.extractall(unzip_dir)  # 解凍先のディレクトリ
+    # ZIPファイルをダウンロード
+    response = requests.get(url)
+    zip_file_path = Path("temp.zip")
+    
+    # 一時ファイルとして保存してから解凍
+    with open(zip_file_path, "wb") as f:
+        f.write(response.content)
+    
+    # 解凍前に既存のディレクトリをクリア
+    if unzip_dir.exists():
+        for item in unzip_dir.iterdir():
+            if item.is_file():
+                item.unlink()
+            elif item.is_dir():
+                item.rmdir()  # ディレクトリの場合は rmdir() を使用
 
+    # ZIPファイルを解凍
+    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+        zip_ref.extractall(unzip_dir)
+
+    # 一時ZIPファイルを削除
+    zip_file_path.unlink()
+
+    return unzip_dir
+
+# ZIPファイルを解凍してテキストデータを読み込む関数
+@st.cache_data
+def load_all_texts_from_extracted_dir(unzip_dir):
+    all_texts = ""
     text_files = list(unzip_dir.glob('**/*.txt'))
     for file_path in text_files:
         # まずバイト形式でファイルを読み込み、エンコーディングを検出
@@ -49,19 +75,17 @@ def process_text_files():
 
     return processed_texts
 
-# すべてのZIPファイルを指定したディレクトリから読み込む
-zip_files_directory = Path("000879/files")
-zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
+# ZIPファイルのダウンロードと展開
+unzip_dir = download_and_extract_zip_from_github()
 
-# 全テキストデータを読み込む（すべてのZIPファイルに対して処理を行う）
-all_processed_texts = []
-for zip_file_path in zip_files:
-    load_all_texts_from_zip(zip_file_path)  # ZIPファイルの読み込み
-    processed_texts = process_text_files()  # テキストの処理
-    all_processed_texts.extend(processed_texts)  # すべての処理されたテキストを追加
+# 全テキストデータを読み込む
+all_texts = load_all_texts_from_extracted_dir(unzip_dir)
+st.text_area("テキストデータ", all_texts, height=300)
 
 # 整形後のテキストを表示
-st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
+processed_texts = process_text_files()
+for i, text in enumerate(processed_texts):
+    st.text_area(f"整形後のテキスト {i+1}", text, height=300)
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
@@ -89,8 +113,8 @@ def communicate():
     st.session_state["user_input"] = ""  # 入力欄をクリア
 
 # ユーザーインターフェイス
-st.title(author_name+"チャットボット")
-st.write(author_name+"の作品に基づいたチャットボットです。")
+st.title(author_name + "チャットボット")
+st.write(author_name + "の作品に基づいたチャットボットです。")
 
 # ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
@@ -100,8 +124,3 @@ if st.session_state["messages"]:
     for message in reversed(messages[1:]):  # 直近のメッセージを上に
         speaker = "🙂" if message["role"] == "user" else "🤖"
         st.write(speaker + ": " + message["content"])
-
-# 整形後のテキストを表示
-processed_texts = process_text_files()
-for i, text in enumerate(processed_texts):
-    st.text_area(f"整形後のテキスト {i+1}", text, height=300)
