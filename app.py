@@ -41,9 +41,8 @@ def process_text_files():
     text_files = list(unzip_dir.glob('**/*.txt'))  # サブフォルダも含む
 
     for text_file in text_files:
-    print(f"Processing file: {text_file}")  # 追加: 現在処理中のファイル名を表示
-    cleaned_df = save_cleanse_text(text_file, unzip_dir)  # 前処理関数を呼び出し
-
+        print(f"Processing file: {text_file}")  # 現在処理中のファイル名を表示
+        cleaned_df = save_cleanse_text(text_file, unzip_dir)  # 前処理関数を呼び出し
         if cleaned_df is not None:
             # 整形後のテキストをリストに追加
             processed_texts.append(cleaned_df.to_string(index=False))
@@ -53,6 +52,7 @@ def process_text_files():
     # デバッグ用: 処理されたテキストの確認
     print(f"Processed texts: {processed_texts}")  
     return processed_texts
+
 
 
 # すべてのZIPファイルを指定したディレクトリから読み込む
