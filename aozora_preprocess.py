@@ -62,6 +62,9 @@ def text_cleanse_df(df):
     # インデックスがずれるので振り直し、文字の長さの列を削除する
     df_e = df_e.reset_index().drop(['index', 'length'], axis=1)
     return df_e
+      # デバッグ用: 整形後のデータの確認
+    print(f"After cleansing: {df_e.head()}")  
+    return df_e
 
 
 def save_cleanse_text(target_file, zip_extract_dir):
