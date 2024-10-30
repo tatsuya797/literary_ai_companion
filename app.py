@@ -2,49 +2,50 @@ import streamlit as st
 import openai
 from pathlib import Path
 import zipfile
-import chardet
-from aozora_preprocess import save_cleanse_text
+import chardet  # エンコーディング自動検出ライブラリ
+from aozora_preprocess import save_cleanse_text  # 前処理の関数をインポート
 
-author_name = '芥川龍之介'
+author_id = '000879'  # 青空文庫の作家番号
+author_name = '芥川龍之介'  # 作家名
+
+# ZIPファイルのパスと解凍先の指定
+zip_files_directory = Path("000879/files")
 unzip_dir = Path("unzipped_files")  # 解凍先ディレクトリ
-unzip_dir.mkdir(exist_ok=True, parents=True)
+unzip_dir.mkdir(exist_ok=True, parents=True)  # ディレクトリを作成
 
-# デバッグ: 解凍したファイル一覧を表示
-def list_files_in_directory(directory):
-    return [str(path) for path in directory.glob('**/*')]
+# 解凍したテキストファイルを再帰的に探し、ファイル一覧を取得する関数
+def get_text_files():
+    return list(unzip_dir.glob("**/*.txt"))  # サブディレクトリも含む
 
-# ZIPファイルを解凍してテキストデータを読み込む関数
-def load_all_texts_from_zip(zip_file):
-    all_texts = ""
-    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-        zip_ref.extractall(unzip_dir)
+# ZIPファイルを解凍する関数
+def extract_zip_files():
+    zip_files = list(zip_files_directory.glob("*.zip"))
+    if not zip_files:
+        st.warning("ZIPファイルが見つかりません。")
+        return
 
-    # 解凍したファイル一覧をデバッグ出力
-    st.write("解凍されたファイル:", list_files_in_directory(unzip_dir))
+    for zip_file in zip_files:
+        with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+            zip_ref.extractall(unzip_dir)  # 解凍先ディレクトリ
 
-    text_files = list(unzip_dir.glob('**/*.txt'))
-    if not text_files:
-        st.warning("解凍したZIPファイルにテキストファイルが見つかりませんでした。")
-        return None
+# テキストファイルを読み込む関数
+def load_text(file_path):
+    with open(file_path, 'rb') as f:
+        raw_data = f.read()
+        result = chardet.detect(raw_data)  # エンコーディングを検出
+        encoding = result['encoding']
 
-    for file_path in text_files:
-        with open(file_path, 'rb') as f:
-            raw_data = f.read()
-            encoding = chardet.detect(raw_data)['encoding']
+    try:
+        with open(file_path, 'r', encoding=encoding) as f:
+            return f.read()
+    except UnicodeDecodeError:
+        st.warning(f"ファイル {file_path} の読み込みに失敗しました。")
+        return ""
 
-        try:
-            with open(file_path, 'r', encoding=encoding) as f:
-                all_texts += f.read() + "\n"
-        except UnicodeDecodeError:
-            with open(file_path, 'r', encoding='cp932') as f:
-                all_texts += f.read() + "\n"
-
-    return all_texts
-
-# テキストデータを処理する関数
+# テキストファイルを処理する関数
 def process_text_files():
     processed_texts = []
-    text_files = list(unzip_dir.glob('**/*.txt'))
+    text_files = get_text_files()
 
     if not text_files:
         st.warning("解凍後のテキストファイルが見つかりませんでした。")
@@ -57,29 +58,34 @@ def process_text_files():
 
     return processed_texts
 
-# ZIPファイルの取得と処理
-zip_files_directory = Path("000879/files")
-zip_files = list(zip_files_directory.glob('*.zip'))
+# メインの実行フロー
+extract_zip_files()  # ZIPファイルを解凍
 
-all_processed_texts = []
-for zip_file_path in zip_files:
-    st.write(f"解凍中: {zip_file_path}")
-    load_all_texts_from_zip(zip_file_path)
-    all_processed_texts.extend(process_text_files())
+all_texts = ""  # 全テキストを格納
+for text_file in get_text_files():
+    all_texts += load_text(text_file) + "\n"
 
-# テキスト表示
-if all_processed_texts:
-    for i, text in enumerate(all_processed_texts):
-        st.text_area(f"整形後のテキスト {i+1}", text, height=300)
+# テキストデータを表示
+if all_texts:
+    st.text_area("解凍されたテキストデータ", all_texts, height=300)
 else:
     st.warning("テキストデータが見つかりませんでした。")
+
+# 整形後のテキストデータを処理・表示
+processed_texts = process_text_files()
+if processed_texts:
+    for i, text in enumerate(processed_texts):
+        st.text_area(f"整形後のテキスト {i+1}", text, height=300)
+else:
+    st.warning("整形後のテキストデータがありません。")
 
 # チャットボット設定
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
 
 if "messages" not in st.session_state:
     st.session_state["messages"] = [
-        {"role": "system", "content": "芥川龍之介チャットボットへようこそ！"}]
+        {"role": "system", "content": f"{author_name} チャットボットへようこそ！"}
+    ]
 
 def communicate():
     messages = st.session_state["messages"]
@@ -92,6 +98,7 @@ def communicate():
     messages.append(bot_message)
     st.session_state["user_input"] = ""
 
+# チャットボットのUI
 st.title(f"{author_name} チャットボット")
 st.text_input("メッセージを入力してください", key="user_input", on_change=communicate)
 
