@@ -40,18 +40,20 @@ def process_text_files():
     processed_texts = []  # 処理後のテキストを格納するリスト
     unzip_dir = Path("unzipped_files")
     text_files = list(unzip_dir.glob('**/*.txt'))  # サブフォルダも含む
-
+    
     for text_file in text_files:
-        cleaned_df = save_cleanse_text(text_file, unzip_dir)  # 前処理関数を呼び出し
-        if cleaned_df is not None:
-            # 整形後のテキストをリストに追加
-            processed_texts.append(cleaned_df.to_string(index=False))
+        save_cleanse_text(text_file)  # 前処理関数を呼び出し
+        
+        # 整形後のファイルパスを取得
+        processed_file = Path(f'unzipped_files/out_{author_id}/edit/{text_file.stem}_clns_utf-8.txt')
+        
+        if processed_file.exists():
+            with open(processed_file, "r", encoding="utf-8") as f:
+                processed_texts.append(f.read())  # 整形後のテキストをリストに追加
+        else:
+            st.warning(f"処理後のファイル {processed_file} が存在しません。")
 
     return processed_texts
-
-# すべてのZIPファイルを指定したディレクトリから読み込む
-zip_files_directory = Path("000879/files")
-zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
 
 # 全テキストデータを読み込む（すべてのZIPファイルに対して処理を行う）
 all_processed_texts = []
@@ -61,7 +63,11 @@ for zip_file_path in zip_files:
     all_processed_texts.extend(processed_texts)  # すべての処理されたテキストを追加
 
 # 整形後のテキストを表示
-st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
+if all_processed_texts:
+    st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
+else:
+    st.warning("整形後のテキストがありません。")
+
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
