@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 import zipfile
 import chardet  # エンコーディング自動検出ライブラリ
-from aozora_preprocess import save_cleanse_text  # 前処理の関数をインポート
+from text_preprocessing import save_cleanse_text  # 前処理の関数をインポート
 
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
@@ -89,8 +89,8 @@ def communicate():
     st.session_state["user_input"] = ""  # 入力欄をクリア
 
 # ユーザーインターフェイス
-st.title(author_name+"チャットボット")
-st.write(author_name+"の作品に基づいたチャットボットです。")
+st.title("芥川龍之介 チャットボット")
+st.write("芥川龍之介の作品に基づいたチャットボットです。")
 
 # ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
