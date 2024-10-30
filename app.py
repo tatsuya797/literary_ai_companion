@@ -61,7 +61,10 @@ for zip_file_path in zip_files:
     all_processed_texts.extend(processed_texts)  # すべての処理されたテキストを追加
 
 # 整形後のテキストを表示
-st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
+if all_processed_texts:  # もしテキストがあるなら
+    st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
+else:
+    st.warning("整形後のテキストがありません。")
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
