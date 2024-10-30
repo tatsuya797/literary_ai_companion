@@ -70,6 +70,8 @@ def save_cleanse_text(target_file, zip_extract_dir):
         print(target_file)
         # Pandas DataFrameとして読み込む（cp932で読み込まないと異体字が読めない）
         df_tmp = pd.read_csv(target_file, encoding='cp932', names=['text'])
+            # 追加: 整形後のテキストを表示
+        print(f"Original Text:\n{df_tmp.head()}")  # 元データの表示
         # 元データをUTF-8に変換してテキストファイルを保存
         if save_utf8_org:
             out_org_file_nm = Path(target_file.stem + '_org_utf-8.tsv')
