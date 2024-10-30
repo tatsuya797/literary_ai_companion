@@ -5,50 +5,55 @@ import zipfile
 import chardet  # エンコーディング自動検出ライブラリ
 from aozora_preprocess import save_cleanse_text  # 前処理の関数をインポート
 
-author_id = '000879'  # 青空文庫の作家番号
-author_name = '芥川龍之介'  # 作家名
+author_id = '000879'
+author_name = '芥川龍之介'
 
-# ZIPファイルのパスと解凍先の指定
-zip_files_directory = Path("000879/files")
+# ZIPファイルのディレクトリ設定
+zip_files_directory = Path("./000879/files")  # ファイルパスの指定
 unzip_dir = Path("unzipped_files")  # 解凍先ディレクトリ
 unzip_dir.mkdir(exist_ok=True, parents=True)  # ディレクトリを作成
 
-# 解凍したテキストファイルを再帰的に探し、ファイル一覧を取得する関数
+# 解凍したテキストファイルの一覧取得
 def get_text_files():
-    return list(unzip_dir.glob("**/*.txt"))  # サブディレクトリも含む
+    text_files = list(unzip_dir.glob("**/*.txt"))  # 再帰的に.txtファイルを取得
+    if not text_files:
+        st.error("解凍後のテキストファイルが見つかりませんでした。")
+    return text_files
 
-# ZIPファイルを解凍する関数
+# ZIPファイルを解凍
 def extract_zip_files():
     zip_files = list(zip_files_directory.glob("*.zip"))
     if not zip_files:
-        st.warning("ZIPファイルが見つかりません。")
+        st.error(f"ZIPファイルが見つかりません: {zip_files_directory}")
         return
 
     for zip_file in zip_files:
-        with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-            zip_ref.extractall(unzip_dir)  # 解凍先ディレクトリ
+        try:
+            with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+                zip_ref.extractall(unzip_dir)  # 解凍
+            st.success(f"ZIPファイル {zip_file.name} を解凍しました。")
+        except Exception as e:
+            st.error(f"ZIPファイルの解凍に失敗しました: {e}")
 
-# テキストファイルを読み込む関数
+# テキストファイルを読み込み
 def load_text(file_path):
-    with open(file_path, 'rb') as f:
-        raw_data = f.read()
-        result = chardet.detect(raw_data)  # エンコーディングを検出
-        encoding = result['encoding']
-
     try:
+        with open(file_path, 'rb') as f:
+            raw_data = f.read()
+            encoding = chardet.detect(raw_data)['encoding']
+        
         with open(file_path, 'r', encoding=encoding) as f:
             return f.read()
-    except UnicodeDecodeError:
-        st.warning(f"ファイル {file_path} の読み込みに失敗しました。")
+    except Exception as e:
+        st.error(f"ファイル {file_path} の読み込みに失敗しました: {e}")
         return ""
 
-# テキストファイルを処理する関数
+# テキストファイルの処理
 def process_text_files():
     processed_texts = []
     text_files = get_text_files()
 
     if not text_files:
-        st.warning("解凍後のテキストファイルが見つかりませんでした。")
         return []
 
     for text_file in text_files:
@@ -58,20 +63,20 @@ def process_text_files():
 
     return processed_texts
 
-# メインの実行フロー
+# メイン処理フロー
 extract_zip_files()  # ZIPファイルを解凍
 
-all_texts = ""  # 全テキストを格納
+all_texts = ""
 for text_file in get_text_files():
     all_texts += load_text(text_file) + "\n"
 
-# テキストデータを表示
-if all_texts:
+# テキスト表示
+if all_texts.strip():
     st.text_area("解凍されたテキストデータ", all_texts, height=300)
 else:
     st.warning("テキストデータが見つかりませんでした。")
 
-# 整形後のテキストデータを処理・表示
+# 整形後のテキストを処理・表示
 processed_texts = process_text_files()
 if processed_texts:
     for i, text in enumerate(processed_texts):
@@ -93,7 +98,8 @@ def communicate():
     messages.append(user_message)
 
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo", messages=messages)
+        model="gpt-3.5-turbo", messages=messages
+    )
     bot_message = response["choices"][0]["message"]
     messages.append(bot_message)
     st.session_state["user_input"] = ""
