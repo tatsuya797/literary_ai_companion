@@ -50,19 +50,27 @@ def process_text_files():
 
     return processed_texts
 
-# すべてのZIPファイルを指定したディレクトリから読み込む
-zip_files_directory = Path("000879/files")
-zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
+# メイン処理
+def main():
+    # 000879.zipを解凍
+    zip_path = Path("000879.zip")
+    if zip_path.exists():
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall()  # 現在のディレクトリに解凍
 
-# 全テキストデータを読み込む（すべてのZIPファイルに対して処理を行う）
-all_processed_texts = []
-for zip_file_path in zip_files:
-    load_all_texts_from_zip(zip_file_path)  # ZIPファイルの読み込み
-    processed_texts = process_text_files()  # テキストの処理
-    all_processed_texts.extend(processed_texts)  # すべての処理されたテキストを追加
+    # 解凍したファイルのディレクトリ
+    zip_files_directory = Path("000879/files")
+    zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
 
-# 整形後のテキストを表示
-st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
+    # 全テキストデータを読み込む（すべてのZIPファイルに対して処理を行う）
+    all_processed_texts = ""
+    for zip_file_path in zip_files:
+        all_processed_texts += load_all_texts_from_zip(zip_file_path) + "\n"
+
+    st.text_area("テキストデータ", all_processed_texts, height=300)
+
+if __name__ == "__main__":
+    main()
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
