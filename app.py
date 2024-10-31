@@ -8,19 +8,26 @@ from aozora_preprocess import save_cleanse_text  # 前処理の関数をイン�
 
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
-zip_file = Path(f"{author_id}.zip")  # '000879.zip'と指定
-
 
 # ZIPファイルを解凍してテキストデータを読み込む関数
 @st.cache_data
 def load_all_texts_from_zip(zip_file):
     all_texts = ""
-    unzip_dir = Path(author_id)
-    unzip_dir.mkdir(exist_ok=True)
+    unzip_dir = Path(author_id)  # '000879'というディレクトリ名を設定
+    unzip_dir.mkdir(exist_ok=True)  # ディレクトリを作成
 
-    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-        zip_ref.extractall(unzip_dir)  # 解凍先のディレクトリ
+    # ZIPファイルを解凍
+    try:
+        with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+            zip_ref.extractall(unzip_dir)  # 解凍先のディレクトリ
+    except zipfile.BadZipFile:
+        st.error(f"{zip_file} は有効なZIPファイルではありません。")
+        return all_texts
+    except Exception as e:
+        st.error(f"解凍中にエラーが発生しました: {e}")
+        return all_texts
 
+    # テキストファイルの読み込み
     text_files = list(unzip_dir.glob('**/*.txt'))
     for file_path in text_files:
         # まずバイト形式でファイルを読み込み、エンコーディングを検出
@@ -36,6 +43,9 @@ def load_all_texts_from_zip(zip_file):
             st.warning(f"ファイル {file_path} の読み込みに失敗しました。")
 
     return all_texts
+
+# ここにアプリのメイン処理を追加できます
+
 
 # テキストデータを処理する関数
 def process_text_files():
