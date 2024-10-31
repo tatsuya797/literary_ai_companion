@@ -1,7 +1,6 @@
 import streamlit as st
 import openai
 import os
-print("カレントディレクトリ:", os.getcwd())
 from pathlib import Path
 import zipfile
 import chardet  # エンコーディング自動検出ライブラリ
