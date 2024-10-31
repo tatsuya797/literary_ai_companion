@@ -52,6 +52,7 @@ def process_text_files():
 
 # メイン処理
 def main():
+    print(os.getced())
     # 000879.zipを解凍
     zip_path = Path("000879.zip")
     if zip_path.exists():
