@@ -13,7 +13,7 @@ author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 @st.cache_data
 def load_all_texts_from_zip(zip_file):
     all_texts = ""
-    unzip_dir = Path("unzipped_files")
+    unzip_dir = Path("unzipped_file")
     unzip_dir.mkdir(exist_ok=True)
 
     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
