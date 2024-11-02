@@ -57,7 +57,7 @@ zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
 all_processed_texts = []
 for zip_file_path in zip_files:
     load_all_texts_from_zip(zip_file_path)  # ZIPファイルの読み込み
-    processed_texts = process_text_files("unzipped_files")  # テキストの処理
+    processed_texts = process_text_files(Path("unzipped_files"))  # テキストの処理
     all_processed_texts.extend(processed_texts)  # すべての処理されたテキストを追加
 
 # 整形後のテキストを表示
