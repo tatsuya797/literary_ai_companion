@@ -36,7 +36,7 @@ def load_all_texts_from_zip(zip_file):
     return all_texts
 
 # テキストデータを処理する関数
-def process_text_files("unzip_dir"):
+def process_text_files(unzip_dir):
     processed_texts = []  # 処理後のテキストを格納するリスト
     unzip_dir = Path("unzipped_files")
     text_files = list(unzip_dir.glob('**/*.txt'))  # サブフォルダも含む
