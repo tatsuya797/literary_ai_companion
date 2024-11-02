@@ -14,7 +14,7 @@ author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 def load_all_texts_from_zip(zip_file):
     all_texts = ""
     unzip_dir = Path("unzipped_files")
-    unzip_dir.mkdir(exist_ok=True)
+    unzip_dir.mkdir(exist_ok=False)
 
     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
         zip_ref.extractall(unzip_dir)  # 解凍先のディレクトリ
