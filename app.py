@@ -16,6 +16,10 @@ def load_all_texts_from_zip(zip_file):
     unzip_dir = Path("unzipped_files")
     unzip_dir.mkdir(exist_ok=True)
 
+    # ZIPファイルの絶対パスを表示
+    absolute_zip_path = os.path.abspath(zip_file)
+    print(f"解凍するZIPファイルの絶対パス: {absolute_zip_path}")
+
     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
         zip_ref.extractall(unzip_dir)  # 解凍先のディレクトリ
 
