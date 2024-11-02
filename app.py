@@ -63,11 +63,6 @@ for zip_file_path in zip_files:
 # 整形後のテキストを表示
 st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
 
-# ZIPファイルの絶対パスを表示
-absolute_zip_path = os.path.abspath(zip_file)
-# ストリームリットに絶対パスを表示
-st.write(f"解凍するZIPファイルの絶対パス: {absolute_zip_path}")
-
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
 
