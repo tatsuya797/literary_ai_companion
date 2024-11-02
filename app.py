@@ -16,11 +16,6 @@ def load_all_texts_from_zip(zip_file):
     unzip_dir = Path("unzipped_files")
     unzip_dir.mkdir(exist_ok=True)
 
-    # ZIPファイルの絶対パスを表示
-    absolute_zip_path = os.path.abspath(zip_file)
-    # ストリームリットに絶対パスを表示
-    st.write(f"解凍するZIPファイルの絶対パス: {absolute_zip_path}")
-
     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
         zip_ref.extractall(unzip_dir)  # 解凍先のディレクトリ
 
@@ -67,6 +62,11 @@ for zip_file_path in zip_files:
 
 # 整形後のテキストを表示
 st.text_area("整形後のテキストデータ", "\n\n".join(all_processed_texts), height=300)
+
+# ZIPファイルの絶対パスを表示
+absolute_zip_path = os.path.abspath(zip_file)
+# ストリームリットに絶対パスを表示
+st.write(f"解凍するZIPファイルの絶対パス: {absolute_zip_path}")
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
