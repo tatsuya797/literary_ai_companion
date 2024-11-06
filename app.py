@@ -9,15 +9,24 @@ from aozora_preprocess import save_cleanse_text  # 前処理の関数をイン�
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
-# ディレクトリの作成
+# unzipped_files ディレクトリのパスを指定
 unzip_dir = Path("unzipped_files")
-unzip_dir.mkdir(exist_ok=True)
 
-# 作成の確認
+# ディレクトリが存在するかチェック
 if unzip_dir.exists() and unzip_dir.is_dir():
-    st.write("Directory created successfully:", unzip_dir)
+    st.write("Directory exists:", unzip_dir)
+
+    # ディレクトリ内のファイル一覧を表示
+    files = list(unzip_dir.glob('*'))
+    if files:
+        st.write("Files in 'unzipped_files':")
+        for file in files:
+            st.write(file.name)
+    else:
+        st.write("'unzipped_files' directory is empty.")
 else:
-    st.write("Failed to create directory:", unzip_dir)
+    st.write("Directory 'unzipped_files' does not exist.")
+
 
 
 
