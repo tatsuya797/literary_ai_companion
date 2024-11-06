@@ -13,7 +13,7 @@ from pathlib import Path
 
 unzip_dir = Path("unzipped_files")
 if unzip_dir.exists() and not unzip_dir.is_dir():
-    print("A file with the name 'unzipped_files' already exists.")
+    st.write("A file with the name 'unzipped_files' already exists.")
 else:
     unzip_dir.mkdir(exist_ok=True)
 
