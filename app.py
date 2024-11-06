@@ -50,30 +50,7 @@ def process_text_files():
     return processed_texts
 
 # すべてのZIPファイルを指定したディレクトリから読み込む
-zip_files_directory = Path("000879/files/")
-st.write("Resolved Path:", zip_files_directory.resolve())
-
-print("Resolved Path:", zip_files_directory)
-# 現在のカレントディレクトリを表示
-print("Current Working Directory:", os.getcwd())
-# 現在のカレントディレクトリを表示
-st.write("Current Working Directory:", os.getcwd())
-
-
-# 確認したいディレクトリのパス
-check_path = Path("/mount/src/openai_api_bot_akutagawa")
-
-# ディレクトリが存在するか確認
-if check_path.exists():
-    st.write("Files in directory:")
-    for file in check_path.iterdir():
-        st.write(file.name)
-else:
-    st.write("Directory does not exist.")
-
-
-
-
+zip_files_directory = Path("000879/files")
 zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
 
 # 全テキストデータを読み込む（すべてのZIPファイルに対して処理を行う）
@@ -128,3 +105,4 @@ if st.session_state["messages"]:
 processed_texts = process_text_files()
 for i, text in enumerate(processed_texts):
     st.text_area(f"整形後のテキスト {i+1}", text, height=300)
+
