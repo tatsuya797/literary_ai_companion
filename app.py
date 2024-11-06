@@ -52,8 +52,7 @@ def process_text_files():
 # すべてのZIPファイルを指定したディレクトリから読み込む
 zip_files_directory = Path("/Users/shinsontatsuya/dev/openai_api_bot_akutagawa/000879/files/").resolve()
 print("Resolved Path:", zip_files_directory)
-else:
-    st.write("Directory does not exist. Check the path.")
+
 
 
 
