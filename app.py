@@ -42,10 +42,12 @@ def process_text_files():
     text_files = list(unzip_dir.glob('**/*.txt'))  # サブフォルダも含む
 
     for text_file in text_files:
-        cleaned_df = save_cleanse_text(text_file, unzip_dir)  # 前処理関数を呼び出し
-        if cleaned_df is not None:
-            # 整形後のテキストをリストに追加
-            processed_texts.append(cleaned_df.to_string(index=False))
+        # ファイルが .txt 形式で、ファイル名に "clns_utf-8" が含まれていない場合のみ処理
+        if text_file.suffix == ".txt" and "clns_utf-8" not in text_file.name:
+            cleaned_df = save_cleanse_text(text_file, unzip_dir)  # 前処理関数を呼び出し
+            if cleaned_df is not None:
+                # 整形後のテキストをリストに追加
+                processed_texts.append(cleaned_df.to_string(index=False))
 
     return processed_texts
 
