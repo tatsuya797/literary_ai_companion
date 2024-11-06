@@ -54,7 +54,8 @@ zip_files_directory = Path("/Users/shinsontatsuya/dev/openai_api_bot_akutagawa/0
 print("Resolved Path:", zip_files_directory)
 # 現在のカレントディレクトリを表示
 print("Current Working Directory:", os.getcwd())
-
+# 現在のカレントディレクトリを表示
+st.write("Current Working Directory:", os.getcwd())
 
 
 
