@@ -16,6 +16,7 @@ if unzip_dir.exists() and not unzip_dir.is_dir():
     st.write("A file with the name 'unzipped_files' already exists.")
 else:
     unzip_dir.mkdir(exist_ok=True)
+    st.write("tukutta")
 
 
 # ZIPファイルを解凍してテキストデータを読み込む関数
