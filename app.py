@@ -41,13 +41,6 @@ def process_text_files():
     unzip_dir = Path("unzipped_files")
     text_files = list(unzip_dir.glob('**/*.txt'))  # サブフォルダも含む
 
-    # セッション状態でリストをリセット
-    if 'processed_texts' not in st.session_state:
-        st.session_state['processed_texts'] = []
-    else:
-        # 実行時にリセット
-        st.session_state['processed_texts'].clear()
-
     for text_file in text_files:
         cleaned_df = save_cleanse_text(text_file, unzip_dir)  # 前処理関数を呼び出し
         if cleaned_df is not None:
