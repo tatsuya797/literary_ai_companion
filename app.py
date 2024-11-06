@@ -46,6 +46,8 @@ def process_text_files():
         if cleaned_df is not None:
             # 整形後のテキストをリストに追加
             processed_texts.append(cleaned_df.to_string(index=False))
+            # リストの中身をアプリ画面に表示
+            st.write("Processed Texts:", processed_texts)
 
     return processed_texts
 
