@@ -9,14 +9,16 @@ from aozora_preprocess import save_cleanse_text  # 前処理の関数をイン�
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
-from pathlib import Path
-
+# ディレクトリの作成
 unzip_dir = Path("unzipped_files")
-if unzip_dir.exists() and not unzip_dir.is_dir():
-    st.write("A file with the name 'unzipped_files' already exists.")
+unzip_dir.mkdir(exist_ok=True)
+
+# 作成の確認
+if unzip_dir.exists() and unzip_dir.is_dir():
+    st.write("Directory created successfully:", unzip_dir)
 else:
-    unzip_dir.mkdir(exist_ok=True)
-    st.write("tukutta")
+    st.write("Failed to create directory:", unzip_dir)
+
 
 
 # ZIPファイルを解凍してテキストデータを読み込む関数
