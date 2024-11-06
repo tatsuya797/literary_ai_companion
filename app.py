@@ -50,7 +50,9 @@ def process_text_files():
     return processed_texts
 
 # すべてのZIPファイルを指定したディレクトリから読み込む
-zip_files_directory = Path("/Users/shinsontatsuya/dev/openai_api_bot_akutagawa/000879/files/").resolve()
+zip_files_directory = Path("000879/files/")
+st.write("Resolved Path:", zip_files_directory.resolve())
+
 print("Resolved Path:", zip_files_directory)
 # 現在のカレントディレクトリを表示
 print("Current Working Directory:", os.getcwd())
