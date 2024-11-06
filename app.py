@@ -9,6 +9,15 @@ from aozora_preprocess import save_cleanse_text  # 前処理の関数をイン�
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
+from pathlib import Path
+
+unzip_dir = Path("unzipped_files")
+if unzip_dir.exists() and not unzip_dir.is_dir():
+    print("A file with the name 'unzipped_files' already exists.")
+else:
+    unzip_dir.mkdir(exist_ok=True)
+
+
 # ZIPファイルを解凍してテキストデータを読み込む関数
 @st.cache_data
 def load_all_texts_from_zip(zip_file):
