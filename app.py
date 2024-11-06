@@ -13,7 +13,7 @@ author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 @st.cache_data
 def load_all_texts_from_zip(zip_file):
     all_texts = ""
-    unzip_dir = Path("/Users/shinsontatsuya/dev/openai_api_bot_akutagawa/000879/files/")
+    unzip_dir = Path("unzipped_files")
     unzip_dir.mkdir(exist_ok=True)
 
     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
@@ -50,14 +50,13 @@ def process_text_files():
     return processed_texts
 
 # すべてのZIPファイルを指定したディレクトリから読み込む
-zip_files_directory = Path("/Users/shinsontatsuya/dev/openai_api_bot_akutagawa/000879/files/")
+zip_files_directory = Path("000879/files")
 zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
 
 # 全テキストデータを読み込む（すべてのZIPファイルに対して処理を行う）
 all_processed_texts = []
 for zip_file_path in zip_files:
-    load_all_texts = load_all_texts_from_zip(zip_file_path)  # ZIPファイルの読み込み
-    st.write(load_alltexts)
+    load_all_texts_from_zip(zip_file_path)  # ZIPファイルの読み込み
     processed_texts = process_text_files()  # テキストの処理
     all_processed_texts.extend(processed_texts)  # すべての処理されたテキストを追加
 
