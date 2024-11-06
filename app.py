@@ -9,27 +9,6 @@ from aozora_preprocess import save_cleanse_text  # 前処理の関数をイン�
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
-# unzipped_files ディレクトリのパスを指定
-unzip_dir = Path("unzipped_files")
-
-# ディレクトリが存在するかチェック
-if unzip_dir.exists() and unzip_dir.is_dir():
-    st.write("Directory exists:", unzip_dir)
-
-    # ディレクトリ内のファイル一覧を表示
-    files = list(unzip_dir.glob('*'))
-    if files:
-        st.write("Files in 'unzipped_files':")
-        for file in files:
-            st.write(file.name)
-    else:
-        st.write("'unzipped_files' directory is empty.")
-else:
-    st.write("Directory 'unzipped_files' does not exist.")
-
-
-
-
 # ZIPファイルを解凍してテキストデータを読み込む関数
 @st.cache_data
 def load_all_texts_from_zip(zip_file):
