@@ -61,7 +61,7 @@ st.write("Current Working Directory:", os.getcwd())
 
 
 # 確認したいディレクトリのパス
-check_path = Path("/mount/src/openai_api_bot_akutagawa/000879/files")
+check_path = Path("/mount/src/openai_api_bot_akutagawa")
 
 # ディレクトリが存在するか確認
 if check_path.exists():
