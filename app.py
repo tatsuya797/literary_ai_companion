@@ -58,6 +58,7 @@ all_processed_texts = []
 for zip_file_path in zip_files:
     load_all_texts_from_zip(zip_file_path)  # ZIPファイルの読み込み
     processed_texts = process_text_files()  # テキストの処理
+    all_processed_texts.clear()
     all_processed_texts.extend(processed_texts)  # すべての処理されたテキストを追加
 
 # 整形後のテキストを表示
