@@ -105,6 +105,4 @@ if st.session_state["messages"]:
 processed_texts = process_text_files()
 for i, text in enumerate(processed_texts):
     st.text_area(f"整形後のテキスト {i+1}", text, height=300)
-    combined_text.append(text)
-    st.text_area(f"整形後の総テキスト {i+1}", text, height=300)
 
