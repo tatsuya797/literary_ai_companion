@@ -5,8 +5,8 @@ import zipfile
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
-write_title = False  # 2カラム目に作品名を入れるか
-write_header = False  # 1行目をカラム名にするか（カラム名「text」「title」）
+write_title = True  # 2カラム目に作品名を入れるか
+write_header = True  # 1行目をカラム名にするか（カラム名「text」「title」）
 save_utf8_org = True  # 元データをUTF-8にしたテキストファイルを保存するか
 
 out_dir = Path(f'./out_{author_id}/')  # ファイル出力先
