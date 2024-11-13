@@ -1,17 +1,38 @@
 import streamlit as st
+import base64
 
 # ページの基本設定
 st.set_page_config(page_title="文学の読書コンパニオン", page_icon="📚", layout="centered")
 
-# 背景画像の設定（日本の古風な雰囲気の画像に設定）
-page_bg = """
+# ローカル画像ファイルをbase64でエンコードして背景に挿入
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+img_file = "吾輩は猫である.jpg.webp"  # ローカル画像ファイル名
+img_base64 = get_base64_of_bin_file(img_file)
+
+# CSSで背景画像を設定
+page_bg_img = f"""
 <style>
-    .stApp {
-        background-image: url("吾輩は猫である");  /* 和風な背景画像 */
+    .stApp {{
+        background-image: url("data:image/webp;base64,{img_base64}");
         background-size: cover;
         background-position: center;
         color: #f4f4f4;
-    }
+    }}
+</style>
+"""
+
+st.markdown(page_bg_img, unsafe_allow_html=True)
+st.write("Streamlitアプリに和風の背景が設定されています")
+
+
+# 背景画像の設定（日本の古風な雰囲気の画像に設定）
+page_bg = """
+<style>
+    
     .title {
         font-size: 3rem;
         color: #ffe4b5;
