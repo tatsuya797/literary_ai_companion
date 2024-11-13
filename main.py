@@ -7,7 +7,7 @@ st.set_page_config(page_title="文学の読書コンパニオン", page_icon="�
 page_bg = """
 <style>
     .stApp {
-        background-image: url("https://images.unsplash.com/photo-1551934264-d5c7c53b0d15");  /* 和風な背景画像 */
+        background-image: url("吾輩は猫である");  /* 和風な背景画像 */
         background-size: cover;
         background-position: center;
         color: #f4f4f4;
