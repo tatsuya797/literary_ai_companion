@@ -30,8 +30,7 @@ def text_cleanse_df(df):
           additional_intro = df[max(0,head_tx[0]) -2):head_tx[0]]
           main_text = df[head_tx[1] + 1:atx[0]]
           df_e = pd.concat([additional_intro, main_text])
-          # head_tx_num = head_tx[1] + 1
-    # df_e = df[head_tx_num:atx[0]]
+    
 
     # 青空文庫の書式削除
     df_e = df_e.replace({'text': {'《.*?》': ''}}, regex=True)
