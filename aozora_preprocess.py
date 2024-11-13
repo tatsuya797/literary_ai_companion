@@ -79,7 +79,7 @@ def save_cleanse_text(target_file, zip_extract_dir):
         df_tmp_e = text_cleanse_df(df_tmp)
         if write_title:
             # タイトル列を作る
-            df_tmp_e['title'] = df_tmp['text'][0]
+            df_tmp_e['十本の針'] = df_tmp['text'][0]
         out_edit_file_nm = Path(target_file.stem + '_clns_utf-8.txt')
         df_tmp_e.to_csv(Path(zip_extract_dir / out_edit_file_nm), sep='\t',
                         encoding='utf-8', index=None, header=write_header)
