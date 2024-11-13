@@ -1,0 +1,47 @@
+import streamlit as st
+
+# ボットの一覧
+bot_names = ["AI Bot A", "AI Bot B", "AI Bot C"]
+
+# トップページ：ボット選択画面
+def show_top_page():
+    st.title("AI Bot Selection")
+    st.write("以下から対話したいボットを選択してください。")
+
+    # ボットを選択するセレクトボックス
+    selected_bot = st.selectbox("ボットを選択", bot_names)
+
+    # 対話画面への遷移ボタン
+    if st.button("Start Chat"):
+        st.session_state["selected_bot"] = selected_bot
+        st.session_state["page"] = "chat"
+
+# 対話画面：選択されたボットと対話するページ
+def show_chat_page():
+    st.title(f"Chat with {st.session_state['selected_bot']}")
+
+    # ユーザーのメッセージ入力
+    user_input = st.text_input("あなたのメッセージを入力してください:")
+
+    # 送信ボタンでメッセージを処理
+    if st.button("Send"):
+        if user_input:
+            # ボットの応答をここで生成（シンプルな応答例）
+            response = f"{st.session_state['selected_bot']}の応答: {user_input[::-1]}"  # 逆順の応答例
+            st.write(response)
+
+    # トップページに戻るボタン
+    if st.button("Return to Bot Selection"):
+        st.session_state["page"] = "top"
+
+# 初期状態の設定
+if "page" not in st.session_state:
+    st.session_state["page"] = "top"
+if "selected_bot" not in st.session_state:
+    st.session_state["selected_bot"] = None
+
+# ページの表示制御
+if st.session_state["page"] == "top":
+    show_top_page()
+elif st.session_state["page"] == "chat":
+    show_chat_page()
