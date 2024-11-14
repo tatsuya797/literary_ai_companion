@@ -10,7 +10,7 @@ img_url = "https://github.com/tatsuya797/openai_api_bot_akutagawa/blob/main/吾�
 page_bg_img = f"""
 <style>
     .stApp {{
-        background-image: url("img_url}");  /* 和風な背景画像 */
+        background-image: url("img_url)");  /* 和風な背景画像 */
         background-size: cover;
         background-position: center;
         color: #f4f4f4;
