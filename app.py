@@ -44,7 +44,6 @@ page_bg_img = f"""
 """
 
 st.markdown(page_bg_img, unsafe_allow_html=True)
-st.write("Streamlitアプリに和風の背景が設定されています")
 
 # タイトルと説明
 st.markdown("<div class='title'>文学と共に歩む対話の世界</div>", unsafe_allow_html=True)
