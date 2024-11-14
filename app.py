@@ -61,13 +61,6 @@ bot_options = ["夏目漱石ボット", "太宰治ボット", "芥川龍之介�
 selected_bot = st.selectbox("", bot_options)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# リンクボタンの表示
-st.link_button(
-    label="芥川龍之介ボットへ",
-    url="https://github.com/username/repository/blob/main/bot.py",
-    type="primary"
-)
-
 # 開始ボタン
 if st.button("会話を始める"):
     # 芥川龍之介ボットが選択された場合、bot.py にリダイレクト
