@@ -7,7 +7,7 @@ st.set_page_config(page_title="文学の読書コンパニオン", page_icon="�
 img_url = "https://github.com/tatsuya797/openai_api_bot_akutagawa/blob/main/吾輩は猫である.jpg.webp"
 
 # 背景画像の設定（日本の古風な雰囲気の画像に設定）
-page_bg = """
+page_bg_img = f"""
 <style>
     .stApp {
         background-image: url("img_url}");  /* 和風な背景画像 */
@@ -42,7 +42,9 @@ page_bg = """
     }
 </style>
 """
-st.markdown(page_bg, unsafe_allow_html=True)
+
+st.markdown(page_bg_img, unsafe_allow_html=True)
+st.write("Streamlitアプリに和風の背景が設定されています")
 
 # タイトルと説明
 st.markdown("<div class='title'>文学と共に歩む対話の世界</div>", unsafe_allow_html=True)
