@@ -58,23 +58,31 @@ st.markdown("<div class='subtitle'>感想を語り合い、作家の息吹に触
 # ボット選択と開始ボタン
 st.markdown("<div class='bot-section'>読書の対話相手を選んでください</div>", unsafe_allow_html=True)
 bot_options = ["夏目漱石ボット", "太宰治ボット", "芥川龍之介ボット"]
-selected_bot = st.selectbox("", bot_options)
-st.markdown("</div>", unsafe_allow_html=True)
+selected_bot = st.selectbox("", bot_options)  # ラベルを空にして選択肢だけ表示
+
+# セッションの初期化
+if "page" not in st.session_state:
+    st.session_state["page"] = "home"
 
 # 開始ボタン
 if st.button("会話を始める"):
     # 芥川龍之介ボットが選択された場合、bot.py にリダイレクト
     if selected_bot == "芥川龍之介ボット":
-        st.write("bot.pyに移動します...")
-        st.experimental_set_query_params(page="bot")  # クエリパラメータを設定
-        st.stop()  # 残りのコードの実行を停止
+        st.session_state["page"] = "bot"  # "bot"ページに遷移
+        st.experimental_rerun()
 
     # その他の選択肢
     else:
         st.session_state["selected_bot"] = selected_bot
         st.session_state["page"] = "chat"
-        st.write(f"{selected_bot}と対話を開始します。")
+        st.experimental_rerun()
 
-# トップページから対話ページへの遷移
-if "page" in st.session_state and st.session_state["page"] == "chat":
-    st.write("対話画面に移動中...")  # 実際のアプリでは対話ページに移行します
+# ページの表示制御
+if st.session_state["page"] == "bot":
+    st.write("芥川龍之介ボットと対話を開始するページです。")  # 実際には bot.py に相当する内容を表示
+
+elif st.session_state["page"] == "chat":
+    st.write(f"{st.session_state['selected_bot']}と対話を開始します。")
+
+else:
+    st.write("トップページに戻っています。")
