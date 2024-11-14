@@ -7,7 +7,7 @@ st.set_page_config(page_title="文学の読書コンパニオン", page_icon="�
 img_url = "https://raw.githubusercontent.com/tatsuya797/openai_api_bot_akutagawa/main/image1.jpg"
 
 # 背景画像の設定（日本の古風な雰囲気の画像に設定）
-page_bg_img = """
+page_bg_img = f"""
 <style>
     .stApp {{
         background-image: url("{img_url}");  /* 和風な背景画像 */
