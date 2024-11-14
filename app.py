@@ -29,6 +29,9 @@ page_bg_img = f"""
         font-family: 'Yu Mincho', serif;
         margin-top: -10px;
     }}
+    .bot-section {{
+        margin-top: 60px;  /* ボット選択部分を下に移動 */
+    }}
     .btn-start {{
         display: block;
         margin: 20px auto;
@@ -50,15 +53,25 @@ st.markdown("<div class='title'>文学と共に歩む対話の世界</div>", uns
 st.markdown("<div class='subtitle'>感想を語り合い、作家の息吹に触れるひとときを</div>", unsafe_allow_html=True)
 
 # ボット選択と開始ボタン
+st.markdown("<div class='bot-section'>", unsafe_allow_html=True)
 st.write("**読書の対話相手を選んでください**")
 bot_options = ["夏目漱石ボット", "太宰治ボット", "芥川龍之介ボット"]
 selected_bot = st.selectbox("対話したいボットを選択:", bot_options)
+st.markdown("</div>", unsafe_allow_html=True)
 
 # 開始ボタン
 if st.button("会話を始める"):
-    st.session_state["selected_bot"] = selected_bot
-    st.session_state["page"] = "chat"
-    st.write(f"{selected_bot}と対話を開始します。")
+    # 芥川龍之介ボットが選択された場合、bot.py にリダイレクト
+    if selected_bot == "芥川龍之介ボット":
+        st.write("bot.pyに移動します...")
+        st.experimental_set_query_params(page="bot")  # クエリパラメータを設定
+        st.stop()  # 残りのコードの実行を停止
+
+    # その他の選択肢
+    else:
+        st.session_state["selected_bot"] = selected_bot
+        st.session_state["page"] = "chat"
+        st.write(f"{selected_bot}と対話を開始します。")
 
 # トップページから対話ページへの遷移
 if "page" in st.session_state and st.session_state["page"] == "chat":
