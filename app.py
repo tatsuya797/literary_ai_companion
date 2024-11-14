@@ -3,11 +3,14 @@ import streamlit as st
 # ページの基本設定
 st.set_page_config(page_title="文学の読書コンパニオン", page_icon="📚", layout="centered")
 
+# GitHubのリポジトリにある背景画像のURL
+img_url = "https://github.com/tatsuya797/openai_api_bot_akutagawa/blob/main/吾輩は猫である.jpg.webp"
+
 # 背景画像の設定（日本の古風な雰囲気の画像に設定）
 page_bg = """
 <style>
     .stApp {
-        background-image: url("https://images.unsplash.com/photo-1551934264-d5c7c53b0d15");  /* 和風な背景画像 */
+        background-image: url("img_url}");  /* 和風な背景画像 */
         background-size: cover;
         background-position: center;
         color: #f4f4f4;
