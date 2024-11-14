@@ -9,12 +9,12 @@ img_url = "https://github.com/tatsuya797/openai_api_bot_akutagawa/blob/main/吾�
 # 背景画像の設定（日本の古風な雰囲気の画像に設定）
 page_bg_img = f"""
 <style>
-    .stApp {
+    .stApp {{
         background-image: url("img_url}");  /* 和風な背景画像 */
         background-size: cover;
         background-position: center;
         color: #f4f4f4;
-    }
+    }}
     .title {
         font-size: 3rem;
         color: #ffe4b5;
