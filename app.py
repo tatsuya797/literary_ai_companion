@@ -15,21 +15,21 @@ page_bg_img = """
         background-position: center;
         color: #f4f4f4;
     }}
-    .title {
+    .title {{
         font-size: 3rem;
         color: #ffe4b5;
         text-align: center;
         font-family: 'Yu Mincho', serif;  /* 日本語の雰囲気があるフォント */
         margin-top: 20px;
-    }
-    .subtitle {
+    }}
+    .subtitle {{
         font-size: 1.2rem;
         color: #d2b48c;
         text-align: center;
         font-family: 'Yu Mincho', serif;
         margin-top: -10px;
-    }
-    .btn-start {
+    }}
+    .btn-start {{
         display: block;
         margin: 20px auto;
         padding: 10px 50px;
@@ -39,7 +39,7 @@ page_bg_img = """
         border-radius: 8px;
         text-align: center;
         text-decoration: none;
-    }
+    }}
 </style>
 """
 
