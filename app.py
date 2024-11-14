@@ -61,6 +61,8 @@ bot_options = ["夏目漱石ボット", "太宰治ボット", "芥川龍之介�
 selected_bot = st.selectbox("", bot_options)
 st.markdown("</div>", unsafe_allow_html=True)
 
+st.link_button("リンク先に飛ぶ", "https://raw.githubusercontent.com/tatsuya797/openai_api_bot_akutagawa/main/image1.jpg")
+
 # 開始ボタン
 if st.button("会話を始める"):
     # 芥川龍之介ボットが選択された場合、bot.py にリダイレクト
