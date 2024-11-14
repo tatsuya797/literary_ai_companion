@@ -30,7 +30,10 @@ page_bg_img = f"""
         margin-top: -10px;
     }}
     .bot-section {{
-        margin-top: 60px;  /* ボット選択部分を下に移動 */
+        margin-top: 80px;  /* ボット選択部分を下に移動 */
+        text-align: center;  /* 中央に配置 */
+        font-size: 1.2rem;
+        font-family: 'Yu Mincho', serif;
     }}
     .btn-start {{
         display: block;
@@ -53,10 +56,9 @@ st.markdown("<div class='title'>文学と共に歩む対話の世界</div>", uns
 st.markdown("<div class='subtitle'>感想を語り合い、作家の息吹に触れるひとときを</div>", unsafe_allow_html=True)
 
 # ボット選択と開始ボタン
-st.markdown("<div class='bot-section'>", unsafe_allow_html=True)
-st.write("**読書の対話相手を選んでください**")
+st.markdown("<div class='bot-section'>読書の対話相手を選んでください</div>", unsafe_allow_html=True)
 bot_options = ["夏目漱石ボット", "太宰治ボット", "芥川龍之介ボット"]
-selected_bot = st.selectbox("対話したいボットを選択:", bot_options)
+selected_bot = st.selectbox("", bot_options)
 st.markdown("</div>", unsafe_allow_html=True)
 
 # 開始ボタン
