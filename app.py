@@ -61,10 +61,8 @@ bot_options = ["夏目漱石ボット", "太宰治ボット", "芥川龍之介�
 selected_bot = st.selectbox("", bot_options)
 st.markdown("</div>", unsafe_allow_html=True)
 
-st.link_button("GO TO gallery", "https://streamlit.io/gallery")
-
 # 開始ボタン
-if st.button("会話を始める"):
+if st.link_button("会話を始める", "https://github.com/tatsuya797/openai_api_bot_akutagawa/blob/main/bot.py")
     # 芥川龍之介ボットが選択された場合、bot.py にリダイレクト
     if selected_bot == "芥川龍之介ボット":
         st.write("bot.pyに移動します...")
