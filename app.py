@@ -66,7 +66,7 @@ if selected_bot == "芥川龍之介ボット":
     st.write("会話を始めるボタンを押すと bot.py に移動します。")
     
     # st.link_button を使用してリンクボタンを作成
-    st.link_button("会話を始める", url="https://openaiapibotakutagawa-ctzj9ctuwkxa4kdzaymgtj.streamlit.app")
+    st.link_button("会話を始める", url="https://raw.githubusercontent.com/tatsuya797/openai_api_bot_akutagawa/main/bot.py")
 
 else:
     # 他のボットが選択された場合の処理
