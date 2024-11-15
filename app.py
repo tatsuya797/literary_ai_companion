@@ -1,4 +1,5 @@
 import streamlit as st
+import bot
 
 # ページの基本設定
 st.set_page_config(page_title="文学の読書コンパニオン", page_icon="📚", layout="centered")
@@ -65,8 +66,10 @@ st.markdown("</div>", unsafe_allow_html=True)
 if selected_bot == "芥川龍之介ボット":
     st.write("会話を始めるボタンを押すと bot.py に移動します。")
     
-    # st.link_button を使用してリンクボタンを作成
-    st.link_button("会話を始める", url="https://raw.githubusercontent.com/tatsuya797/openai_api_bot_akutagawa/main/bot.py")
+    # 会話を始めるボタン
+    if st.button("会話を始める"):
+        st.write("芥川龍之介ボットを実行します...")
+        bot.run()  # bot.py 内の関数を実行
 
 else:
     # 他のボットが選択された場合の処理
