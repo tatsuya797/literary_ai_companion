@@ -61,19 +61,18 @@ bot_options = ["夏目漱石ボット", "太宰治ボット", "芥川龍之介�
 selected_bot = st.selectbox("", bot_options)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# 開始ボタン
-if st.link_button("会話を始める", "https://github.com/tatsuya797/openai_api_bot_akutagawa/blob/main/bot.py")
-    # 芥川龍之介ボットが選択された場合、bot.py にリダイレクト
-    if selected_bot == "芥川龍之介ボット":
-        st.write("bot.pyに移動します...")
-        st.experimental_set_query_params(page="bot")  # クエリパラメータを設定
-        st.stop()  # 残りのコードの実行を停止
+# ボットの選択に応じてリンクボタンを表示
+if selected_bot == "芥川龍之介ボット":
+    st.write("会話を始めるボタンを押すと bot.py に移動します。")
+    
+    # st.link_button を使用してリンクボタンを作成
+    st.link_button("会話を始める", url="https://github.com/tatsuya797/openai_api_bot_akutagawa/blob/main/bot.py")
 
-    # その他の選択肢
-    else:
-        st.session_state["selected_bot"] = selected_bot
-        st.session_state["page"] = "chat"
-        st.write(f"{selected_bot}と対話を開始します。")
+else:
+    # 他のボットが選択された場合の処理
+    st.write(f"{selected_bot}との対話を開始する準備が整いました。")
+    if st.button("会話を始める"):
+        st.write(f"{selected_bot}との対話画面に遷移します。")
 
 # トップページから対話ページへの遷移
 if "page" in st.session_state and st.session_state["page"] == "chat":
