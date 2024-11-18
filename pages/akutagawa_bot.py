@@ -18,6 +18,21 @@ st.set_page_config(
     }
 )
 
+# GitHubのリポジトリにある背景画像のURL
+img_url = "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/image2.jpg"
+
+# 背景画像の設定（日本の古風な雰囲気の画像に設定）
+page_bg_img = f"""
+<style>
+    .stApp {{
+        background-image: url("{img_url}");  /* 和風な背景画像 */
+        background-size: cover;
+        background-position: center;
+        color: #f4f4f4;
+    }}
+</style>
+"""
+
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
