@@ -14,15 +14,6 @@ st.set_page_config(
     }
 )
 
-# クエリパラメータを取得
-query_params = st.experimental_get_query_params()
-
-# クエリパラメータでページを制御
-if "page" in query_params and query_params["page"][0] == "home":
-    st.title("トップページ")
-else:
-    st.title("別のページ")
-
 
 # GitHubのリポジトリにある背景画像のURL
 img_url = "https://raw.githubusercontent.com/tatsuya797/openai_api_bot_akutagawa/main/image1.jpg"
