@@ -6,13 +6,6 @@ import zipfile
 import chardet  # エンコーディング自動検出ライブラリ
 from aozora_preprocess import save_cleanse_text  # 前処理の関数をインポート
 
-# ページ設定
-st.set_page_config(
-    page_title="芥川龍之介ボット",
-    layout="centered",
-    initial_sidebar_state="collapsed"  # サイドバーをデフォルトで非表示
-)
-
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
@@ -113,3 +106,16 @@ if st.session_state["messages"]:
 processed_texts = process_text_files()
 for i, text in enumerate(processed_texts):
     st.text_area(f"整形後のテキスト {i+1}", text, height=300)
+
+
+# ページの基本設定
+st.set_page_config(
+    page_title="文学の読書コンパニオン",
+    page_icon="📚", layout="centered",
+    initial_sidebar_state="collapsed",  # サイドバーを非表示
+    menu_items={
+        "Get Help": None,
+        "Report a bug": None,
+        "About": None
+    }
+)
