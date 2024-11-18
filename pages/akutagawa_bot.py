@@ -119,6 +119,3 @@ processed_texts = process_text_files()
 for i, text in enumerate(processed_texts):
     st.text_area(f"整形後のテキスト {i+1}", text, height=300)
 
-# トップページに戻るボタン
-if st.button("トップページに戻る"):
-    st.experimental_set_query_params(page="home")
