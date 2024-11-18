@@ -70,8 +70,11 @@ st.markdown("</div>", unsafe_allow_html=True)
 if selected_bot == "芥川龍之介ボット":
     st.write("会話を始めるボタンを押すと bot.py に移動します。")
     
-    if st.button("会話を始める"):
-        execute_bot()  # `bot.py` のコード全体を実行
+    # bot.py へのリンクボタン
+    st.link_button(
+        "会話を始める",
+        url="https://openaiapibotakutagawa-ctzj9ctuwkxa4kdzaymgtj.streamlit.app/bot"
+    )
 
 else:
     # 他のボットが選択された場合の処理
