@@ -32,6 +32,8 @@ page_bg_img = f"""
     }}
 </style>
 """
+st.markdown(page_bg_img, unsafe_allow_html=True)
+
 
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
