@@ -16,7 +16,7 @@ st.set_page_config(
 
 
 # GitHubのリポジトリにある背景画像のURL
-img_url = "https://raw.githubusercontent.com/tatsuya797/openai_api_bot_akutagawa/main/image1.jpg"
+img_url = "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/image1.jpg"
 
 # 背景画像の設定（日本の古風な雰囲気の画像に設定）
 page_bg_img = f"""
