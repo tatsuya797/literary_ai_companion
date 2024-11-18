@@ -1,9 +1,6 @@
 import streamlit as st
 import importlib
 
-def execute_bot():
-    bot_module = importlib.import_module("openai_api_bot_akutagawa.bot")
-    importlib.reload(bot_module)  # モジュールをリロードして再実行
 
 # ページの基本設定
 st.set_page_config(
