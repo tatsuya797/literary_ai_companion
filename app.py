@@ -6,7 +6,18 @@ def execute_bot():
     importlib.reload(bot_module)  # モジュールをリロードして再実行
 
 # ページの基本設定
-st.set_page_config(page_title="文学の読書コンパニオン", page_icon="📚", layout="centered")
+st.set_page_config(
+    page_title="文学の読書コンパニオン",
+    page_icon="📚",
+    layout="centered",
+    initial_sidebar_state="collapsed",  # サイドバーを非表示
+    menu_items={
+        "Get Help": None,
+        "Report a bug": None,
+        "About": None
+    }
+)
+
 
 # GitHubのリポジトリにある背景画像のURL
 img_url = "https://raw.githubusercontent.com/tatsuya797/openai_api_bot_akutagawa/main/image1.jpg"
