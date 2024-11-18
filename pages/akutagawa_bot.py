@@ -122,4 +122,3 @@ for i, text in enumerate(processed_texts):
 # トップページに戻るボタン
 if st.button("トップページに戻る"):
     st.experimental_set_query_params(page="home")
-    st.experimental_rerun()
