@@ -6,12 +6,7 @@ def execute_bot():
     importlib.reload(bot_module)  # モジュールをリロードして再実行
 
 # ページの基本設定
-st.set_page_config(
-    page_title="文学の読書コンパニオン",
-    page_icon="📚",
-    layout="centered",
-    initial_sidebar_state="collapsed",  # サイドバーを非表示
-)
+st.set_page_config(page_title="文学の読書コンパニオン", page_icon="📚", layout="centered")
 
 
 # GitHubのリポジトリにある背景画像のURL
