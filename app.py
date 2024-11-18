@@ -66,11 +66,11 @@ bot_options = ["夏目漱石ボット", "太宰治ボット", "芥川龍之介�
 selected_bot = st.selectbox("", bot_options)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# ボットの選択に応じてリンクボタンを表示
+# 芥川ボットの選択に応じてリンクボタンを表示
 if selected_bot == "芥川龍之介ボット":
     st.write("会話を始めるボタンを押すと bot.py に移動します。")
     
-    # bot.py へのリンクボタン
+    # akutagawa_bot.py へのリンクボタン
     st.link_button(
         "会話を始める",
         url="https://openaiapibotakutagawa-ctzj9ctuwkxa4kdzaymgtj.streamlit.app/akutagawa_bot"
