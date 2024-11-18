@@ -107,15 +107,7 @@ processed_texts = process_text_files()
 for i, text in enumerate(processed_texts):
     st.text_area(f"整形後のテキスト {i+1}", text, height=300)
 
-
-# ページの基本設定
-st.set_page_config(
-    page_title="文学の読書コンパニオン",
-    page_icon="📚", layout="centered",
-    initial_sidebar_state="collapsed",  # サイドバーを非表示
-    menu_items={
-        "Get Help": None,
-        "Report a bug": None,
-        "About": None
-    }
-)
+# トップページに戻るボタン
+if st.button("トップページに戻る"):
+    st.experimental_set_query_params(page="home")
+    st.experimental_rerun()
