@@ -6,6 +6,12 @@ import zipfile
 import chardet  # エンコーディング自動検出ライブラリ
 from aozora_preprocess import save_cleanse_text  # 前処理の関数をインポート
 
+# ページ設定
+st.set_page_config(
+    page_title="芥川龍之介ボット",
+    layout="centered",
+    initial_sidebar_state="collapsed"  # サイドバーをデフォルトで非表示
+)
 
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
