@@ -83,7 +83,7 @@ if selected_bot == "芥川龍之介ボット":
     # akutagawa_bot.py へのリンクボタン
     st.link_button(
         "会話を始める",
-        url="https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot"
+        url="https://openaiapibotakutagawa-ctzj9ctuwkxa4kdzaymgtj.streamlit.app/akutagawa_bot"
     )
 
 else:
