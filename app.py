@@ -11,11 +11,6 @@ st.set_page_config(
     page_icon="📚",
     layout="centered",
     initial_sidebar_state="collapsed",  # サイドバーを非表示
-    menu_items={
-        "Get Help": None,
-        "Report a bug": None,
-        "About": None
-    }
 )
 
 
