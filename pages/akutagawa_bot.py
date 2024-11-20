@@ -127,11 +127,18 @@ st.write(author_name+"の作品に基づいたチャットボットです。")
 # ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
 
-if st.session_state["messages"]:
+if st.session_state.get("messages"):
     messages = st.session_state["messages"]
+
+    # テキストエリアに表示する内容を構築
+    chat_history = ""
     for message in reversed(messages[1:]):  # 直近のメッセージを上に
         speaker = "🙂" if message["role"] == "user" else "🤖"
-        st.write(speaker + ": " + message["content"])
+        chat_history += f"{speaker}: {message['content']}\n"
+
+    # テキストエリアに対話履歴を表示
+    st.text_area("対話履歴", value=chat_history.strip(), height=300, disabled=True)
+
 
 # 整形後のテキストを表示
 processed_texts = process_text_files()
