@@ -3,3 +3,4 @@ streamlit==1.40.1
 openai==0.28.1
 pandas
 chardet
+matplotlib
