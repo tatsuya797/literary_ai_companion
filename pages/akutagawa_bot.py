@@ -131,7 +131,7 @@ if st.session_state["messages"]:
     messages = st.session_state["messages"]
     for message in reversed(messages[1:]):  # 直近のメッセージを上に
         speaker = "🙂" if message["role"] == "user" else "🤖"
-        st.write(speaker + ": " + message["content"])
+        st.text_area(speaker + ": " + message["content"])
 
 # 整形後のテキストを表示
 processed_texts = process_text_files()
