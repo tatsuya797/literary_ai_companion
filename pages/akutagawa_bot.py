@@ -1,4 +1,6 @@
 import streamlit as st
+import matplotlib.pyplot as plt
+import numpy as np
 import openai
 import os
 from pathlib import Path
@@ -135,4 +137,40 @@ if st.session_state["messages"]:
 processed_texts = process_text_files()
 for i, text in enumerate(processed_texts):
     st.text_area(f"整形後のテキスト {i+1}", text, height=300)
+
+
+# 評価データ
+criteria = ["独創性", "柔軟性", "関連性", "問題解決能力", "洞察力"]
+scores = [15, 17, 18, 16, 18]
+
+# レーダーチャートを描画する関数
+def plot_radar_chart(criteria, scores):
+    num_vars = len(criteria)
+
+    # 角度を計算
+    angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
+    scores += scores[:1]  # スコアを閉じるために最初の値を再度追加
+    angles += angles[:1]  # グラフを閉じるための角度
+
+    # プロット
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+    ax.fill(angles, scores, color='blue', alpha=0.25)
+    ax.plot(angles, scores, color='blue', linewidth=2)
+    ax.set_yticks(range(0, 21, 5))  # メモリを設定
+    ax.set_yticklabels(map(str, range(0, 21, 5)), fontsize=10, color="gray")
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(criteria, fontsize=12, color="black")
+    ax.set_title("創造性ポイント", fontsize=16, fontweight="bold")
+
+    return fig
+
+# レーダーチャートを作成
+st.title("創造性評価の結果")
+st.write("以下のレーダーチャートは、あなたの創造性の評価結果を示しています。")
+
+fig = plot_radar_chart(criteria, scores)
+
+# Streamlit 上に表示
+st.pyplot(fig)
+
 
