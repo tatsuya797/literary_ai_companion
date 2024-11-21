@@ -162,7 +162,7 @@ st.markdown(
 if st.session_state.get("messages"):
     messages = st.session_state["messages"]
 
-    for message in messages[1:]:  # システムメッセージはスキップ
+    for message in reversed messages[1:]:  # システムメッセージはスキップ
         if message["role"] == "user":
             st.markdown(f'<div class="user-message">{message["content"]}</div>', unsafe_allow_html=True)
         elif message["role"] == "assistant":
