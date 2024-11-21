@@ -103,17 +103,12 @@ if "messages" not in st.session_state:
     st.session_state["messages"] = [
         {"role": "system", "content": st.secrets.AppSettings.chatbot_setting} 
     ]
-if "total_characters" not in st.session_state:
-    st.session_state["total_characters"] = 0  # 合計文字数を初期化
 
 # チャットボットとやりとりする関数
 def communicate():
     messages = st.session_state["messages"]
     user_message = {"role": "user", "content": st.session_state["user_input"]}
     messages.append(user_message)
-
-    # 入力文字数をカウント
-    st.session_state["total_characters"] += len(user_message["content"])
 
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -129,18 +124,55 @@ def communicate():
 st.title(author_name + "チャットボット")
 st.write(author_name + "の作品に基づいたチャットボットです。")
 
-# 対話終了ボタンの表示
-if st.session_state["total_characters"] >= 10:
-    if st.button("対話終了"):
-        st.write("対話を終了しました。")
-        # 必要に応じて処理を追加
-
-# メッセージ入力欄
+# ユーザーのメッセージ入力（改行対応）
 user_input = st.text_area(
-    "メッセージを入力してください（改行可能）。",
+    "メッセージを入力してください",
     key="user_input",
     height=100,
     on_change=communicate
+)
+
+# カスタム CSS を追加して左右分割のスタイルとアイコンを設定
+st.markdown(
+    """
+    <style>
+    .user-message {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin: 10px 0;
+    }
+    .bot-message {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin: 10px 0;
+    }
+    .message-content {
+        background-color: #dcf8c6;
+        color: black;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 70%;
+        text-align: left;
+        white-space: pre-wrap; /* 改行をサポート */
+    }
+    .bot-content {
+        background-color: #f1f0f0;
+        color: black;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 70%;
+        text-align: left;
+        white-space: pre-wrap; /* 改行をサポート */
+    }
+    .icon {
+        font-size: 1.5rem;
+        margin: 0 10px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
 # 対話履歴を表示（最新のメッセージを上に）
@@ -169,7 +201,6 @@ if st.session_state.get("messages"):
                 """,
                 unsafe_allow_html=True,
             )
-
 
 
 
