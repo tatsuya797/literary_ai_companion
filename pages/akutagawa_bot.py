@@ -103,12 +103,17 @@ if "messages" not in st.session_state:
     st.session_state["messages"] = [
         {"role": "system", "content": st.secrets.AppSettings.chatbot_setting} 
     ]
+if "total_characters" not in st.session_state:
+    st.session_state["total_characters"] = 0  # 合計文字数を初期化
 
 # チャットボットとやりとりする関数
 def communicate():
     messages = st.session_state["messages"]
     user_message = {"role": "user", "content": st.session_state["user_input"]}
     messages.append(user_message)
+
+    # 入力文字数をカウント
+    st.session_state["total_characters"] += len(user_message["content"])
 
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -123,6 +128,12 @@ def communicate():
 # ユーザーインターフェイス
 st.title(author_name + "チャットボット")
 st.write(author_name + "の作品に基づいたチャットボットです。")
+
+# 対話終了ボタンの表示(10文字で出現)
+if st.session_state["total_characters"] >= 10:
+    if st.button("対話終了"):
+        st.write("対話を終了しました。")
+        # 必要に応じて処理を追加
 
 # ユーザーのメッセージ入力（改行対応）
 user_input = st.text_area(
