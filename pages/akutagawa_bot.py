@@ -127,46 +127,73 @@ st.write(author_name + "の作品に基づいたチャットボットです。")
 # ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
 
-# カスタム CSS を追加して左右分割のスタイルを設定
+# カスタム CSS を追加して左右分割のスタイルとアイコンを設定
 st.markdown(
     """
     <style>
     .user-message {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin: 10px 0;
+    }
+    .bot-message {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin: 10px 0;
+    }
+    .message-content {
         background-color: #dcf8c6;
         color: black;
         padding: 10px;
         border-radius: 10px;
-        margin: 5px 0;
         max-width: 70%;
         text-align: left;
-        float: left;
-        clear: both;
     }
-    .bot-message {
+    .bot-content {
         background-color: #f1f0f0;
         color: black;
         padding: 10px;
         border-radius: 10px;
-        margin: 5px 0;
         max-width: 70%;
         text-align: left;
-        float: right;
-        clear: both;
+    }
+    .icon {
+        font-size: 1.5rem;
+        margin: 0 10px;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# 対話履歴を表示
+# 対話履歴を表示（最新のメッセージを上に）
 if st.session_state.get("messages"):
     messages = st.session_state["messages"]
 
-    for message in reversed(messages[1:]):  # システムメッセージはスキップ
+    # 最新のメッセージが上に来るように逆順にループ
+    for message in reversed(messages[1:]):  # システムメッセージをスキップ
         if message["role"] == "user":
-            st.markdown(f'<div class="user-message">{message["content"]}</div>', unsafe_allow_html=True)
+            st.markdown(
+                f"""
+                <div class="user-message">
+                    <span class="icon">😊</span>
+                    <div class="message-content">{message["content"]}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
         elif message["role"] == "assistant":
-            st.markdown(f'<div class="bot-message">{message["content"]}</div>', unsafe_allow_html=True)
+            st.markdown(
+                f"""
+                <div class="bot-message">
+                    <div class="bot-content">{message["content"]}</div>
+                    <span class="icon">🤖</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 
 # 整形後のテキストを表示
