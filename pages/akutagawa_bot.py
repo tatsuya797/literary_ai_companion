@@ -126,7 +126,7 @@ st.write(author_name + "の作品に基づいたチャットボットです。")
 
 # ユーザーのメッセージ入力（改行対応）
 user_input = st.text_area(
-    "メッセージを入力してください（改行可能）。",
+    "メッセージを入力してください",
     key="user_input",
     height=100,
     on_change=communicate
