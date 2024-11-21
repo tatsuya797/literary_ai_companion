@@ -136,7 +136,7 @@ user_input = st.text_area(
 message_length = len(st.session_state["user_input"])
 
 # メッセージが1000文字を超えた場合に対話終了ボタンを表示
-if message_length >= 1000:
+if message_length >= 10:
     if st.button("対話を終了する"):
         st.session_state["messages"].append({"role": "system", "content": "対話終了"})
         st.write("対話が終了しました。")
