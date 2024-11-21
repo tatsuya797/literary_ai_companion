@@ -124,8 +124,13 @@ def communicate():
 st.title(author_name + "チャットボット")
 st.write(author_name + "の作品に基づいたチャットボットです。")
 
-# ユーザーのメッセージ入力
-user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
+# ユーザーのメッセージ入力（改行対応）
+user_input = st.text_area(
+    "メッセージを入力してください（改行可能）。",
+    key="user_input",
+    height=100,
+    on_change=communicate
+)
 
 # カスタム CSS を追加して左右分割のスタイルとアイコンを設定
 st.markdown(
@@ -150,6 +155,7 @@ st.markdown(
         border-radius: 10px;
         max-width: 70%;
         text-align: left;
+        white-space: pre-wrap; /* 改行をサポート */
     }
     .bot-content {
         background-color: #f1f0f0;
@@ -158,6 +164,7 @@ st.markdown(
         border-radius: 10px;
         max-width: 70%;
         text-align: left;
+        white-space: pre-wrap; /* 改行をサポート */
     }
     .icon {
         font-size: 1.5rem;
@@ -194,6 +201,7 @@ if st.session_state.get("messages"):
                 """,
                 unsafe_allow_html=True,
             )
+
 
 
 # 整形後のテキストを表示
