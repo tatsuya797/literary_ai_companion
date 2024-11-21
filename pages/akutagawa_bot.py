@@ -121,17 +121,53 @@ def communicate():
     st.session_state["user_input"] = ""  # 入力欄をクリア
 
 # ユーザーインターフェイス
-st.title(author_name+"チャットボット")
-st.write(author_name+"の作品に基づいたチャットボットです。")
+st.title(author_name + "チャットボット")
+st.write(author_name + "の作品に基づいたチャットボットです。")
 
 # ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
 
-if st.session_state["messages"]:
+# カスタム CSS を追加して左右分割のスタイルを設定
+st.markdown(
+    """
+    <style>
+    .user-message {
+        background-color: #dcf8c6;
+        color: black;
+        padding: 10px;
+        border-radius: 10px;
+        margin: 5px 0;
+        max-width: 70%;
+        text-align: left;
+        float: left;
+        clear: both;
+    }
+    .bot-message {
+        background-color: #f1f0f0;
+        color: black;
+        padding: 10px;
+        border-radius: 10px;
+        margin: 5px 0;
+        max-width: 70%;
+        text-align: left;
+        float: right;
+        clear: both;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# 対話履歴を表示
+if st.session_state.get("messages"):
     messages = st.session_state["messages"]
-    for message in reversed(messages[1:]):  # 直近のメッセージを上に
-        speaker = "🙂" if message["role"] == "user" else "🤖"
-        st.write(speaker + ": " + message["content"])
+
+    for message in messages[1:]:  # システムメッセージはスキップ
+        if message["role"] == "user":
+            st.markdown(f'<div class="user-message">{message["content"]}</div>', unsafe_allow_html=True)
+        elif message["role"] == "assistant":
+            st.markdown(f'<div class="bot-message">{message["content"]}</div>', unsafe_allow_html=True)
+
 
 # 整形後のテキストを表示
 processed_texts = process_text_files()
