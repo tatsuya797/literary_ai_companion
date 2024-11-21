@@ -124,13 +124,22 @@ def communicate():
 st.title(author_name + "チャットボット")
 st.write(author_name + "の作品に基づいたチャットボットです。")
 
-# ユーザーのメッセージ入力（改行対応）
+# メッセージ入力欄（改行対応）
 user_input = st.text_area(
-    "メッセージを入力してください",
+    "メッセージを入力してください（改行可能）。",
     key="user_input",
     height=100,
     on_change=communicate
 )
+
+# メッセージ文字数のカウント
+message_length = len(st.session_state["user_input"])
+
+# メッセージが1000文字を超えた場合に対話終了ボタンを表示
+if message_length >= 1000:
+    if st.button("対話を終了する"):
+        st.session_state["messages"].append({"role": "system", "content": "対話終了"})
+        st.write("対話が終了しました。")
 
 # カスタム CSS を追加して左右分割のスタイルとアイコンを設定
 st.markdown(
@@ -179,7 +188,6 @@ st.markdown(
 if st.session_state.get("messages"):
     messages = st.session_state["messages"]
 
-    # 最新のメッセージが上に来るように逆順にループ
     for message in reversed(messages[1:]):  # システムメッセージをスキップ
         if message["role"] == "user":
             st.markdown(
