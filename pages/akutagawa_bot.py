@@ -131,7 +131,7 @@ st.write(author_name + "の作品に基づいたチャットボットです。")
 
 # 対話終了ボタンの表示(10文字で出現)
 if st.session_state["total_characters"] >= 10:
-    if st.markdown('<button class="red-button">対話終了</button>', unsafe_allow_html=True)
+    if st.markdown('<button class="red-button">対話終了</button>', unsafe_allow_html=True):
         st.write("対話を終了しました。")
         # 必要に応じて処理を追加
 
