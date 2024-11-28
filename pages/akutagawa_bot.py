@@ -233,8 +233,6 @@ if st.session_state.get("messages"):
 processed_texts = process_text_files()
 for i, text in enumerate(processed_texts):
     st.text_area(f"整形後のテキスト {i+1}", text, height=300)
-    st.write(text)
-
 
 # 評価データ
 criteria = ["独創性", "柔軟性", "関連性", "問題解決能力", "洞察力"]
