@@ -79,28 +79,46 @@ if "total_characters" not in st.session_state:
 
 # チャットボットとやりとりする関数
 def communicate():
+    # 参考となるテキスト内容
+    text_content = fetch_text_content(selected_title)
+
+    # メッセージ履歴を取得
     messages = st.session_state["messages"]
+
+    # ユーザーの入力を追加
     user_message = {"role": "user", "content": st.session_state["user_input"]}
     messages.append(user_message)
 
     # 入力文字数をカウント
     st.session_state["total_characters"] += len(user_message["content"])
 
+    # ChatGPT API 呼び出し
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        messages=messages
+        messages=[
+            {"role": "system", "content": "あなたは熟練した文学解説者です。以下の文章を理解し、質問に答えてください。"},
+            {"role": "user", "content": f"参考文章:\n\n{text_content}"},
+        ] + messages  # ユーザーのメッセージ履歴を追加
     )
 
+    # ボットの応答を追加
     bot_message = response["choices"][0]["message"]
     messages.append(bot_message)
 
-    st.session_state["user_input"] = ""  # 入力欄をクリア
+    # 入力欄をクリア
+    st.session_state["user_input"] = ""
+
+# 初期化: セッションステートにメッセージ履歴と合計文字数を保存
+if "messages" not in st.session_state:
+    st.session_state["messages"] = []
+if "total_characters" not in st.session_state:
+    st.session_state["total_characters"] = 0
 
 # ユーザーインターフェイス
 st.title(author_name + "チャットボット")
 st.write(author_name + "の作品に基づいたチャットボットです。")
 
-# 対話終了ボタンの表示(10文字で出現)
+# 対話終了ボタンの表示 (10文字で出現)
 if st.session_state["total_characters"] >= 10:
     if st.markdown('<button class="red-button">対話終了</button>', unsafe_allow_html=True):
         st.write("対話を終了しました。")
@@ -113,6 +131,7 @@ user_input = st.text_area(
     height=100,
     on_change=communicate
 )
+
 
 # カスタム CSS を追加して左右分割のスタイルとアイコンを設定
 st.markdown(
