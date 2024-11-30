@@ -90,10 +90,7 @@ if selected_bot == "芥川龍之介":
         if st.button("会話を始める", key="start_conversation"):  # keyを追加
            url = "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot"
            st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
-           st.markdown(
-               f'<a href="https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot" class="btn-start">会話を始める</a>',
-               unsafe_allow_html=True,
-            )
+           
            
     else:
         st.write("作品リストを取得できませんでした。データベースを確認してください。")
@@ -107,5 +104,7 @@ else:
 # トップページから対話ページへの遷移
 if "page" in st.session_state and st.session_state["page"] == "chat":
     st.write("対話画面に移動中...")  # 実際のアプリでは対話ページに移行します
+
+    
 
     
