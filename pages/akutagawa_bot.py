@@ -57,14 +57,6 @@ if selected_title:
     # 選択されたタイトルに対応する内容を取得
     text_content = fetch_text_content(selected_title)
 
-    # テキストボックス内に収まるようにタイトルを表示
-    st.text_area(
-        "選択された作品",
-        value=f"『{selected_title}』",
-        height=50,
-        disabled=True  # 読み取り専用
-    )
-
     # 結果を表示
     st.write(f"選択された作品: 『{selected_title}』")
     st.text_area("作品の内容", text_content, height=300)
