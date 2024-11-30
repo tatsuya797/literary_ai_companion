@@ -89,7 +89,7 @@ if selected_bot == "芥川龍之介":
         selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")  # keyを追加
         if st.button("会話を始める", key="start_conversation"):  # keyを追加
            url = "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot"
-           st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
+           
            
            
     else:
@@ -104,6 +104,15 @@ else:
 # トップページから対話ページへの遷移
 if "page" in st.session_state and st.session_state["page"] == "chat":
     st.write("対話画面に移動中...")  # 実際のアプリでは対話ページに移行します
+
+
+    # 芥川ボットの選択に応じてリンクボタンを表示
+if selected_bot == "芥川龍之介":
+    st.write("会話を始めるボタンを押すと bot.py に移動します。")
+    st.markdown(
+        f'<a href="https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot" class="btn-start">会話を始める</a>',
+        unsafe_allow_html=True,
+    )
 
     
 
