@@ -94,7 +94,7 @@ def communicate():
 
     # ChatGPT API 呼び出し
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "あなたは熟練した文学解説者です。以下の文章を理解し、質問に答えてください。"},
             {"role": "user", "content": f"参考文章:\n\n{text_content}"},
