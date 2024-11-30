@@ -89,6 +89,7 @@ if selected_bot == "芥川龍之介":
         selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")  # keyを追加
         if st.button("会話を始める", key="start_conversation"):  # keyを追加
            url = "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot"
+           st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
            
            
            
