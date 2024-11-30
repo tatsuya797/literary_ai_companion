@@ -86,12 +86,7 @@ if selected_bot == "芥川龍之介":
     titles = fetch_titles_from_db()
     if titles:
         selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
-        if st.button("会話を始める", key="start_conversation"):
-            # ページ遷移
-            url = "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot"
-            st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
-    else:
-        st.write("作品リストを取得できませんでした。データベースを確認してください。")
+        
 
 # 他のボットが選択された場合の処理
 elif selected_bot in ["夏目漱石", "太宰治"]:
