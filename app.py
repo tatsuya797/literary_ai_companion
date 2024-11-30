@@ -111,4 +111,4 @@ if selected_bot == "芥川龍之介":
     st.markdown(
         f'<a href="https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot" class="btn-start">会話を始める</a>',
         unsafe_allow_html=True,
-    
+    )
