@@ -96,7 +96,7 @@ def communicate():
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "あなたは熟練した文学解説者です。以下の文章を理解し、質問に答えてください。"},
+            {"role": "system", "content": st.secrets.AppSettings.chatbot_setting},
             {"role": "user", "content": f"参考文章:\n\n{text_content}"},
         ] + messages  # ユーザーのメッセージ履歴を追加
     )
