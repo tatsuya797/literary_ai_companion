@@ -58,7 +58,6 @@ page_bg_img = f"""
     }}
 </style>
 """
-
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
 # タイトルと説明
@@ -68,7 +67,7 @@ st.markdown("<div class='subtitle'>感想を語り合い、作家の息吹に触
 # ボット選択と開始ボタン
 st.markdown("<div class='bot-section'>読書の対話相手を選んでください</div>", unsafe_allow_html=True)
 bot_options = ["夏目漱石", "太宰治", "芥川龍之介"]
-selected_bot = st.selectbox("ボット選択", bot_options, key="bot_selectbox")  # keyを追加
+selected_bot = st.selectbox("ボット選択", bot_options, key="bot_selectbox")
 st.markdown("</div>", unsafe_allow_html=True)
 
 # 芥川龍之介ボットの選択に応じた処理
@@ -86,28 +85,16 @@ if selected_bot == "芥川龍之介":
     # タイトルリストを取得
     titles = fetch_titles_from_db()
     if titles:
-        selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")  # keyを追加
-        if st.button("会話を始める", key="start_conversation"):  # keyを追加
-           url = "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot"
-           st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
-           
-           
-           
+        selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
+        if st.button("会話を始める", key="start_conversation"):
+            # ページ遷移
+            url = "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot"
+            st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
     else:
         st.write("作品リストを取得できませんでした。データベースを確認してください。")
 
-else:
-    # 他のボットが選択された場合の処理
+# 他のボットが選択された場合の処理
+elif selected_bot in ["夏目漱石", "太宰治"]:
     st.write(f"{selected_bot}との対話を開始する準備が整いました。")
-    if st.button("会話を始める", key="start_conversation_others"):  # keyを追加
+    if st.button("会話を始める", key="start_conversation_others"):
         st.write(f"{selected_bot}との対話画面に遷移します。")
-
-# トップページから対話ページへの遷移
-if "page" in st.session_state and st.session_state["page"] == "chat":
-    st.write("対話画面に移動中...")  # 実際のアプリでは対話ページに移行します
-
-
-
-    
-
-    
