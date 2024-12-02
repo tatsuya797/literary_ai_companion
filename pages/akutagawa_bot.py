@@ -193,7 +193,7 @@ st.markdown(
         display: block; 
         margin-bottom: 10px;
     ">
-        『{selected_title}について語り合おう！』
+        『{selected_title}を読んだ感想を聞かせてください！』
     </label>
     """,
     unsafe_allow_html=True,
