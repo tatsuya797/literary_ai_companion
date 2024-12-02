@@ -151,7 +151,30 @@ if "total_characters" not in st.session_state:
     st.session_state["total_characters"] = 0
 
 # ユーザーインターフェイス
-st.title(author_name + "チャットボット")
+st.markdown(
+    f"""
+    <div style="
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        margin-top: 20px;
+    ">
+        <span style="
+            font-size: 2.5rem; 
+            margin-right: 10px;
+        ">📖</span>
+        <h1 style="
+            font-size: 2.5rem; 
+            font-family: 'Yu Mincho', serif; 
+            font-weight: bold; 
+            color: #8b4513; 
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        ">{author_name}チャットボット</h1>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
 st.write(author_name + "の作品に基づいたチャットボットです。")
 
 # 対話終了ボタンの表示 (10文字で出現)
