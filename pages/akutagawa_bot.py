@@ -61,7 +61,7 @@ if selected_title:
     st.markdown(
     f"""
     <p style="
-        font-size: 2rem; 
+        font-size: 2.5rem; 
         font-weight: bold; 
         color: #8b4513; 
         font-family: 'Yu Mincho', serif;
