@@ -57,7 +57,7 @@ if selected_title:
     # 選択されたタイトルに対応する内容を取得
     text_content = fetch_text_content(selected_title)
 
-    # 結果を表示
+    # 選択された作品名を強調して表示
     st.markdown(
     f"""
     <p style="
@@ -75,7 +75,7 @@ if selected_title:
 )
 
     # 作品内容を本っぽく表示
-st.markdown(
+    st.markdown(
     f"""
     <div style="
         padding: 20px; 
