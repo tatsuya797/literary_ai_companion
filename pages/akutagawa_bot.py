@@ -73,7 +73,31 @@ if selected_title:
     """,
     unsafe_allow_html=True,
 )
-    st.text_area("作品の内容", text_content, height=300)
+
+    # 作品内容を本っぽく表示
+st.markdown(
+    f"""
+    <div style="
+        padding: 20px; 
+        margin: 20px 0; 
+        background-color: #fffbea; 
+        border: 2px solid #d4af37; 
+        border-radius: 10px; 
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+        font-family: 'Yu Mincho', serif; 
+        font-size: 1.1rem; 
+        line-height: 1.8; 
+        color: #333;
+        text-align: justify;
+        overflow: auto;
+        height: 300px;
+    ">
+        {text_content}
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 
 
