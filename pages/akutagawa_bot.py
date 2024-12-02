@@ -58,7 +58,24 @@ if selected_title:
     text_content = fetch_text_content(selected_title)
 
     # 結果を表示
-    st.write(f"選択された作品: 『{selected_title}』")
+    st.markdown(
+    f"""
+    <div style="
+        padding: 20px; 
+        margin: 10px 0; 
+        background-color: #f9f9f9; 
+        border-left: 5px solid #8b4513; 
+        border-radius: 5px;
+        font-family: 'Yu Mincho', serif; 
+        font-size: 1.5rem; 
+        font-weight: bold; 
+        color: #333;
+    ">
+        📚 作品名: 『{selected_title}』
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
     st.text_area("作品の内容", text_content, height=300)
 else:
     st.write("作品が選択されていません。URLのクエリパラメータを確認してください。")
