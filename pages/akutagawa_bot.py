@@ -184,7 +184,7 @@ if st.session_state["total_characters"] >= 10:
 
 # ユーザーのメッセージ入力（改行対応）
 user_input = st.text_area(
-    "メッセージを入力してください",
+    f"『{selected_title}について語り合おう！』",  # ラベルを変更
     key="user_input",
     height=100,
     on_change=communicate
