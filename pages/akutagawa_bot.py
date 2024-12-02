@@ -162,7 +162,7 @@ st.markdown(
         <span style="
             font-size: 2.5rem; 
             margin-right: 10px;
-        ">📖</span>
+        ">🖋</span>
         <h1 style="
             font-size: 2.5rem; 
             font-family: 'Yu Mincho', serif; 
@@ -175,7 +175,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.write(author_name + "の作品に基づいたチャットボットです。")
 
 # 対話終了ボタンの表示 (10文字で出現)
 if st.session_state["total_characters"] >= 10:
