@@ -60,19 +60,16 @@ if selected_title:
     # 結果を表示
     st.markdown(
     f"""
-    <div style="
-        padding: 20px; 
-        margin: 10px 0; 
-        background-color: #f9f9f9; 
-        border-left: 5px solid #8b4513; 
-        border-radius: 5px;
-        font-family: 'Yu Mincho', serif; 
-        font-size: 1.5rem; 
+    <p style="
+        font-size: 2rem; 
         font-weight: bold; 
-        color: #333;
+        color: #8b4513; 
+        font-family: 'Yu Mincho', serif;
+        text-align: center; 
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
     ">
         📚 作品名: 『{selected_title}』
-    </div>
+    </p>
     """,
     unsafe_allow_html=True,
 )
