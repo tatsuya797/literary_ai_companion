@@ -182,6 +182,23 @@ if st.session_state["total_characters"] >= 10:
         st.write("対話を終了しました。")
         # 必要に応じて処理を追加
 
+        
+# ラベルをカスタマイズして表示
+st.markdown(
+    f"""
+    <label style="
+        font-size: 1.5rem; 
+        font-weight: bold; 
+        color: white; 
+        display: block; 
+        margin-bottom: 10px;
+    ">
+        『{selected_title}について語り合おう！』
+    </label>
+    """,
+    unsafe_allow_html=True,
+)
+
 # ユーザーのメッセージ入力（改行対応）
 user_input = st.text_area(
     f"『{selected_title}について語り合おう！』",  # ラベルを変更
