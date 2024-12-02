@@ -97,10 +97,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-else:
-    st.write("作品が選択されていません。URLのクエリパラメータを確認してください。")
-
-
 
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
