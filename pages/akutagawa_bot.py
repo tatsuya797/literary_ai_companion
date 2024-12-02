@@ -187,7 +187,7 @@ if st.session_state["total_characters"] >= 10:
 st.markdown(
     f"""
     <label style="
-        font-size: 1.5rem; 
+        font-size: 1rem; 
         font-weight: bold; 
         color: white; 
         display: block; 
