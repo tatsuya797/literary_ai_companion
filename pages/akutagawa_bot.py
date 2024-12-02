@@ -58,7 +58,7 @@ if selected_title:
     text_content = fetch_text_content(selected_title)
 
     # 結果を表示
-    st.write(f"選択された作品: 『{selected_title}』")
+    st.text_area(f"選択された作品: 『{selected_title}』, height=1")
     st.text_area("作品の内容", text_content, height=300)
 else:
     st.write("作品が選択されていません。URLのクエリパラメータを確認してください。")
