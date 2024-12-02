@@ -201,7 +201,7 @@ st.markdown(
 
 # ユーザーのメッセージ入力（改行対応）
 user_input = st.text_area(
-    f"『{selected_title}について語り合おう！』",  # ラベルを変更
+    "",
     key="user_input",
     height=100,
     on_change=communicate
