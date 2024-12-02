@@ -73,7 +73,28 @@ if selected_title:
     """,
     unsafe_allow_html=True,
 )
-    # 作品内容を本っぽく表示
+    # 改行処理関数
+def format_text_with_line_breaks(text, max_line_length=40):
+    """
+    長いテキストを適切な位置で改行して段落として整形する。
+    max_line_length: 1行の最大文字数
+    """
+    lines = text.split("\n")  # 元の段落を分割
+    formatted_lines = []
+    for line in lines:
+        if len(line) > max_line_length:
+            # 長い行を指定文字数ごとに改行
+            formatted_lines.append(
+                "\n".join(line[i : i + max_line_length] for i in range(0, len(line), max_line_length))
+            )
+        else:
+            formatted_lines.append(line)
+    return "\n\n".join(formatted_lines)  # 段落間に空行を追加
+
+# 改行を適用したテキスト
+formatted_text_content = format_text_with_line_breaks(text_content)
+
+# 作品内容を本っぽく表示
 st.markdown(
     f"""
     <div style="
@@ -90,8 +111,9 @@ st.markdown(
         text-align: justify;
         overflow: auto;
         height: 300px;
+        white-space: pre-wrap;  /* 改行を適用 */
     ">
-        {text_content}
+        {formatted_text_content}
     </div>
     """,
     unsafe_allow_html=True,
