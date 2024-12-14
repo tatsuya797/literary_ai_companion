@@ -175,30 +175,32 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# ユーザーの入力が合計10文字以上になった場合に「対話終了」ボタンを表示
+if st.session_state["total_characters"] >= 10:
+    if st.button("対話終了"):
+        # 会話履歴をまとめるプロンプトを生成
+        summarize_prompt = "これまでの会話を以下の形式で要約してください:\n\n"
+        for msg in st.session_state["messages"]:
+            if msg["role"] == "user":
+                summarize_prompt += f"ユーザー: {msg['content']}\n"
+            elif msg["role"] == "assistant":
+                summarize_prompt += f"AI: {msg['content']}\n"
 
-# 対話終了ボタン
-if st.button("対話終了"):
-    # 会話履歴をまとめるプロンプトを生成
-    summarize_prompt = "これまでの会話を以下の形式で要約してください:\n\n"
-    for msg in st.session_state["messages"]:
-        if msg["role"] == "user":
-            summarize_prompt += f"ユーザー: {msg['content']}\n"
-        elif msg["role"] == "assistant":
-            summarize_prompt += f"AI: {msg['content']}\n"
+        # OpenAI API に要約をリクエスト
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "あなたは熟練した会話の要約者です。"},
+                {"role": "user", "content": summarize_prompt}
+            ]
+        )
+        summary = response["choices"][0]["message"]["content"]
 
-    # OpenAI API に要約をリクエスト
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "あなたは熟練した会話の要約者です。"},
-            {"role": "user", "content": summarize_prompt}
-        ]
-    )
-    summary = response["choices"][0]["message"]["content"]
+        # 要約を表示
+        st.markdown("### これまでの会話のまとめ")
+        st.markdown(f"{summary}")
 
-    # 要約を表示
-    st.markdown("### これまでの会話のまとめ")
-    st.markdown(f"{summary}")
+
 
 # 対話履歴の表示（オプション）
 st.markdown("### 会話履歴")
