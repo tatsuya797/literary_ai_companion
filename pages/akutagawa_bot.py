@@ -40,10 +40,11 @@ page_bg_img = f"""
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
 
-# クエリパラメータを取得
+# クエリパラメータ "title" を取得
 query_params = st.experimental_get_query_params()
-selected_title = query_params.get("title", [None])[0]  # クエリパラメータ "title" を取得
+selected_title = query_params.get("title", [None])[0]
 
+# データベースから作品の内容を取得する関数
 if selected_title:
     # データベース接続
     def fetch_text_content(title):
@@ -180,12 +181,20 @@ st.markdown(
 # ユーザーの入力が合計10文字以上になった場合に「対話終了」ボタンを表示
 if st.session_state["total_characters"] >= 10:
     if st.button("対話終了"):
-        # 会話履歴を JSON 形式でエンコードしてクエリパラメータに含める
-        messages_query = urllib.parse.quote(json.dumps(st.session_state["messages"]))
-
+        st.session_state["navigate_to_evaluate"] = True
+        st.experimental_rerun()
+        
         # evaluate.py の URL に遷移
         evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?messages={messages_query}"
         st.markdown(f'<meta http-equiv="refresh" content="0; url={evaluate_url}">', unsafe_allow_html=True)
+
+# 対話履歴を表示
+if st.session_state.get("messages"):
+    for message in reversed(st.session_state["messages"][1:]):
+        if message["role"] == "user":
+            st.markdown(f"**ユーザー:** {message['content']}")
+        elif message["role"] == "assistant":
+            st.markdown(f"**AI:** {message['content']}")
 
         
 # ラベルをカスタマイズして表示
