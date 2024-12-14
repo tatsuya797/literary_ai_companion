@@ -18,6 +18,7 @@ st.set_page_config(
 
 st.title("会話の要約ページ")
 
+
 # クエリパラメータから会話履歴を取得
 query_params = st.experimental_get_query_params()
 messages_query = query_params.get("messages", [None])[0]
@@ -30,11 +31,15 @@ if messages_query:
 
         # 会話履歴をまとめるプロンプトを生成
         summarize_prompt = "これまでの会話を以下の形式で要約してください:\n\n"
+        full_history = ""  # 会話履歴を文字列として格納
+
         for msg in messages:
             if msg["role"] == "user":
                 summarize_prompt += f"ユーザー: {msg['content']}\n"
+                full_history += f"ユーザー: {msg['content']}\n"
             elif msg["role"] == "assistant":
                 summarize_prompt += f"AI: {msg['content']}\n"
+                full_history += f"AI: {msg['content']}\n"
 
         # OpenAI API に要約をリクエスト
         response = openai.ChatCompletion.create(
@@ -46,8 +51,12 @@ if messages_query:
         )
         summary = response["choices"][0]["message"]["content"]
 
+        # 会話履歴をテキストボックスに表示
+        st.text_area("これまでの会話履歴", full_history, height=300)
+
         # 要約をテキストボックスに表示
         st.text_area("会話の要約", summary, height=300)
+
     except json.JSONDecodeError as e:
         st.error(f"クエリパラメータのデコードに失敗しました: {e}")
 else:
