@@ -178,7 +178,7 @@ st.markdown(
 
 # 対話終了ボタンの表示 (10文字以上の入力がある場合)
 if st.session_state["total_characters"] >= 10:
-    if st.button("対話終了"):
+    st.markdown('<button class="red-button">対話終了</button>', unsafe_allow_html=True)
         # 会話履歴をまとめるプロンプトを生成
         summarize_prompt = "これまでの会話を以下の形式で要約してください:\n\n"
         for msg in st.session_state["messages"]:
