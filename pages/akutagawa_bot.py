@@ -181,8 +181,9 @@ st.markdown(
 # ユーザーの入力が合計10文字以上になった場合に「対話終了」ボタンを表示
 if st.session_state["total_characters"] >= 10:
     if st.button("対話終了"):
+         # 会話終了フラグを設定
         st.session_state["navigate_to_evaluate"] = True
-        st.experimental_rerun()
+        st.experimental_set_query_params(page="evaluate")
         
         # evaluate.py の URL に遷移
         evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?messages={messages_query}"
