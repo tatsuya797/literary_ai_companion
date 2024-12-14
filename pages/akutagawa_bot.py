@@ -175,44 +175,38 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 入力された文字数を取得
-input_length = len(st.session_state["user_input"])
 
-# 入力文字数を表示（デバッグ用、不要なら削除）
-st.write(f"現在の文字数: {input_length}")
-
-# 文字数が10文字以上の場合にボタンを表示
-if input_length >= 10:
-    if st.button("対話終了"):
-        # 会話履歴をまとめるプロンプトを生成
-        summarize_prompt = "これまでの会話を以下の形式で要約してください:\n\n"
-        for msg in st.session_state["messages"]:
-            if msg["role"] == "user":
-                summarize_prompt += f"ユーザー: {msg['content']}\n"
-            elif msg["role"] == "assistant":
-                summarize_prompt += f"AI: {msg['content']}\n"
-    
-        # OpenAI API に要約をリクエスト
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "あなたは熟練した会話の要約者です。"},
-                {"role": "user", "content": summarize_prompt}
-            ]
-        )
-        summary = response["choices"][0]["message"]["content"]
-    
-        # 要約を表示
-        st.markdown("### これまでの会話のまとめ")
-        st.markdown(f"{summary}")
-    
-    # 対話履歴の表示（オプション）
-    st.markdown("### 会話履歴")
+# 対話終了ボタン
+if st.button("対話終了"):
+    # 会話履歴をまとめるプロンプトを生成
+    summarize_prompt = "これまでの会話を以下の形式で要約してください:\n\n"
     for msg in st.session_state["messages"]:
         if msg["role"] == "user":
-            st.write(f"ユーザー: {msg['content']}")
+            summarize_prompt += f"ユーザー: {msg['content']}\n"
         elif msg["role"] == "assistant":
-            st.write(f"AI: {msg['content']}")
+            summarize_prompt += f"AI: {msg['content']}\n"
+
+    # OpenAI API に要約をリクエスト
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "あなたは熟練した会話の要約者です。"},
+            {"role": "user", "content": summarize_prompt}
+        ]
+    )
+    summary = response["choices"][0]["message"]["content"]
+
+    # 要約を表示
+    st.markdown("### これまでの会話のまとめ")
+    st.markdown(f"{summary}")
+
+# 対話履歴の表示（オプション）
+st.markdown("### 会話履歴")
+for msg in st.session_state["messages"]:
+    if msg["role"] == "user":
+        st.write(f"ユーザー: {msg['content']}")
+    elif msg["role"] == "assistant":
+        st.write(f"AI: {msg['content']}")
 
         
 # ラベルをカスタマイズして表示
