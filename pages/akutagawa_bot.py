@@ -178,17 +178,13 @@ st.markdown(
 # ユーザーの入力が合計10文字以上になった場合に「対話終了」ボタンを表示
 if st.session_state["total_characters"] >= 10:
     if st.button("対話終了"):
-        # evaluate.py に遷移するためのリンクを生成
-        evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate"
-        st.markdown(
-            f'<meta http-equiv="refresh" content="0; url={evaluate_url}">',
-            unsafe_allow_html=True,
-        )
+        # 会話履歴をクエリパラメータに変換
+        import urllib.parse
+        messages_query = urllib.parse.quote(str(st.session_state["messages"]))
 
-        # 会話履歴を `st.session_state` に保存して遷移後に使用
-        st.session_state["conversation_summary"] = st.session_state["messages"]
-
-
+        # evaluate.py の URL に遷移
+        evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?messages={messages_query}"
+        st.markdown(f'<meta http-equiv="refresh" content="0; url={evaluate_url}">', unsafe_allow_html=True)
 
         
 # ラベルをカスタマイズして表示
