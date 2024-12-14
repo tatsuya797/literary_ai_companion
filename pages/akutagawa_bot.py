@@ -44,19 +44,18 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 query_params = st.experimental_get_query_params()
 selected_title = query_params.get("title", [None])[0]  # クエリパラメータ "title" を取得
 
-if selected_title:
-    # データベース接続
-    def fetch_text_content(title):
-        db_file = "literary_app.db"
-        conn = sqlite3.connect(db_file)
-        cur = conn.cursor()
-        # BOT テーブルからタイトルに対応する text_content を取得
-        cur.execute("SELECT text_content FROM BOT WHERE title = ?", (title,))
-        row = cur.fetchone()
-        conn.close()
-        return row[0] if row else "該当する内容が見つかりません。"
+# データベース接続
+def fetch_text_content(title):
+    db_file = "literary_app.db"
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+    # BOT テーブルからタイトルに対応する text_content を取得
+    cur.execute("SELECT text_content FROM BOT WHERE title = ?", (title,))
+    row = cur.fetchone()
+    conn.close()
+    return row[0] if row else "該当する内容が見つかりません。"
 
-    # 選択されたタイトルに対応する内容を取得
+if selected_title:
     text_content = fetch_text_content(selected_title)
 
     # 選択された作品名を強調して表示
