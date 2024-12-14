@@ -21,23 +21,22 @@ st.title("会話の要約ページ")
 
 
 # セッションステートから会話履歴を取得
-if "messages" in st.session_state and st.session_state["messages"]:
+if "messages" in st.session_state:
     messages = st.session_state["messages"]
 
     # 会話履歴をまとめるプロンプトを生成
     summarize_prompt = "これまでの会話を以下の形式で要約してください:\n\n"
+    # 会話履歴を表示
     full_history = ""
     for msg in messages:
         if msg["role"] == "user":
-            summarize_prompt += f"ユーザー: {msg['content']}\n"
             full_history += f"ユーザー: {msg['content']}\n"
         elif msg["role"] == "assistant":
-            summarize_prompt += f"AI: {msg['content']}\n"
             full_history += f"AI: {msg['content']}\n"
 
-    # 会話履歴を表示
     st.text_area("これまでの会話履歴", full_history, height=300)
 
+    
     # OpenAI API を使って会話の要約を生成
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -52,7 +51,3 @@ if "messages" in st.session_state and st.session_state["messages"]:
     st.text_area("会話の要約", summary, height=200)
 else:
     st.write("会話履歴が見つかりませんでした。")
-
-# 「再開する」ボタン
-if st.button("再開する"):
-    st.experimental_rerun()
