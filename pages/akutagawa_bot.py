@@ -145,13 +145,13 @@ def communicate():
     # 入力欄をクリア
     st.session_state["user_input"] = ""
 
-# 初期化: セッションステートにメッセージ履歴と合計文字数を保存
+# もしmessagesやtotal_charactersが未初期化なら初期化
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 if "total_characters" not in st.session_state:
     st.session_state["total_characters"] = 0
 
-# ユーザーインターフェイス
+# 画面タイトル
 st.markdown(
     f"""
     <div style="
@@ -176,13 +176,59 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# --- 対話終了ボタンで会話とサマリーをDBに保存 --- #
+def summarize_conversation(messages):
+    """会話履歴を要約する"""
+    summary_prompt = [
+        {
+            "role": "system",
+            "content": "以下の会話履歴を短くまとめた要約を作成してください。"
+        },
+        {
+            "role": "user",
+            "content": json.dumps(messages, ensure_ascii=False)
+        }
+    ]
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=summary_prompt
+    )
+    return response["choices"][0]["message"]["content"]
+
+def save_conversation_and_summary_to_db(messages):
+    """USERテーブルに会話履歴（JSON）とサマリーをINSERTする"""
+    db_file = "literary_app.db"
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+
+    # 必要に応じてテーブルが無ければ作る。カラム名は例としてconversation, summaryにしている
+    # PRIMARY KEY としてidを用意（AUTO INCREMENT）する想定
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS USER (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            conversation TEXT,
+            summary TEXT
+        )
+    """)
+
+    conversation_json = json.dumps(messages, ensure_ascii=False)
+    summary_text = summarize_conversation(messages)
+
+    cur.execute(
+        "INSERT INTO USER (conversation, summary) VALUES (?, ?)",
+        (conversation_json, summary_text)
+    )
+    conn.commit()
+    conn.close()
+
 # ユーザーの入力が合計10文字以上になった場合に「対話終了」ボタンを表示
 if st.session_state["total_characters"] >= 10:
     if st.button("対話終了"):
-        # 会話履歴を JSON 形式でエンコードしてクエリパラメータに含める
-        messages_query = urllib.parse.quote(json.dumps(st.session_state["messages"]))
+        # --- 会話履歴とサマリーをDBに保存 --- #
+        save_conversation_and_summary_to_db(st.session_state["messages"])
 
-        # evaluate.py の URL に遷移
+        # 会話履歴をクエリパラメータに載せてevaluate.pyへ遷移
+        messages_query = urllib.parse.quote(json.dumps(st.session_state["messages"]))
         evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?messages={messages_query}"
         st.markdown(f'<meta http-equiv="refresh" content="0; url={evaluate_url}">', unsafe_allow_html=True)
 
