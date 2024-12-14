@@ -178,7 +178,7 @@ st.markdown(
 
 # 対話終了ボタンの表示 (10文字で出現)
 if st.session_state["total_characters"] >= 10:
-    if st.markdown('<button class="red-button">対話終了</button>', unsafe_allow_html=True):
+    st.markdown('<button class="red-button">対話終了</button>', unsafe_allow_html=True)
 
 # 対話終了ボタン
 if st.button("対話終了"):
