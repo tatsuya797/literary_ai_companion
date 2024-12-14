@@ -175,12 +175,37 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# 対話終了ボタン
+if st.button("対話終了"):
+    # 会話履歴をまとめるプロンプトを生成
+    summarize_prompt = "これまでの会話を以下の形式で要約してください:\n\n"
+    for msg in st.session_state["messages"]:
+        if msg["role"] == "user":
+            summarize_prompt += f"ユーザー: {msg['content']}\n"
+        elif msg["role"] == "assistant":
+            summarize_prompt += f"AI: {msg['content']}\n"
 
-# 対話終了ボタンの表示 (10文字で出現)
-if st.session_state["total_characters"] >= 10:
-    if st.markdown('<button class="red-button">対話終了</button>', unsafe_allow_html=True):
-        st.write("対話を終了しました。")
-        # 必要に応じて処理を追加
+    # OpenAI API に要約をリクエスト
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "あなたは熟練した会話の要約者です。"},
+            {"role": "user", "content": summarize_prompt}
+        ]
+    )
+    summary = response["choices"][0]["message"]["content"]
+
+    # 要約を表示
+    st.markdown("### これまでの会話のまとめ")
+    st.markdown(f"{summary}")
+
+# 対話履歴の表示（オプション）
+st.markdown("### 会話履歴")
+for msg in st.session_state["messages"]:
+    if msg["role"] == "user":
+        st.write(f"ユーザー: {msg['content']}")
+    elif msg["role"] == "assistant":
+        st.write(f"AI: {msg['content']}")
 
         
 # ラベルをカスタマイズして表示
