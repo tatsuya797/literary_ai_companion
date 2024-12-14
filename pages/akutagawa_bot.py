@@ -176,19 +176,14 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- 対話終了ボタンで会話とサマリーをDBに保存 --- #
 def summarize_conversation(messages):
-    """会話履歴を要約する"""
+    """会話履歴を400文字にまとめた要約を作成"""
+    # ここでは既に filtered_messages を受け取る前提でもよい
     summary_prompt = [
-        {
-            "role": "system",
-            "content": "以下の会話履歴を400文字にまとめた要約を作成してください。"
-        },
-        {
-            "role": "user",
-            "content": json.dumps(messages, ensure_ascii=False)
-        }
+        {"role": "system", "content": "以下の会話履歴を400文字にまとめた要約を作成してください。"},
+        {"role": "user", "content": json.dumps(messages, ensure_ascii=False)}
     ]
+
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=summary_prompt
@@ -196,13 +191,14 @@ def summarize_conversation(messages):
     return response["choices"][0]["message"]["content"]
 
 def save_conversation_and_summary_to_db(messages):
-    """USERテーブルに会話履歴（JSON）とサマリーをINSERTする"""
+    """
+    USERテーブルに会話履歴（JSON）とサマリーをINSERTし、AUTO INCREMENTで生成されたidを返す
+    """
     db_file = "literary_app.db"
     conn = sqlite3.connect(db_file)
     cur = conn.cursor()
 
-    # 必要に応じてテーブルが無ければ作る。カラム名は例としてconversation, summaryにしている
-    # PRIMARY KEY としてidを用意（AUTO INCREMENT）する想定
+    # 必要ならテーブル初期化
     cur.execute("""
         CREATE TABLE IF NOT EXISTS USER (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -211,34 +207,41 @@ def save_conversation_and_summary_to_db(messages):
         )
     """)
 
-    # --- システムメッセージを除外する処理を追加 ---
+    # システムメッセージを除外したリストを作成
     filtered_messages = [m for m in messages if m["role"] in ("user", "assistant")]
 
+    # JSON文字列に変換
     conversation_json = json.dumps(filtered_messages, ensure_ascii=False)
+
+    # 要約を生成
     summary_text = summarize_conversation(filtered_messages)
 
+    # DBにINSERT
     cur.execute(
         "INSERT INTO USER (conversation, summary) VALUES (?, ?)",
         (conversation_json, summary_text)
     )
     conn.commit()
 
-    # 直後の挿入レコードIDを取得
+    # 直近でINSERTしたレコードのIDを取得
     last_insert_id = cur.lastrowid
 
     conn.close()
     return last_insert_id
-    
 
-# ユーザーの入力が合計10文字以上になった場合に「対話終了」ボタンを表示
+# --- 対話終了ボタン ---
 if st.session_state["total_characters"] >= 10:
     if st.button("対話終了"):
-        # DBに保存してIDを取得
+        # DBに保存 → レコードID取得
         record_id = save_conversation_and_summary_to_db(st.session_state["messages"])
 
-        # evaluate.py にレコードIDだけを載せて遷移
+        # デバッグ用表示（必要なら残す）
+        st.write(f"DEBUG: record_id = {record_id}")
+
+        # evaluate.py へ遷移（ここでは id=record_id だけクエリパラメータに含める）
         evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?id={record_id}"
         st.markdown(f'<meta http-equiv="refresh" content="0; url={evaluate_url}">', unsafe_allow_html=True)
+
 
         
 # ラベルをカスタマイズして表示
