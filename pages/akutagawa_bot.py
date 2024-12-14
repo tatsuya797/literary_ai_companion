@@ -188,13 +188,6 @@ if st.session_state["total_characters"] >= 10:
         evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?messages={messages_query}"
         st.markdown(f'<meta http-equiv="refresh" content="0; url={evaluate_url}">', unsafe_allow_html=True)
 
-# 対話履歴を表示
-if st.session_state.get("messages"):
-    for message in reversed(st.session_state["messages"][1:]):
-        if message["role"] == "user":
-            st.markdown(f"**ユーザー:** {message['content']}")
-        elif message["role"] == "assistant":
-            st.markdown(f"**AI:** {message['content']}")
 
         
 # ラベルをカスタマイズして表示
