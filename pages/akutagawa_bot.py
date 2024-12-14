@@ -222,17 +222,22 @@ def save_conversation_and_summary_to_db(messages):
         (conversation_json, summary_text)
     )
     conn.commit()
+
+    # 直後の挿入レコードIDを取得
+    last_insert_id = cur.lastrowid
+
     conn.close()
+    return last_insert_id
+    
 
 # ユーザーの入力が合計10文字以上になった場合に「対話終了」ボタンを表示
 if st.session_state["total_characters"] >= 10:
     if st.button("対話終了"):
-        # --- 会話履歴とサマリーをDBに保存 --- #
-        save_conversation_and_summary_to_db(st.session_state["messages"])
+        # DBに保存してIDを取得
+        record_id = save_conversation_and_summary_to_db(st.session_state["messages"])
 
-        # 会話履歴をクエリパラメータに載せてevaluate.pyへ遷移
-        messages_query = urllib.parse.quote(json.dumps(st.session_state["messages"]))
-        evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?messages={messages_query}"
+        # evaluate.py にレコードIDだけを載せて遷移
+        evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?id={record_id}"
         st.markdown(f'<meta http-equiv="refresh" content="0; url={evaluate_url}">', unsafe_allow_html=True)
 
         
