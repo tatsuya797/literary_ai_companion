@@ -1,5 +1,6 @@
 import streamlit as st
 import openai
+import ast  # 文字列を辞書形式に変換するために使用
 
 # Streamlit Community Cloud の「Secrets」から OpenAI API キーを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
@@ -14,22 +15,23 @@ st.set_page_config(
 
 st.title("会話の要約ページ")
 
-# 会話履歴を取得
-if "conversation_summary" not in st.session_state:
-    st.write("会話履歴が見つかりません。元のページから再試行してください。")
-    st.stop()
+# クエリパラメータから会話履歴を取得
+query_params = st.experimental_get_query_params()
+messages_query = query_params.get("messages", [None])[0]
 
-# 会話履歴をプロンプトに整形
-conversation_history = st.session_state["conversation_summary"]
-summarize_prompt = "これまでの会話を以下の形式で要約してください:\n\n"
-for msg in conversation_history:
-    if msg["role"] == "user":
-        summarize_prompt += f"ユーザー: {msg['content']}\n"
-    elif msg["role"] == "assistant":
-        summarize_prompt += f"AI: {msg['content']}\n"
+if messages_query:
+    # 会話履歴をデコードしてリスト形式に変換
+    messages = ast.literal_eval(urllib.parse.unquote(messages_query))
 
-# 会話履歴を要約
-try:
+    # 会話履歴をまとめるプロンプトを生成
+    summarize_prompt = "これまでの会話を以下の形式で要約してください:\n\n"
+    for msg in messages:
+        if msg["role"] == "user":
+            summarize_prompt += f"ユーザー: {msg['content']}\n"
+        elif msg["role"] == "assistant":
+            summarize_prompt += f"AI: {msg['content']}\n"
+
+    # OpenAI API に要約をリクエスト
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -38,10 +40,9 @@ try:
         ]
     )
     summary = response["choices"][0]["message"]["content"]
-except openai.error.OpenAIError as e:
-    summary = f"要約の取得中にエラーが発生しました: {str(e)}"
 
-# 結果を表示
-st.text_area("会話の要約", summary, height=300)
-
+    # 要約をテキストボックスに表示
+    st.text_area("会話の要約", summary, height=300)
+else:
+    st.write("会話履歴が見つかりませんでした。")
 
