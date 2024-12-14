@@ -5,6 +5,8 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 import openai
+import json
+import urllib.parse
 
 author_id = '000879'  # 青空文庫の作家番号
 author_name = '芥川龍之介'  # 青空文庫の表記での作家名
@@ -178,9 +180,8 @@ st.markdown(
 # ユーザーの入力が合計10文字以上になった場合に「対話終了」ボタンを表示
 if st.session_state["total_characters"] >= 10:
     if st.button("対話終了"):
-        # 会話履歴をクエリパラメータに変換
-        import urllib.parse
-        messages_query = urllib.parse.quote(str(st.session_state["messages"]))
+        # 会話履歴を JSON 形式でエンコードしてクエリパラメータに含める
+        messages_query = urllib.parse.quote(json.dumps(st.session_state["messages"]))
 
         # evaluate.py の URL に遷移
         evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?messages={messages_query}"
