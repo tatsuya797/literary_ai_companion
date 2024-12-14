@@ -180,8 +180,14 @@ st.markdown(
 if st.session_state["total_characters"] >= 10:
     if st.markdown('<button class="red-button">対話終了</button>', unsafe_allow_html=True):
         st.write("対話を終了しました。")
-        # 必要に応じて処理を追加
-
+        # 履歴をクエリパラメータとして渡す
+        st.experimental_set_query_params(
+            messages="|".join(
+                [f"{msg['role']}: {msg['content']}" for msg in st.session_state["messages"]]
+            )
+        )
+        # evaluate.py に遷移
+        st.markdown('<meta http-equiv="refresh" content="0; url=/evaluate">', unsafe_allow_html=True)
 
         
 # ラベルをカスタマイズして表示
