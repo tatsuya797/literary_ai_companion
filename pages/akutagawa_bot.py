@@ -178,37 +178,17 @@ st.markdown(
 # ユーザーの入力が合計10文字以上になった場合に「対話終了」ボタンを表示
 if st.session_state["total_characters"] >= 10:
     if st.button("対話終了"):
-        # 会話履歴をまとめるプロンプトを生成
-        summarize_prompt = "これまでの会話を以下の形式で要約してください:\n\n"
-        for msg in st.session_state["messages"]:
-            if msg["role"] == "user":
-                summarize_prompt += f"ユーザー: {msg['content']}\n"
-            elif msg["role"] == "assistant":
-                summarize_prompt += f"AI: {msg['content']}\n"
-
-        # OpenAI API に要約をリクエスト
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "あなたは熟練した会話の要約者です。"},
-                {"role": "user", "content": summarize_prompt}
-            ]
+        # evaluate.py に遷移するためのリンクを生成
+        evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate"
+        st.markdown(
+            f'<meta http-equiv="refresh" content="0; url={evaluate_url}">',
+            unsafe_allow_html=True,
         )
-        summary = response["choices"][0]["message"]["content"]
 
-        # 要約を表示
-        st.markdown("### これまでの会話のまとめ")
-        st.markdown(f"{summary}")
+        # 会話履歴を `st.session_state` に保存して遷移後に使用
+        st.session_state["conversation_summary"] = st.session_state["messages"]
 
 
-
-# 対話履歴の表示（オプション）
-st.markdown("### 会話履歴")
-for msg in st.session_state["messages"]:
-    if msg["role"] == "user":
-        st.write(f"ユーザー: {msg['content']}")
-    elif msg["role"] == "assistant":
-        st.write(f"AI: {msg['content']}")
 
         
 # ラベルをカスタマイズして表示
