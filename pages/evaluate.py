@@ -1,6 +1,8 @@
 import streamlit as st
 import openai
 import ast  # 文字列を辞書形式に変換するために使用
+import urllib.parse  # クエリパラメータのデコード用
+
 
 # Streamlit Community Cloud の「Secrets」から OpenAI API キーを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
