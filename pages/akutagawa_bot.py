@@ -211,8 +211,11 @@ def save_conversation_and_summary_to_db(messages):
         )
     """)
 
-    conversation_json = json.dumps(messages, ensure_ascii=False)
-    summary_text = summarize_conversation(messages)
+    # --- システムメッセージを除外する処理を追加 ---
+    filtered_messages = [m for m in messages if m["role"] in ("user", "assistant")]
+
+    conversation_json = json.dumps(filtered_messages, ensure_ascii=False)
+    summary_text = summarize_conversation(filtered_messages)
 
     cur.execute(
         "INSERT INTO USER (conversation, summary) VALUES (?, ?)",
