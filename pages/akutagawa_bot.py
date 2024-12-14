@@ -182,7 +182,7 @@ def summarize_conversation(messages):
     summary_prompt = [
         {
             "role": "system",
-            "content": "以下の会話履歴を短くまとめた要約を作成してください。"
+            "content": "以下の会話履歴を400文字にまとめた要約を作成してください。"
         },
         {
             "role": "user",
