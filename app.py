@@ -1,5 +1,6 @@
 import streamlit as st
 import sqlite3  # SQLite3を使用
+import hashlib
 
 # ページの基本設定
 st.set_page_config(
@@ -64,37 +65,121 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 st.markdown("<div class='title'>文学と共に歩む対話の世界</div>", unsafe_allow_html=True)
 st.markdown("<div class='subtitle'>感想を語り合い、作家の息吹に触れるひとときを</div>", unsafe_allow_html=True)
 
-# ボット選択と開始ボタン
-st.markdown("<div class='bot-section'>読書の対話相手を選んでください</div>", unsafe_allow_html=True)
-bot_options = ["夏目漱石", "太宰治", "芥川龍之介"]
-selected_bot = st.selectbox("ボット選択", bot_options, key="bot_selectbox")
-st.markdown("</div>", unsafe_allow_html=True)
+# ユーティリティ関数
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
-# 芥川龍之介ボットの選択に応じた処理
-if selected_bot == "芥川龍之介":
-    # データベースから作品リストを取得
-    def fetch_titles_from_db():
-        db_file = "literary_app.db"
-        conn = sqlite3.connect(db_file)
+def init_db():
+    conn = sqlite3.connect("literary_app.db")
+    cur = conn.cursor()
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS USERS (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        )
+    ''')
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS BOT (
+            title TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+def register_user(username, password):
+    try:
+        conn = sqlite3.connect("literary_app.db")
         cur = conn.cursor()
-        cur.execute("SELECT title FROM BOT")
-        rows = cur.fetchall()
+        cur.execute("INSERT INTO USERS (username, password) VALUES (?, ?)", (username, hash_password(password)))
+        conn.commit()
+        st.success("登録に成功しました！ログインしてください。")
+    except sqlite3.IntegrityError:
+        st.error("このユーザ名は既に登録されています。")
+    finally:
         conn.close()
-        return [row[0] for row in rows]
 
-    # タイトルリストを取得
-    titles = fetch_titles_from_db()
-    if titles:
-        selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
-        if st.button("会話を始める", key="start_conversation"):
-            # ページ遷移
-            url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot?title={selected_title}"
-            st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
-    else:
-        st.write("作品リストを取得できませんでした。データベースを確認してください。")
+def authenticate_user(username, password):
+    conn = sqlite3.connect("literary_app.db")
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM USERS WHERE username = ? AND password = ?", (username, hash_password(password)))
+    user = cur.fetchone()
+    conn.close()
+    return user
 
-# 他のボットが選択された場合の処理
-elif selected_bot in ["夏目漱石", "太宰治"]:
-    st.write(f"{selected_bot}との対話を開始する準備が整いました。")
-    if st.button("会話を始める", key="start_conversation_others"):
-        st.write(f"{selected_bot}との対話画面に遷移します。")
+def fetch_titles_from_db():
+    conn = sqlite3.connect("literary_app.db")
+    cur = conn.cursor()
+    cur.execute("SELECT title FROM BOT")
+    rows = cur.fetchall()
+    conn.close()
+    return [row[0] for row in rows]
+
+# データベース初期化
+init_db()
+
+# セッション状態管理
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
+if "username" not in st.session_state:
+    st.session_state["username"] = None
+
+# ログイン・登録フォーム
+if not st.session_state["logged_in"]:
+    st.markdown("<h3>ログイン</h3>", unsafe_allow_html=True)
+    username = st.text_input("ユーザ名")
+    password = st.text_input("パスワード", type="password")
+    if st.button("ログイン"):
+        if authenticate_user(username, password):
+            st.session_state["logged_in"] = True
+            st.session_state["username"] = username
+            st.success(f"ようこそ、{username}さん！")
+        else:
+            st.error("ユーザ名またはパスワードが間違っています。")
+
+    st.markdown("<h4>新規登録</h4>", unsafe_allow_html=True)
+    new_username = st.text_input("新規ユーザ名", key="register_username")
+    new_password = st.text_input("新規パスワード", type="password", key="register_password")
+    if st.button("登録"):
+        if new_username and new_password:
+            register_user(new_username, new_password)
+        else:
+            st.error("ユーザ名とパスワードを入力してください。")
+
+# ログイン後の画面
+if st.session_state["logged_in"]:
+    st.markdown(f"<h3>こんにちは、{st.session_state['username']}さん！</h3>", unsafe_allow_html=True)
+    # ボット選択と開始ボタン
+    st.markdown("<div class='bot-section'>読書の対話相手を選んでください</div>", unsafe_allow_html=True)
+    bot_options = ["夏目漱石", "太宰治", "芥川龍之介"]
+    selected_bot = st.selectbox("ボット選択", bot_options, key="bot_selectbox")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # 芥川龍之介ボットの選択に応じた処理
+    if selected_bot == "芥川龍之介":
+        # データベースから作品リストを取得
+        def fetch_titles_from_db():
+            db_file = "literary_app.db"
+            conn = sqlite3.connect(db_file)
+            cur = conn.cursor()
+            cur.execute("SELECT title FROM BOT")
+            rows = cur.fetchall()
+            conn.close()
+            return [row[0] for row in rows]
+    
+        # タイトルリストを取得
+        titles = fetch_titles_from_db()
+        if titles:
+            selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
+            if st.button("会話を始める", key="start_conversation"):
+                # ページ遷移
+                url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot?title={selected_title}"
+                st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
+        else:
+            st.write("作品リストを取得できませんでした。データベースを確認してください。")
+    
+    # 他のボットが選択された場合の処理
+    elif selected_bot in ["夏目漱石", "太宰治"]:
+        st.write(f"{selected_bot}との対話を開始する準備が整いました。")
+        if st.button("会話を始める", key="start_conversation_others"):
+            st.write(f"{selected_bot}との対話画面に遷移します。")
