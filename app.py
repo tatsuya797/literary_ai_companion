@@ -124,8 +124,11 @@ if "logged_in" not in st.session_state:
 if "username" not in st.session_state:
     st.session_state["username"] = None
 
-# ログイン・登録フォーム
-if not st.session_state["logged_in"]:
+# ログイン・新規登録をタブで切り替え
+tabs = st.tabs(["ログイン", "新規登録"])
+
+# ログインフォーム
+with tabs[0]:
     st.markdown("<h3>ログイン</h3>", unsafe_allow_html=True)
     username = st.text_input("ユーザ名")
     password = st.text_input("パスワード", type="password")
@@ -137,9 +140,11 @@ if not st.session_state["logged_in"]:
         else:
             st.error("ユーザ名またはパスワードが間違っています。")
 
-    st.markdown("<h4>新規登録</h4>", unsafe_allow_html=True)
-    new_username = st.text_input("新規ユーザ名", key="register_username")
-    new_password = st.text_input("新規パスワード", type="password", key="register_password")
+# 新規登録フォーム
+with tabs[1]:
+    st.markdown("<h3>新規登録</h3>", unsafe_allow_html=True)
+    new_username = st.text_input("新規ユーザ名")
+    new_password = st.text_input("新規パスワード", type="password")
     if st.button("登録"):
         if new_username and new_password:
             register_user(new_username, new_password)
