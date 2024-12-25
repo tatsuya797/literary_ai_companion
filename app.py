@@ -101,6 +101,7 @@ def register_user(username, password):
     finally:
         conn.close()
 
+# ユーザが存在するかどうかを確認（認証）
 def authenticate_user(username, password):
     conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
