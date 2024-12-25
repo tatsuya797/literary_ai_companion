@@ -93,7 +93,7 @@ def register_user(username, password):
     try:
         conn = sqlite3.connect("literary_app.db")
         cur = conn.cursor()
-        cur.execute("INSERT INTO USERS (username, password) VALUES (?, ?)", (username, hash_password(password)))
+        cur.execute("INSERT INTO USER (username, password) VALUES (?, ?)", (username, hash_password(password)))
         conn.commit()
         st.success("登録に成功しました！ログインしてください。")
     except sqlite3.IntegrityError:
@@ -105,7 +105,7 @@ def register_user(username, password):
 def authenticate_user(username, password):
     conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
-    cur.execute("SELECT * FROM USERS WHERE username = ? AND password = ?", (username, hash_password(password)))
+    cur.execute("SELECT * FROM USER WHERE username = ? AND password = ?", (username, hash_password(password)))
     user = cur.fetchone()
     conn.close()
     return user
