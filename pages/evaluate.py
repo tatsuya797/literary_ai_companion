@@ -3,26 +3,26 @@ import sqlite3
 
 def show_db_contents():
     """USERテーブルの全レコードをSELECTして表示"""
-    db_file = "literary_app.db"  # 使っているDBファイル名を指定
+    db_file = "literary_app.db"
     conn = sqlite3.connect(db_file)
     cur = conn.cursor()
     
-    # USERテーブルの内容をすべて取得
-    cur.execute("SELECT id, conversation, summary FROM USER")
+    # USERテーブルの内容をすべて取得 (SELECT *)
+    cur.execute("SELECT * FROM USER")
     rows = cur.fetchall()
+
+    # 取得したカラム名をリスト化（テーブル定義の順番通り）
+    column_names = [description[0] for description in cur.description]
+    
     conn.close()
     
-    # Streamlit上で見やすく表示
-    st.write("### USERテーブル内容")
-    for row in rows:
-        record_id = row[0]
-        conversation_json = row[1]
-        summary_text = row[2]
+    st.write("### USERテーブル内容（全カラム表示）")
 
-        st.write(f"**ID**: {record_id}")
-        st.write(f"**Conversation**: {conversation_json}")
-        st.write(f"**Summary**: {summary_text}")
-        st.write("---")
+    # すべてのカラムをまとめて表示したい場合は、PandasのDataFrameにして表示すると見やすい
+    import pandas as pd
+    df = pd.DataFrame(rows, columns=column_names)
+    st.dataframe(df)
+
 
 def main():
     st.title("Evaluation & DB確認ツール")
