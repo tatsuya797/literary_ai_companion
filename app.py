@@ -73,6 +73,7 @@ def hash_password(password):
 def init_db():
     conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
+    # ユーザ情報を保存するテーブル
     cur.execute('''
         CREATE TABLE IF NOT EXISTS USERS (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -80,6 +81,7 @@ def init_db():
             password TEXT NOT NULL
         )
     ''')
+    # 作品リストを保存するテーブル（BOT テーブル）
     cur.execute('''
         CREATE TABLE IF NOT EXISTS BOT (
             title TEXT NOT NULL
@@ -93,7 +95,11 @@ def register_user(username, password):
     try:
         conn = sqlite3.connect("literary_app.db")
         cur = conn.cursor()
-        cur.execute("INSERT INTO USER (username, password) VALUES (?, ?)", (username, hash_password(password)))
+        # ★ テーブル名を USERS に修正
+        cur.execute(
+            "INSERT INTO USERS (username, password) VALUES (?, ?)",
+            (username, hash_password(password))
+        )
         conn.commit()
         st.success("登録に成功しました！ログインしてください。")
     except sqlite3.IntegrityError:
@@ -105,7 +111,11 @@ def register_user(username, password):
 def authenticate_user(username, password):
     conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
-    cur.execute("SELECT * FROM USER WHERE username = ? AND password = ?", (username, hash_password(password)))
+    # ★ テーブル名を USERS に修正
+    cur.execute(
+        "SELECT * FROM USERS WHERE username = ? AND password = ?",
+        (username, hash_password(password))
+    )
     user = cur.fetchone()
     conn.close()
     return user
