@@ -18,9 +18,11 @@ def show_db_contents():
     
     st.write("### USERテーブル内容（全カラム表示）")
 
+    # すべてのカラムをまとめて表示したい場合は、PandasのDataFrameにして表示すると見やすい
     import pandas as pd
     df = pd.DataFrame(rows, columns=column_names)
     st.dataframe(df)
+
 
 def main():
     st.title("Evaluation & DB確認ツール")
@@ -31,6 +33,7 @@ def main():
     conversation_id = query_params.get("id", [None])[0]  # idパラメータ取得
     
     if conversation_id:
+        # id が取得できた場合
         db_file = "literary_app.db"
         conn = sqlite3.connect(db_file)
         cur = conn.cursor()
