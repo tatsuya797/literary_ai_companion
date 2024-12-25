@@ -8,7 +8,7 @@ def show_db_contents():
     cur = conn.cursor()
     
     # USERテーブルの内容をすべて取得
-    cur.execute("SELECT id, conversation, summary FROM USER")
+    cur.execute("SELECT * FROM USER")
     rows = cur.fetchall()
     conn.close()
     
