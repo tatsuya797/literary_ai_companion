@@ -69,6 +69,7 @@ st.markdown("<div class='subtitle'>感想を語り合い、作家の息吹に触
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
+# DBがなければ作成
 def init_db():
     conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
@@ -87,6 +88,7 @@ def init_db():
     conn.commit()
     conn.close()
 
+# ユーザの新規登録
 def register_user(username, password):
     try:
         conn = sqlite3.connect("literary_app.db")
