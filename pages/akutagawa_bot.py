@@ -174,7 +174,7 @@ st.markdown(
             font-weight: bold; 
             color: #8b4513; 
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        ">{author_name}チャットボット</h1>
+        ">{author}チャットボット</h1>
     </div>
     """,
     unsafe_allow_html=True,
