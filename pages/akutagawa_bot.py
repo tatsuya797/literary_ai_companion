@@ -243,7 +243,14 @@ if st.session_state["total_characters"] >= 10:
         st.write(f"DEBUG: record_id = {record_id}")
 
         # evaluate.py へ遷移（ここでは id=record_id だけクエリパラメータに含める）
-        evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?id={record_id}"
+        evaluate_url = (
+        "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate"
+        f"?id={id}"
+        f"&username={username}"
+        f"&author={author}"
+        f"&title={title}"
+        )
+        
         st.markdown(f'<meta http-equiv="refresh" content="0; url={evaluate_url}">', unsafe_allow_html=True)
 
 
