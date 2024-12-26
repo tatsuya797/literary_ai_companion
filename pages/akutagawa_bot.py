@@ -8,12 +8,8 @@ import openai
 import json
 import urllib.parse
 
-query_params = st.experimental_get_query_params()
-id = query_params.get("id", [""])[0]
-username = query_params.get("username", [""])[0]
-author = query_params.get("author", [""])[0]
-title = query_params.get("title", [""])[0]
-
+author_id = '000879'  # 青空文庫の作家番号
+author_name = '芥川龍之介'  # 青空文庫の表記での作家名
 
 # ページの基本設定
 st.set_page_config(
@@ -174,7 +170,7 @@ st.markdown(
             font-weight: bold; 
             color: #8b4513; 
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        ">{author}チャットボット</h1>
+        ">{author_name}チャットボット</h1>
     </div>
     """,
     unsafe_allow_html=True,
@@ -243,14 +239,7 @@ if st.session_state["total_characters"] >= 10:
         st.write(f"DEBUG: record_id = {record_id}")
 
         # evaluate.py へ遷移（ここでは id=record_id だけクエリパラメータに含める）
-        evaluate_url = (
-        "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate"
-        f"?id={id}"
-        f"&username={username}"
-        f"&author={author}"
-        f"&title={title}"
-        )
-        
+        evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?id={record_id}"
         st.markdown(f'<meta http-equiv="refresh" content="0; url={evaluate_url}">', unsafe_allow_html=True)
 
 
