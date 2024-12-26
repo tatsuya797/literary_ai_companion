@@ -9,7 +9,7 @@ import json
 import urllib.parse
 
 query_params = st.experimental_get_query_params()
-user_id = query_params.get("id", [""])[0]
+id = query_params.get("id", [""])[0]
 username = query_params.get("username", [""])[0]
 author = query_params.get("author", [""])[0]
 title = query_params.get("title", [""])[0]
