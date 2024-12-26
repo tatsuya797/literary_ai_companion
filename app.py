@@ -5,7 +5,8 @@ import hashlib
 # ページの基本設定
 st.set_page_config(
     page_title="文学の読書コンパニオン",
-    page_icon="📚", layout="centered",
+    page_icon="📚", 
+    layout="centered",
     initial_sidebar_state="collapsed",  # サイドバーを非表示
     menu_items={
         "Get Help": None,
@@ -73,6 +74,7 @@ def hash_password(password):
 def init_db():
     conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
+    # USER テーブル (id, username, password)
     cur.execute('''
         CREATE TABLE IF NOT EXISTS USER (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -80,6 +82,7 @@ def init_db():
             password TEXT NOT NULL
         )
     ''')
+    # BOT テーブル
     cur.execute('''
         CREATE TABLE IF NOT EXISTS BOT (
             title TEXT NOT NULL
@@ -93,42 +96,32 @@ def register_user(username, password):
     try:
         conn = sqlite3.connect("literary_app.db")
         cur = conn.cursor()
-
-        # 1) LOGINテーブルに INSERT
+        # USERテーブルに (username, password) をINSERT
         cur.execute(
-            "INSERT INTO LOGIN (username, password) VALUES (?, ?)",
+            "INSERT INTO USER (username, password) VALUES (?, ?)",
             (username, hash_password(password))
         )
         conn.commit()
-
-        # 新規登録したユーザの id を取得
-        new_id = cur.lastrowid
-
-        # 2) USERテーブルにも同じ id, username でレコードを追加
-        #    (USERテーブルのカラム名や構造にあわせて変更してください)
-        cur.execute(
-            "INSERT INTO USER (id, username) VALUES (?, ?)",
-            (new_id, username)
-        )
-        conn.commit()
-
         st.success("登録に成功しました！ログインしてください。")
-
     except sqlite3.IntegrityError:
+        # UNIQUE制約違反: 既に同じusernameが存在するとき
         st.error("このユーザ名は既に登録されています。")
     finally:
         conn.close()
-
 
 # ユーザが存在するかどうかを確認（認証）
 def authenticate_user(username, password):
     conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
-    cur.execute("SELECT * FROM LOGIN WHERE username = ? AND password = ?", (username, hash_password(password)))
+    cur.execute(
+        "SELECT * FROM USER WHERE username = ? AND password = ?",
+        (username, hash_password(password))
+    )
     user = cur.fetchone()
     conn.close()
     return user
 
+# データベースから BOT.title を取得
 def fetch_titles_from_db():
     conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
@@ -182,18 +175,7 @@ if st.session_state["logged_in"]:
     selected_bot = st.selectbox("ボット選択", bot_options, key="bot_selectbox")
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # 芥川龍之介ボットの選択に応じた処理
     if selected_bot == "芥川龍之介":
-        # データベースから作品リストを取得
-        def fetch_titles_from_db():
-            db_file = "literary_app.db"
-            conn = sqlite3.connect(db_file)
-            cur = conn.cursor()
-            cur.execute("SELECT title FROM BOT")
-            rows = cur.fetchall()
-            conn.close()
-            return [row[0] for row in rows]
-    
         # タイトルリストを取得
         titles = fetch_titles_from_db()
         if titles:
@@ -205,7 +187,6 @@ if st.session_state["logged_in"]:
         else:
             st.write("作品リストを取得できませんでした。データベースを確認してください。")
     
-    # 他のボットが選択された場合の処理
     elif selected_bot in ["夏目漱石", "太宰治"]:
         st.write(f"{selected_bot}との対話を開始する準備が整いました。")
         if st.button("会話を始める", key="start_conversation_others"):
