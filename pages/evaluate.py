@@ -45,9 +45,9 @@ def main():
     # ========== ①の機能: クエリパラメータ id をもとにレコードを表示 ========== #
     st.subheader("Evaluation Page")
     query_params = st.experimental_get_query_params()
-    conversation_id = query_params.get("id", [None])[0]  # idパラメータ取得
     
-    if conversation_id:
+    
+    if id:
         # id が取得できた場合
         db_file = "literary_app.db"
         conn = sqlite3.connect(db_file)
@@ -58,7 +58,7 @@ def main():
 
         if row:
             conversation_json, summary_text = row[0], row[1]
-            st.write(f"**対象レコードID**: {conversation_id}")
+            st.write(f"**対象レコードID**: {id}")
 
             st.subheader("【会話履歴】")
             st.text_area("Conversation", conversation_json, height=250)
