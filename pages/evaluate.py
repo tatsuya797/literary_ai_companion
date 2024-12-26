@@ -52,7 +52,7 @@ def main():
         db_file = "literary_app.db"
         conn = sqlite3.connect(db_file)
         cur = conn.cursor()
-        cur.execute("SELECT conversation, summary FROM USER WHERE id = ?", (conversation_id,))
+        cur.execute("SELECT conversation, summary FROM USER WHERE id = ?", (id,))
         row = cur.fetchone()
         conn.close()
 
