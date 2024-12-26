@@ -67,7 +67,7 @@ def main():
     author = query_params.get("author", [""])[0]
     title = query_params.get("title", [""])[0]
     
-    st.write(f"id = {id_str}")
+    st.write(f"id = {id}")
     st.write(f"username = {username}")
     st.write(f"author = {author}")
     st.write(f"title = {title}")
