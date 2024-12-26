@@ -93,13 +93,32 @@ def register_user(username, password):
     try:
         conn = sqlite3.connect("literary_app.db")
         cur = conn.cursor()
-        cur.execute("INSERT INTO LOGIN (username, password) VALUES (?, ?)", (username, hash_password(password)))
+
+        # 1) LOGINテーブルに INSERT
+        cur.execute(
+            "INSERT INTO LOGIN (username, password) VALUES (?, ?)",
+            (username, hash_password(password))
+        )
         conn.commit()
+
+        # 新規登録したユーザの id を取得
+        new_id = cur.lastrowid
+
+        # 2) USERテーブルにも同じ id, username でレコードを追加
+        #    (USERテーブルのカラム名や構造にあわせて変更してください)
+        cur.execute(
+            "INSERT INTO USER (id, username) VALUES (?, ?)",
+            (new_id, username)
+        )
+        conn.commit()
+
         st.success("登録に成功しました！ログインしてください。")
+
     except sqlite3.IntegrityError:
         st.error("このユーザ名は既に登録されています。")
     finally:
         conn.close()
+
 
 # ユーザが存在するかどうかを確認（認証）
 def authenticate_user(username, password):
