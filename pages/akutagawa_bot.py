@@ -8,8 +8,12 @@ import openai
 import json
 import urllib.parse
 
-author_id = '000879'  # 青空文庫の作家番号
-author_name = '芥川龍之介'  # 青空文庫の表記での作家名
+query_params = st.experimental_get_query_params()
+user_id = query_params.get("id", [""])[0]
+username = query_params.get("username", [""])[0]
+author = query_params.get("author", [""])[0]
+title = query_params.get("title", [""])[0]
+
 
 # ページの基本設定
 st.set_page_config(
