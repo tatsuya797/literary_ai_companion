@@ -24,54 +24,38 @@ def show_db_contents():
     st.dataframe(df)
 
 
-
 def main():
     st.title("Evaluation & DB確認ツール")
 
-    # ========== クエリパラメータ username をもとにレコードを表示 ========== #
+    # ========== ①の機能: クエリパラメータ id をもとにレコードを表示 ========== #
     st.subheader("Evaluation Page")
     query_params = st.experimental_get_query_params()
-    current_username = query_params.get("username", [None])[0]  # usernameパラメータ取得
+    conversation_id = query_params.get("id", [None])[0]  # idパラメータ取得
     
-    if current_username:
+    if conversation_id:
+        # id が取得できた場合
         db_file = "literary_app.db"
         conn = sqlite3.connect(db_file)
         cur = conn.cursor()
-
-        # 該当usernameのconversation, summaryを取得
-        cur.execute("SELECT conversation, summary FROM USER WHERE username = ?", (current_username,))
+        cur.execute("SELECT conversation, summary FROM USER WHERE id = ?", (conversation_id,))
         row = cur.fetchone()
+        conn.close()
 
         if row:
-            conversation_json, summary_text = row  # タプルを展開
-            st.write(f"**対象ユーザー名**: {current_username}")
+            conversation_json, summary_text = row[0], row[1]
+            st.write(f"**対象レコードID**: {conversation_id}")
 
             st.subheader("【会話履歴】")
-            # 既存データを初期値にセットしてテキストエリア表示
-            updated_conversation = st.text_area("Conversation", conversation_json, height=250)
+            st.text_area("Conversation", conversation_json, height=250)
 
             st.subheader("【サマリー】")
-            # 既存データを初期値にセットしてテキストエリア表示
-            updated_summary = st.text_area("Summary", summary_text, height=150)
-
-            # 更新ボタンを押したときにUPDATE文を実行
-            if st.button("Update"):
-                cur.execute("""
-                    UPDATE USER
-                    SET conversation = ?, summary = ?
-                    WHERE username = ?
-                """, (updated_conversation, updated_summary, current_username))
-                conn.commit()
-                st.success("レコードが更新されました。")
+            st.text_area("Summary", summary_text, height=150)
         else:
-            st.write("該当するユーザー名が見つかりません。")
-
-        conn.close()
+            st.write("該当するレコードが見つかりません。")
     else:
-        st.write("username が指定されていません。クエリパラメータ ?username=○○ を付与してください。")
+        st.write("IDが指定されていません。クエリパラメータ ?id=○○ を付与してください。")
 
     st.write("---")
-
 
     # ========== ②の機能: ボタン押下でDBの全レコードを一覧表示 ========== #
     st.subheader("DB確認ツール")
