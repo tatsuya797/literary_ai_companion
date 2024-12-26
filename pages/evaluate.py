@@ -59,6 +59,7 @@ def update_or_insert_conversation(username, title, conversation_json, summary_te
 
 def main():
     st.title("Evaluation & DB確認ツール")
+    st.write("DEBUG: username =", st.session_state.get("username"))
 
     # ========== ① 会話履歴＆サマリーを更新する処理 ========== #
     st.subheader("会話履歴の保存・更新テスト")
