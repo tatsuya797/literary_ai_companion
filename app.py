@@ -109,8 +109,11 @@ def register_user(username, password):
     finally:
         conn.close()
 
-# ユーザが存在するかどうかを確認（認証）
 def authenticate_user(username, password):
+    """
+    ユーザが存在するかどうかを確認（認証）。
+    存在すれば (id, username, password) のタプルを返す。無ければ None を返す。
+    """
     conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
     cur.execute(
@@ -119,7 +122,7 @@ def authenticate_user(username, password):
     )
     user = cur.fetchone()
     conn.close()
-    return user
+    return user  # 例: (1, 'alice', 'xxxxx...') または None
 
 # データベースから BOT.title を取得
 def fetch_titles_from_db():
@@ -138,6 +141,9 @@ if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 if "username" not in st.session_state:
     st.session_state["username"] = None
+# 新たにユーザIDを持つ
+if "user_id" not in st.session_state:
+    st.session_state["user_id"] = None
 
 # ログイン・新規登録をタブで切り替え
 tabs = st.tabs(["ログイン", "新規登録"])
@@ -145,13 +151,17 @@ tabs = st.tabs(["ログイン", "新規登録"])
 # ログインフォーム
 with tabs[0]:
     st.markdown("<h3>ログイン</h3>", unsafe_allow_html=True)
-    username = st.text_input("ユーザ名")
-    password = st.text_input("パスワード", type="password")
+    username_input = st.text_input("ユーザ名")
+    password_input = st.text_input("パスワード", type="password")
+
     if st.button("ログイン"):
-        if authenticate_user(username, password):
+        user_tuple = authenticate_user(username_input, password_input)
+        if user_tuple:
+            # user_tupleの中身は (id, username, password)
             st.session_state["logged_in"] = True
-            st.session_state["username"] = username
-            st.success(f"ようこそ、{username}さん！")
+            st.session_state["user_id"] = user_tuple[0]      # id
+            st.session_state["username"] = user_tuple[1]     # username
+            st.success(f"ようこそ、{st.session_state['username']}さん！")
         else:
             st.error("ユーザ名またはパスワードが間違っています。")
 
@@ -175,19 +185,49 @@ if st.session_state["logged_in"]:
     selected_bot = st.selectbox("ボット選択", bot_options, key="bot_selectbox")
     st.markdown("</div>", unsafe_allow_html=True)
 
+    # 選んだ作家を author とする
+    author_value = selected_bot
+
+    # 芥川龍之介を選んだときの処理
     if selected_bot == "芥川龍之介":
-        # タイトルリストを取得
         titles = fetch_titles_from_db()
         if titles:
             selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
             if st.button("会話を始める", key="start_conversation"):
-                # ページ遷移
-                url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot?title={selected_title}"
+                # クエリパラメータを id, username, author, title の4つ渡す
+                user_id = st.session_state["user_id"]
+                username = st.session_state["username"]
+                author = author_value
+                title = selected_title
+                url = (
+                    "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/"
+                    "akutagawa_bot"
+                    f"?id={user_id}"
+                    f"&username={username}"
+                    f"&author={author}"
+                    f"&title={title}"
+                )
                 st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
         else:
             st.write("作品リストを取得できませんでした。データベースを確認してください。")
     
+    # 夏目漱石 or 太宰治を選んだときの処理
     elif selected_bot in ["夏目漱石", "太宰治"]:
         st.write(f"{selected_bot}との対話を開始する準備が整いました。")
         if st.button("会話を始める", key="start_conversation_others"):
-            st.write(f"{selected_bot}との対話画面に遷移します。")
+            # クエリパラメータを id, username, author, title の4つ渡す（titleは仮）
+            user_id = st.session_state["user_id"]
+            username = st.session_state["username"]
+            author = author_value
+            # 夏目漱石や太宰治の作品タイトルはDBに無い例、または別ページに飛ばす場合は適宜変更
+            dummy_title = "UNKNOWN"  
+
+            url = (
+                "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/"
+                "natsume_bot"  # 例: 夏目漱石ボットのURL
+                f"?id={user_id}"
+                f"&username={username}"
+                f"&author={author}"
+                f"&title={dummy_title}"
+            )
+            st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
