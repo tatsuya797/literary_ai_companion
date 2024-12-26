@@ -59,6 +59,20 @@ def update_or_insert_conversation(username, title, conversation_json, summary_te
 
 def main():
     st.title("Evaluation & DB確認ツール")
+    query_params = st.experimental_get_query_params()
+
+    # それぞれのパラメータを取り出す
+    id = query_params.get("id", [""])[0]
+    username = query_params.get("username", [""])[0]
+    author = query_params.get("author", [""])[0]
+    title = query_params.get("title", [""])[0]
+    
+    st.write(f"id = {id_str}")
+    st.write(f"username = {username}")
+    st.write(f"author = {author}")
+    st.write(f"title = {title}")
+
+    
     st.write("DEBUG: username =", st.session_state.get("username"))
 
     # ========== ① 会話履歴＆サマリーを更新する処理 ========== #
