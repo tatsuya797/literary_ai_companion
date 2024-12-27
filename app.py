@@ -1,24 +1,17 @@
 import streamlit as st
-import sqlite3
-import boto3
+import sqlite3  # SQLite3を使用
 import hashlib
-import os
-
-# AWS S3 の設定
-BUCKET_NAME = "my-s3-bucket"
-DB_FILENAME = "literary_app.db"         # S3上のファイル名
-LOCAL_DB_PATH = "/Users/shinsontatsuya/dev2/literary_ai_companion/literary_app.db" # ローカルで操作する一時的なファイル名
-
-
-# AWS S3 クライアントの初期化
-s3 = boto3.client("s3", region_name="ap-northeast-1")  # リージョンは適宜変更
 
 # ページの基本設定
 st.set_page_config(
     page_title="文学の読書コンパニオン",
     page_icon="📚", layout="centered",
-    initial_sidebar_state="collapsed",
-    menu_items={"Get Help": None, "Report a bug": None, "About": None},
+    initial_sidebar_state="collapsed",  # サイドバーを非表示
+    menu_items={
+        "Get Help": None,
+        "Report a bug": None,
+        "About": None
+    }
 )
 
 # GitHubのリポジトリにある背景画像のURL
@@ -66,55 +59,22 @@ page_bg_img = f"""
     }}
 </style>
 """
-
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
 # タイトルと説明
 st.markdown("<div class='title'>文学と共に歩む対話の世界</div>", unsafe_allow_html=True)
 st.markdown("<div class='subtitle'>感想を語り合い、作家の息吹に触れるひとときを</div>", unsafe_allow_html=True)
 
+# ユーティリティ関数
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
-def download_db_from_s3():
-    """S3からSQLiteファイルをダウンロード"""
-    try:
-        s3.download_file(BUCKET_NAME, DB_FILENAME, LOCAL_DB_PATH)
-        st.write("DBファイルをS3から正常にダウンロードしました。")
-
-        # ダウンロードしたファイルが存在するか確認
-        if os.path.exists(LOCAL_DB_PATH):
-            st.success(f"ローカルに {LOCAL_DB_PATH} が存在します。")
-        else:
-            st.error(f"ダウンロードに失敗しました: {LOCAL_DB_PATH} が見つかりません。")
-    except Exception as e:
-        st.error(f"DBファイルのダウンロード中にエラーが発生しました: {e}")
-
-
-
-def upload_db_to_s3():
-    """SQLiteファイルをS3にアップロード"""
-    try:
-        # ファイルをS3にアップロード
-        s3.upload_file(LOCAL_DB_PATH, BUCKET_NAME, DB_FILENAME)
-        st.write("DBファイルをS3に正常にアップロードしました。")
-
-        # アップロード後にS3上の存在を確認
-        response = s3.list_objects_v2(Bucket=BUCKET_NAME, Prefix=DB_FILENAME)
-        if 'Contents' in response:
-            st.success(f"S3に {DB_FILENAME} が存在します。")
-        else:
-            st.error(f"S3に {DB_FILENAME} が存在しません。アップロードが失敗した可能性があります。")
-    except Exception as e:
-        st.error(f"DBファイルのアップロード中にエラーが発生しました: {e}")
-
-
-
-# === SQLite操作関連の関数 ===
+# DBがなければ作成
 def init_db():
-    """ローカルのSQLiteファイルでDBを初期化"""
-    conn = sqlite3.connect(LOCAL_DB_PATH)
+    conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
     cur.execute('''
-        CREATE TABLE IF NOT EXISTS USERS (
+        CREATE TABLE IF NOT EXISTS USER (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL
@@ -128,13 +88,12 @@ def init_db():
     conn.commit()
     conn.close()
 
-
+# ユーザの新規登録
 def register_user(username, password):
-    """新規ユーザを登録"""
     try:
-        conn = sqlite3.connect(LOCAL_DB_PATH)
+        conn = sqlite3.connect("literary_app.db")
         cur = conn.cursor()
-        cur.execute("INSERT INTO USERS (username, password) VALUES (?, ?)", (username, hash_password(password)))
+        cur.execute("INSERT INTO USER (username, password) VALUES (?, ?)", (username, hash_password(password)))
         conn.commit()
         st.success("登録に成功しました！ログインしてください。")
     except sqlite3.IntegrityError:
@@ -142,39 +101,26 @@ def register_user(username, password):
     finally:
         conn.close()
 
-
+# ユーザが存在するかどうかを確認（認証）
 def authenticate_user(username, password):
-    """ユーザを認証"""
-    conn = sqlite3.connect(LOCAL_DB_PATH)
+    conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
-    cur.execute("SELECT * FROM USERS WHERE username = ? AND password = ?", (username, hash_password(password)))
+    cur.execute("SELECT * FROM USER WHERE username = ? AND password = ?", (username, hash_password(password)))
     user = cur.fetchone()
     conn.close()
     return user
 
-
 def fetch_titles_from_db():
-    """BOTテーブルからタイトルを取得"""
-    conn = sqlite3.connect(LOCAL_DB_PATH)
+    conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
     cur.execute("SELECT title FROM BOT")
     rows = cur.fetchall()
     conn.close()
     return [row[0] for row in rows]
 
-
-def hash_password(password):
-    """パスワードをハッシュ化"""
-    return hashlib.sha256(password.encode()).hexdigest()
-
-
-# === アプリ起動時にDBを準備 ===
-# S3からダウンロード → SQLite初期化
-if not os.path.exists(LOCAL_DB_PATH):
-    download_db_from_s3()
+# データベース初期化
 init_db()
 
-# === アプリケーションの実装 ===
 # セッション状態管理
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
@@ -208,7 +154,6 @@ with tabs[1]:
         else:
             st.error("ユーザ名とパスワードを入力してください。")
 
-
 # ログイン後の画面
 if st.session_state["logged_in"]:
     st.markdown(f"<h3>こんにちは、{st.session_state['username']}さん！</h3>", unsafe_allow_html=True)
@@ -234,10 +179,7 @@ if st.session_state["logged_in"]:
         titles = fetch_titles_from_db()
         if titles:
             selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
-            
             if st.button("会話を始める", key="start_conversation"):
-                # ローカルDBをS3にアップロード
-                upload_db_to_s3()
                 # ページ遷移
                 url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot?title={selected_title}"
                 st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
@@ -249,4 +191,3 @@ if st.session_state["logged_in"]:
         st.write(f"{selected_bot}との対話を開始する準備が整いました。")
         if st.button("会話を始める", key="start_conversation_others"):
             st.write(f"{selected_bot}との対話画面に遷移します。")
-
