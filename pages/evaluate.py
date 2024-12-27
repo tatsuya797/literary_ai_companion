@@ -5,9 +5,8 @@ import openai
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
-openai.api_key = st.secrets.OpenAIAPI.openai_api_key
-
+# GPT-APIキーを設定
+openai.api_key = "your_openai_api_key"
 
 def evaluate_creativity(summary):
     """GPT-APIを使用して創造性評価を行い、スコアを返す"""
@@ -100,7 +99,7 @@ def main():
         db_file = "literary_app.db"
         conn = sqlite3.connect(db_file)
         cur = conn.cursor()
-        cur.execute("SELECT summary FROM USER WHERE id = ?", (conversation_id,))
+        cur.execute("SELECT summary, Relevance, Creativity, Flexibility, Problem_Solving, Insight FROM USER WHERE id = ?", (conversation_id,))
         row = cur.fetchone()
         conn.close()
 
@@ -119,6 +118,19 @@ def main():
 
                 st.subheader("【レーダーチャート】")
                 plot_radar_chart(scores)
+            else:
+                st.write("**現在のスコア**")
+                current_scores = {
+                    "Relevance": row[1],
+                    "Creativity": row[2],
+                    "Flexibility": row[3],
+                    "Problem_Solving": row[4],
+                    "Insight": row[5]
+                }
+                st.write(current_scores)
+
+                st.subheader("【レーダーチャート】")
+                plot_radar_chart(current_scores)
         else:
             st.write("該当するレコードが見つかりません。")
     else:
