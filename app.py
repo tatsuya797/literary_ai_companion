@@ -204,10 +204,9 @@ if st.session_state["logged_in"]:
         if titles:
             selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
             if st.button("会話を始める", key="start_conversation"):
+                # ローカルDBをS3にアップロード
+                upload_db_to_s3()
                 url = f"https://example.com/akutagawa_bot?title={selected_title}"
                 st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
 
-# 終了時にS3へアップロード
-if st.button("データを保存して終了"):
-    upload_db_to_s3()
 
