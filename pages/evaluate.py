@@ -19,7 +19,7 @@ def evaluate_creativity(summary):
     5. Insight
     Summary: "{summary}"
     Provide the scores in JSON format as:
-    {"Relevance": x, "Creativity": x, "Flexibility": x, "Problem_Solving": x, "Insight": x}
+    {"Relevance": 0, "Creativity": 0, "Flexibility": 0, "Problem_Solving": 0, "Insight": 0}
     """
     
     response = openai.ChatCompletion.create(
@@ -31,6 +31,8 @@ def evaluate_creativity(summary):
     )
 
     scores = eval(response['choices'][0]['message']['content'])
+    for key in scores:
+        scores[key] = int(scores[key])  # Ensure all values are integers
     return scores
 
 def update_user_scores(conversation_id, scores):
