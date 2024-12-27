@@ -7,7 +7,7 @@ import os
 # AWS S3 の設定
 BUCKET_NAME = "my-s3-bucket"
 DB_FILENAME = "literary_app.db"         # S3上のファイル名
-LOCAL_DB_PATH = "local_literary_app.db" # ローカルで操作する一時的なファイル名
+LOCAL_DB_PATH = "/Users/shinsontatsuya/dev2/literary_ai_companion/literary_app.db" # ローカルで操作する一時的なファイル名
 
 
 # AWS S3 クライアントの初期化
@@ -234,10 +234,10 @@ if st.session_state["logged_in"]:
         titles = fetch_titles_from_db()
         if titles:
             selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
-            # 終了時にS3へアップロード
-            if st.button("データを保存して終了"):
-                upload_db_to_s3()
+            
             if st.button("会話を始める", key="start_conversation"):
+                # ローカルDBをS3にアップロード
+                upload_db_to_s3()
                 # ページ遷移
                 url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot?title={selected_title}"
                 st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
