@@ -73,23 +73,38 @@ st.markdown("<div class='title'>文学と共に歩む対話の世界</div>", uns
 st.markdown("<div class='subtitle'>感想を語り合い、作家の息吹に触れるひとときを</div>", unsafe_allow_html=True)
 
 
-# === S3関連のユーティリティ関数 ===
 def download_db_from_s3():
     """S3からSQLiteファイルをダウンロード"""
     try:
         s3.download_file(BUCKET_NAME, DB_FILENAME, LOCAL_DB_PATH)
-        st.write("DBファイルをS3からダウンロードしました。")
+        st.write("DBファイルをS3から正常にダウンロードしました。")
+
+        # ダウンロードしたファイルが存在するか確認
+        if os.path.exists(LOCAL_DB_PATH):
+            st.success(f"ローカルに {LOCAL_DB_PATH} が存在します。")
+        else:
+            st.error(f"ダウンロードに失敗しました: {LOCAL_DB_PATH} が見つかりません。")
     except Exception as e:
-        st.error(f"DBファイルのダウンロードに失敗しました: {e}")
+        st.error(f"DBファイルのダウンロード中にエラーが発生しました: {e}")
+
 
 
 def upload_db_to_s3():
     """SQLiteファイルをS3にアップロード"""
     try:
+        # ファイルをS3にアップロード
         s3.upload_file(LOCAL_DB_PATH, BUCKET_NAME, DB_FILENAME)
-        st.write("DBファイルをS3にアップロードしました。")
+        st.write("DBファイルをS3に正常にアップロードしました。")
+
+        # アップロード後にS3上の存在を確認
+        response = s3.list_objects_v2(Bucket=BUCKET_NAME, Prefix=DB_FILENAME)
+        if 'Contents' in response:
+            st.success(f"S3に {DB_FILENAME} が存在します。")
+        else:
+            st.error(f"S3に {DB_FILENAME} が存在しません。アップロードが失敗した可能性があります。")
     except Exception as e:
-        st.error(f"DBファイルのアップロードに失敗しました: {e}")
+        st.error(f"DBファイルのアップロード中にエラーが発生しました: {e}")
+
 
 
 # === SQLite操作関連の関数 ===
@@ -192,6 +207,13 @@ with tabs[1]:
         else:
             st.error("ユーザ名とパスワードを入力してください。")
 
+
+# 終了時にS3へアップロード
+if st.button("データを保存して終了"):
+        upload_db_to_s3()
+        
+
+
 # ログイン後の画面
 if st.session_state["logged_in"]:
     st.markdown(f"<h3>こんにちは、{st.session_state['username']}さん！</h3>", unsafe_allow_html=True)
@@ -231,3 +253,7 @@ if st.session_state["logged_in"]:
         st.write(f"{selected_bot}との対話を開始する準備が整いました。")
         if st.button("会話を始める", key="start_conversation_others"):
             st.write(f"{selected_bot}との対話画面に遷移します。")
+
+    # 終了時にS3へアップロード
+    if st.button("データを保存して終了"):
+        upload_db_to_s3()
