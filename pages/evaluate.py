@@ -4,6 +4,7 @@ import pandas as pd
 import openai
 import matplotlib.pyplot as plt
 import numpy as np
+import json
 
 # GPT-APIキーを設定
 openai.api_key = "your_openai_api_key"
@@ -19,7 +20,7 @@ def evaluate_creativity(summary):
     5. Insight
     Summary: "{summary}"
     Provide the scores in JSON format as:
-    {"Relevance": 0, "Creativity": 0, "Flexibility": 0, "Problem_Solving": 0, "Insight": 0}
+    {{"Relevance": 0, "Creativity": 0, "Flexibility": 0, "Problem_Solving": 0, "Insight": 0}}
     """
     
     response = openai.ChatCompletion.create(
@@ -30,10 +31,16 @@ def evaluate_creativity(summary):
         ]
     )
 
-    scores = eval(response['choices'][0]['message']['content'])
-    for key in scores:
-        scores[key] = int(scores[key])  # Ensure all values are integers
-    return scores
+    try:
+        # Use json.loads to safely parse JSON response
+        scores = json.loads(response['choices'][0]['message']['content'])
+        # Ensure all scores are integers
+        for key in scores:
+            scores[key] = int(scores[key])
+        return scores
+    except (json.JSONDecodeError, KeyError, ValueError) as e:
+        st.error(f"Error parsing GPT response: {e}")
+        return None
 
 def update_user_scores(conversation_id, scores):
     """USERテーブルに評価スコアを更新する"""
@@ -113,13 +120,14 @@ def main():
 
             if st.button("創造性評価を実行"):
                 scores = evaluate_creativity(summary_text)
-                update_user_scores(conversation_id, scores)
+                if scores:
+                    update_user_scores(conversation_id, scores)
 
-                st.success("創造性評価が完了し、スコアがデータベースに保存されました！")
-                st.write(scores)
+                    st.success("創造性評価が完了し、スコアがデータベースに保存されました！")
+                    st.write(scores)
 
-                st.subheader("【レーダーチャート】")
-                plot_radar_chart(scores)
+                    st.subheader("【レーダーチャート】")
+                    plot_radar_chart(scores)
             else:
                 st.write("**現在のスコア**")
                 current_scores = {
