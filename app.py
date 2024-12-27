@@ -1,7 +1,7 @@
 import streamlit as st
-import sqlite3  # SQLite3を使用
-import hashlib
+import sqlite3
 import boto3
+import hashlib
 import os
 
 # AWS S3 の設定
@@ -16,64 +16,26 @@ s3 = boto3.client("s3", region_name="ap-northeast-1")  # リージョンは適�
 st.set_page_config(
     page_title="文学の読書コンパニオン",
     page_icon="📚", layout="centered",
-    initial_sidebar_state="collapsed",  # サイドバーを非表示
-    menu_items={
-        "Get Help": None,
-        "Report a bug": None,
-        "About": None
-    }
+    initial_sidebar_state="collapsed",
+    menu_items={"Get Help": None, "Report a bug": None, "About": None},
 )
 
 # GitHubのリポジトリにある背景画像のURL
 img_url = "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/image1.jpg"
 
-# 背景画像の設定（日本の古風な雰囲気の画像に設定）
+# 背景画像の設定
 page_bg_img = f"""
 <style>
     .stApp {{
-        background-image: url("{img_url}");  /* 和風な背景画像 */
+        background-image: url("{img_url}");
         background-size: cover;
         background-position: center;
         color: #f4f4f4;
-    }}
-    .title {{
-        font-size: 3rem;
-        color: #ffe4b5;
-        text-align: center;
-        font-family: 'Yu Mincho', serif;  /* 日本語の雰囲気があるフォント */
-        margin-top: 20px;
-    }}
-    .subtitle {{
-        font-size: 1.2rem;
-        color: #d2b48c;
-        text-align: center;
-        font-family: 'Yu Mincho', serif;
-        margin-top: -10px;
-    }}
-    .bot-section {{
-        margin-top: 80px;  /* ボット選択部分を下に移動 */
-        text-align: center;  /* 中央に配置 */
-        font-size: 1.2rem;
-        font-family: 'Yu Mincho', serif;
-    }}
-    .btn-start {{
-        display: block;
-        margin: 20px auto;
-        padding: 10px 50px;
-        background-color: #8b4513;
-        color: #fff;
-        font-size: 1.2rem;
-        border-radius: 8px;
-        text-align: center;
-        text-decoration: none;
     }}
 </style>
 """
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
-# タイトルと説明
-st.markdown("<div class='title'>文学と共に歩む対話の世界</div>", unsafe_allow_html=True)
-st.markdown("<div class='subtitle'>感想を語り合い、作家の息吹に触れるひとときを</div>", unsafe_allow_html=True)
 
 # === S3関連のユーティリティ関数 ===
 def download_db_from_s3():
@@ -100,7 +62,7 @@ def init_db():
     conn = sqlite3.connect(LOCAL_DB_PATH)
     cur = conn.cursor()
     cur.execute('''
-        CREATE TABLE IF NOT EXISTS USER (
+        CREATE TABLE IF NOT EXISTS USERS (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL
@@ -120,7 +82,7 @@ def register_user(username, password):
     try:
         conn = sqlite3.connect(LOCAL_DB_PATH)
         cur = conn.cursor()
-        cur.execute("INSERT INTO USER (username, password) VALUES (?, ?)", (username, hash_password(password)))
+        cur.execute("INSERT INTO USERS (username, password) VALUES (?, ?)", (username, hash_password(password)))
         conn.commit()
         st.success("登録に成功しました！ログインしてください。")
     except sqlite3.IntegrityError:
@@ -133,7 +95,7 @@ def authenticate_user(username, password):
     """ユーザを認証"""
     conn = sqlite3.connect(LOCAL_DB_PATH)
     cur = conn.cursor()
-    cur.execute("SELECT * FROM USER WHERE username = ? AND password = ?", (username, hash_password(password)))
+    cur.execute("SELECT * FROM USERS WHERE username = ? AND password = ?", (username, hash_password(password)))
     user = cur.fetchone()
     conn.close()
     return user
@@ -149,9 +111,10 @@ def fetch_titles_from_db():
     return [row[0] for row in rows]
 
 
-# ユーティリティ関数
 def hash_password(password):
+    """パスワードをハッシュ化"""
     return hashlib.sha256(password.encode()).hexdigest()
+
 
 # === アプリ起動時にDBを準備 ===
 # S3からダウンロード → SQLite初期化
@@ -204,9 +167,7 @@ if st.session_state["logged_in"]:
         if titles:
             selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
             if st.button("会話を始める", key="start_conversation"):
-                # ローカルDBをS3にアップロード
                 upload_db_to_s3()
                 url = f"https://example.com/akutagawa_bot?title={selected_title}"
                 st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
-
 
