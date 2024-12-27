@@ -1,6 +1,16 @@
 import streamlit as st
 import sqlite3  # SQLite3を使用
 import hashlib
+import boto3
+import os
+
+# AWS S3 の設定
+BUCKET_NAME = "my-s3-bucket"
+DB_FILENAME = "literary_app.db"         # S3上のファイル名
+LOCAL_DB_PATH = "local_literary_app.db" # ローカルで操作する一時的なファイル名
+
+# AWS S3 クライアントの初期化
+s3 = boto3.client("s3", region_name="ap-northeast-1")  # リージョンは適宜変更
 
 # ページの基本設定
 st.set_page_config(
@@ -65,16 +75,32 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 st.markdown("<div class='title'>文学と共に歩む対話の世界</div>", unsafe_allow_html=True)
 st.markdown("<div class='subtitle'>感想を語り合い、作家の息吹に触れるひとときを</div>", unsafe_allow_html=True)
 
-# ユーティリティ関数
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+# === S3関連のユーティリティ関数 ===
+def download_db_from_s3():
+    """S3からSQLiteファイルをダウンロード"""
+    try:
+        s3.download_file(BUCKET_NAME, DB_FILENAME, LOCAL_DB_PATH)
+        st.write("DBファイルをS3からダウンロードしました。")
+    except Exception as e:
+        st.error(f"DBファイルのダウンロードに失敗しました: {e}")
 
-# DBがなければ作成
+
+def upload_db_to_s3():
+    """SQLiteファイルをS3にアップロード"""
+    try:
+        s3.upload_file(LOCAL_DB_PATH, BUCKET_NAME, DB_FILENAME)
+        st.write("DBファイルをS3にアップロードしました。")
+    except Exception as e:
+        st.error(f"DBファイルのアップロードに失敗しました: {e}")
+
+
+# === SQLite操作関連の関数 ===
 def init_db():
-    conn = sqlite3.connect("literary_app.db")
+    """ローカルのSQLiteファイルでDBを初期化"""
+    conn = sqlite3.connect(LOCAL_DB_PATH)
     cur = conn.cursor()
     cur.execute('''
-        CREATE TABLE IF NOT EXISTS USERS (
+        CREATE TABLE IF NOT EXISTS USER (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL
@@ -88,10 +114,11 @@ def init_db():
     conn.commit()
     conn.close()
 
-# ユーザの新規登録
+
 def register_user(username, password):
+    """新規ユーザを登録"""
     try:
-        conn = sqlite3.connect("literary_app.db")
+        conn = sqlite3.connect(LOCAL_DB_PATH)
         cur = conn.cursor()
         cur.execute("INSERT INTO USER (username, password) VALUES (?, ?)", (username, hash_password(password)))
         conn.commit()
@@ -101,26 +128,38 @@ def register_user(username, password):
     finally:
         conn.close()
 
-# ユーザが存在するかどうかを確認（認証）
+
 def authenticate_user(username, password):
-    conn = sqlite3.connect("literary_app.db")
+    """ユーザを認証"""
+    conn = sqlite3.connect(LOCAL_DB_PATH)
     cur = conn.cursor()
     cur.execute("SELECT * FROM USER WHERE username = ? AND password = ?", (username, hash_password(password)))
     user = cur.fetchone()
     conn.close()
     return user
 
+
 def fetch_titles_from_db():
-    conn = sqlite3.connect("literary_app.db")
+    """BOTテーブルからタイトルを取得"""
+    conn = sqlite3.connect(LOCAL_DB_PATH)
     cur = conn.cursor()
     cur.execute("SELECT title FROM BOT")
     rows = cur.fetchall()
     conn.close()
     return [row[0] for row in rows]
 
-# データベース初期化
+
+# ユーティリティ関数
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+# === アプリ起動時にDBを準備 ===
+# S3からダウンロード → SQLite初期化
+if not os.path.exists(LOCAL_DB_PATH):
+    download_db_from_s3()
 init_db()
 
+# === アプリケーションの実装 ===
 # セッション状態管理
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
@@ -158,36 +197,17 @@ with tabs[1]:
 if st.session_state["logged_in"]:
     st.markdown(f"<h3>こんにちは、{st.session_state['username']}さん！</h3>", unsafe_allow_html=True)
     # ボット選択と開始ボタン
-    st.markdown("<div class='bot-section'>読書の対話相手を選んでください</div>", unsafe_allow_html=True)
     bot_options = ["夏目漱石", "太宰治", "芥川龍之介"]
     selected_bot = st.selectbox("ボット選択", bot_options, key="bot_selectbox")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # 芥川龍之介ボットの選択に応じた処理
     if selected_bot == "芥川龍之介":
-        # データベースから作品リストを取得
-        def fetch_titles_from_db():
-            db_file = "literary_app.db"
-            conn = sqlite3.connect(db_file)
-            cur = conn.cursor()
-            cur.execute("SELECT title FROM BOT")
-            rows = cur.fetchall()
-            conn.close()
-            return [row[0] for row in rows]
-    
-        # タイトルリストを取得
         titles = fetch_titles_from_db()
         if titles:
             selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
             if st.button("会話を始める", key="start_conversation"):
-                # ページ遷移
-                url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot?title={selected_title}"
+                url = f"https://example.com/akutagawa_bot?title={selected_title}"
                 st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
-        else:
-            st.write("作品リストを取得できませんでした。データベースを確認してください。")
-    
-    # 他のボットが選択された場合の処理
-    elif selected_bot in ["夏目漱石", "太宰治"]:
-        st.write(f"{selected_bot}との対話を開始する準備が整いました。")
-        if st.button("会話を始める", key="start_conversation_others"):
-            st.write(f"{selected_bot}との対話画面に遷移します。")
+
+# 終了時にS3へアップロード
+if st.button("データを保存して終了"):
+    upload_db_to_s3()
+
