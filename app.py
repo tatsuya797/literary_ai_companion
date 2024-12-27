@@ -9,6 +9,7 @@ BUCKET_NAME = "my-s3-bucket"
 DB_FILENAME = "literary_app.db"         # S3上のファイル名
 LOCAL_DB_PATH = "local_literary_app.db" # ローカルで操作する一時的なファイル名
 
+
 # AWS S3 クライアントの初期化
 s3 = boto3.client("s3", region_name="ap-northeast-1")  # リージョンは適宜変更
 
@@ -208,12 +209,6 @@ with tabs[1]:
             st.error("ユーザ名とパスワードを入力してください。")
 
 
-# 終了時にS3へアップロード
-if st.button("データを保存して終了"):
-        upload_db_to_s3()
-        
-
-
 # ログイン後の画面
 if st.session_state["logged_in"]:
     st.markdown(f"<h3>こんにちは、{st.session_state['username']}さん！</h3>", unsafe_allow_html=True)
@@ -239,9 +234,10 @@ if st.session_state["logged_in"]:
         titles = fetch_titles_from_db()
         if titles:
             selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
-            if st.button("会話を始める", key="start_conversation"):
-                # ローカルDBをS3にアップロード
+            # 終了時にS3へアップロード
+            if st.button("データを保存して終了"):
                 upload_db_to_s3()
+            if st.button("会話を始める", key="start_conversation"):
                 # ページ遷移
                 url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot?title={selected_title}"
                 st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
@@ -254,6 +250,3 @@ if st.session_state["logged_in"]:
         if st.button("会話を始める", key="start_conversation_others"):
             st.write(f"{selected_bot}との対話画面に遷移します。")
 
-    # 終了時にS3へアップロード
-    if st.button("データを保存して終了"):
-        upload_db_to_s3()
