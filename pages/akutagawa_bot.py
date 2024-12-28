@@ -40,11 +40,9 @@ page_bg_img = f"""
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
 
-# --- 1) クエリパラメータを取得 ---
+# クエリパラメータを取得
 query_params = st.experimental_get_query_params()
-selected_title = query_params.get("title", [None])[0]  # クエリパラメータ "title"
-# 例: ログイン後のページ遷移などで、?id=◯◯&username=◯◯&title=◯◯ として渡している想定
-username = query_params.get("username", [None])[0]    # クエリパラメータ "username"
+selected_title = query_params.get("title", [None])[0]  # クエリパラメータ "title" を取得
 
 # データベース接続
 def fetch_text_content(title):
@@ -194,11 +192,20 @@ def summarize_conversation(messages):
 
 def save_conversation_and_summary_to_db(messages):
     """
-    USERテーブルに会話履歴（JSON）とサマリーをINSERT
+    USERテーブルに会話履歴（JSON）とサマリーをINSERTし、AUTO INCREMENTで生成されたidを返す
     """
     db_file = "literary_app.db"
     conn = sqlite3.connect(db_file)
     cur = conn.cursor()
+
+    # 必要ならテーブル初期化
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS USER (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            conversation TEXT,
+            summary TEXT
+        )
+    """)
 
     # システムメッセージを除外したリストを作成
     filtered_messages = [m for m in messages if m["role"] in ("user", "assistant")]
@@ -210,41 +217,29 @@ def save_conversation_and_summary_to_db(messages):
     summary_text = summarize_conversation(filtered_messages)
 
     # DBにINSERT
-    # 1) 該当レコードが存在するか確認
-    cur.execute('''
-        SELECT * FROM USER
-        WHERE username = ? AND title = ?
-    ''', (username, selected_title))
-    existing_row = cur.fetchone()
-
-    if existing_row:
-        # すでに存在 → UPDATE
-        cur.execute('''
-            UPDATE USER
-            SET conversation = ?, summary = ?
-            WHERE username = ? AND title = ?
-        ''', (conversation_json, summary_text, record_id, username, selected_title))
-    else:
-        # 該当無し → INSERT
-        cur.execute('''
-            INSERT INTO USER (username, title, conversation, summary)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (username, selected_title, conversation_json, summary_text))
-
+    cur.execute(
+        "INSERT INTO USER (conversation, summary) VALUES (?, ?)",
+        (conversation_json, summary_text)
+    )
     conn.commit()
+
+    # 直近でINSERTしたレコードのIDを取得
+    last_insert_id = cur.lastrowid
+
     conn.close()
+    return last_insert_id
 
 # --- 対話終了ボタン ---
 if st.session_state["total_characters"] >= 10:
     if st.button("対話終了"):
-        # DBに保存
-        save_conversation_and_summary_to_db(st.session_state["messages"])
+        # DBに保存 → レコードID取得
+        record_id = save_conversation_and_summary_to_db(st.session_state["messages"])
 
         # デバッグ用表示（必要なら残す）
         st.write(f"DEBUG: record_id = {record_id}")
 
         # evaluate.py へ遷移（ここでは id=record_id だけクエリパラメータに含める）
-        evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?username={username}"
+        evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?id={record_id}"
         st.markdown(f'<meta http-equiv="refresh" content="0; url={evaluate_url}">', unsafe_allow_html=True)
 
 
