@@ -21,7 +21,7 @@ img_url = "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/ma
 page_bg_img = f"""
 <style>
     .stApp {{
-        background-image: url("{img_url}");
+        background-image: url("{img_url}");  /* 和風な背景画像 */
         background-size: cover;
         background-position: center;
         color: #f4f4f4;
@@ -30,7 +30,7 @@ page_bg_img = f"""
         font-size: 3rem;
         color: #ffe4b5;
         text-align: center;
-        font-family: 'Yu Mincho', serif;
+        font-family: 'Yu Mincho', serif;  /* 日本語の雰囲気があるフォント */
         margin-top: 20px;
     }}
     .subtitle {{
@@ -41,8 +41,8 @@ page_bg_img = f"""
         margin-top: -10px;
     }}
     .bot-section {{
-        margin-top: 80px;
-        text-align: center;
+        margin-top: 80px;  /* ボット選択部分を下に移動 */
+        text-align: center;  /* 中央に配置 */
         font-size: 1.2rem;
         font-family: 'Yu Mincho', serif;
     }}
@@ -90,48 +90,25 @@ def init_db():
 
 # ユーザの新規登録
 def register_user(username, password):
-    """
-    新規ユーザーを登録し、AUTO INCREMENTされたidを返す
-    """
-    some_id = None
     try:
         conn = sqlite3.connect("literary_app.db")
         cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO USER (username, password) VALUES (?, ?)",
-            (username, hash_password(password))
-        )
+        cur.execute("INSERT INTO USER (username, password) VALUES (?, ?)", (username, hash_password(password)))
         conn.commit()
-
-        some_id = cur.lastrowid  # 自動採番されたID
         st.success("登録に成功しました！ログインしてください。")
     except sqlite3.IntegrityError:
         st.error("このユーザ名は既に登録されています。")
     finally:
         conn.close()
 
-    return some_id
-
 # ユーザが存在するかどうかを確認（認証）
 def authenticate_user(username, password):
-    """
-    ログイン時にid, username, passwordの行を取り出し、
-    該当すれば(idを返す)、なければNoneを返す
-    """
     conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
-    cur.execute(
-        "SELECT id, username, password FROM USER WHERE username = ? AND password = ?",
-        (username, hash_password(password))
-    )
+    cur.execute("SELECT * FROM USER WHERE username = ? AND password = ?", (username, hash_password(password)))
     user = cur.fetchone()
     conn.close()
-
-    if user:
-        # user[0] がid, user[1]がusername, user[2]がpassword
-        return user[0]  # idを返す
-    else:
-        return None
+    return user
 
 def fetch_titles_from_db():
     conn = sqlite3.connect("literary_app.db")
@@ -149,8 +126,6 @@ if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 if "username" not in st.session_state:
     st.session_state["username"] = None
-if "user_id" not in st.session_state:
-    st.session_state["user_id"] = None  # ここにAUTO INCREMENTされたIDを保持
 
 # ログイン・新規登録をタブで切り替え
 tabs = st.tabs(["ログイン", "新規登録"])
@@ -161,12 +136,10 @@ with tabs[0]:
     username = st.text_input("ユーザ名")
     password = st.text_input("パスワード", type="password")
     if st.button("ログイン"):
-        found_id = authenticate_user(username, password)
-        if found_id is not None:
+        if authenticate_user(username, password):
             st.session_state["logged_in"] = True
             st.session_state["username"] = username
-            st.session_state["user_id"] = found_id
-            st.success(f"ようこそ、{username}さん！ (ID: {found_id})")
+            st.success(f"ようこそ、{username}さん！")
         else:
             st.error("ユーザ名またはパスワードが間違っています。")
 
@@ -177,20 +150,13 @@ with tabs[1]:
     new_password = st.text_input("新規パスワード", type="password")
     if st.button("登録"):
         if new_username and new_password:
-            new_id = register_user(new_username, new_password)
-            # 新規登録のあと自動ログインさせたい場合は、以下のようにする
-            if new_id is not None:
-                st.session_state["logged_in"] = True
-                st.session_state["username"] = new_username
-                st.session_state["user_id"] = new_id
+            register_user(new_username, new_password)
         else:
             st.error("ユーザ名とパスワードを入力してください。")
 
 # ログイン後の画面
 if st.session_state["logged_in"]:
     st.markdown(f"<h3>こんにちは、{st.session_state['username']}さん！</h3>", unsafe_allow_html=True)
-    st.write(f"あなたのID: {st.session_state['user_id']}")
-    
     # ボット選択と開始ボタン
     st.markdown("<div class='bot-section'>読書の対話相手を選んでください</div>", unsafe_allow_html=True)
     bot_options = ["夏目漱石", "太宰治", "芥川龍之介"]
@@ -199,20 +165,23 @@ if st.session_state["logged_in"]:
 
     # 芥川龍之介ボットの選択に応じた処理
     if selected_bot == "芥川龍之介":
+        # データベースから作品リストを取得
+        def fetch_titles_from_db():
+            db_file = "literary_app.db"
+            conn = sqlite3.connect(db_file)
+            cur = conn.cursor()
+            cur.execute("SELECT title FROM BOT")
+            rows = cur.fetchall()
+            conn.close()
+            return [row[0] for row in rows]
+    
         # タイトルリストを取得
         titles = fetch_titles_from_db()
         if titles:
             selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
             if st.button("会話を始める", key="start_conversation"):
                 # ページ遷移
-                user_id = st.session_state["user_id"]  # ログイン時に取得したID
-                url = (
-                    "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot"
-                    f"?id={user_id}"
-                    f"&username={st.session_state['username']}"
-                    f"&author={selected_bot}"
-                    f"&title={selected_title}"
-                )
+                url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot?title={selected_title}"
                 st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
         else:
             st.write("作品リストを取得できませんでした。データベースを確認してください。")
