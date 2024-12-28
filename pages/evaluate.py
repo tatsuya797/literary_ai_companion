@@ -22,16 +22,16 @@ def evaluate_creativity(summary):
     Provide the scores in JSON format as:
     {{"Relevance": 0, "Creativity": 0, "Flexibility": 0, "Problem_Solving": 0, "Insight": 0}}
     """
-    
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are an evaluation assistant."},
-            {"role": "user", "content": prompt}
-        ]
-    )
 
     try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are an evaluation assistant."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+
         # Use json.loads to safely parse JSON response
         scores = json.loads(response['choices'][0]['message']['content'])
         # Ensure all scores are integers
@@ -151,6 +151,17 @@ def main():
     st.subheader("DB確認ツール")
     if st.button("DBの内容を表示"):
         show_db_contents()
+
+    # テスト用のスコアでレーダーチャートを描画
+    test_scores = {
+        "Relevance": 8,
+        "Creativity": 6,
+        "Flexibility": 7,
+        "Problem_Solving": 7,
+        "Insight": 9
+    }
+    st.subheader("【テストデータによるレーダーチャート】")
+    plot_radar_chart(test_scores)
 
 if __name__ == "__main__":
     main()
