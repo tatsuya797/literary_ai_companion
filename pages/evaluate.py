@@ -164,9 +164,8 @@ def main():
                     "Insight": row[5]
                 }
                 
-                # Pandas DataFrameで表示
-                scores_df = pd.DataFrame([current_scores])
-                st.write(scores_df)
+                # USERテーブルの5つのスコアをDataFrameとして表示
+                st.write(pd.DataFrame([current_scores], index=["Current Scores"]))
 
                 st.subheader("【レーダーチャート】")
                 plot_radar_chart(current_scores)
