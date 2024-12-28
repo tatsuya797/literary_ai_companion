@@ -118,9 +118,6 @@ def plot_radar_chart(scores):
     for angle, label in zip(angles[:-1], labels):
         ax.text(angle, 11, label, horizontalalignment='center', size=14, weight='bold', color='#4b0082')
 
-    # 装飾ボックス
-    ax.add_patch(FancyBboxPatch((-1.2, -1.2), 2.4, 2.4, boxstyle="round,pad=0.3", edgecolor="#8b4513", facecolor="#f5deb3", alpha=0.3, mutation_scale=10))
-
     st.pyplot(fig)
 
 def show_db_contents():
