@@ -150,7 +150,7 @@ def main():
                     update_user_scores(conversation_id, scores)
 
                     st.success("創造性評価が完了し、スコアがデータベースに保存されました！")
-                    st.write(scores)
+                    st.write(pd.DataFrame([current_scores], index=["Current Scores"]))
 
                     st.subheader("【レーダーチャート】")
                     plot_radar_chart(scores)
