@@ -89,7 +89,7 @@ def update_user_scores(conversation_id, scores):
     conn.close()
 
 def plot_radar_chart(scores):
-    """古風なスタイルのレーダーチャートを作成して描画する"""
+    """レーダーチャートを古風な感じで作成して描画する"""
     labels = list(scores.keys())
     values = list(scores.values())
 
@@ -98,25 +98,34 @@ def plot_radar_chart(scores):
     angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False).tolist()
     angles += angles[:1]  # 閉じるために最初の角度を追加
 
-    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={"polar": True})
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw={"polar": True})
 
-    # 背景を和紙風に
-    fig.patch.set_facecolor('#f5f5dc')
-    ax.set_facecolor('#faf0e6')
+    # 古風な色合い
+    fill_color = to_rgba("#b08968", alpha=0.5)
+    edge_color = "#805d3a"
+    bg_color = "#fff5e6"
 
-    # データをプロット
-    ax.fill(angles, values, color="#8b0000", alpha=0.25)
-    ax.plot(angles, values, color="#8b0000", linewidth=2)
-    
-    # 円グラフの装飾
+    ax.set_facecolor(bg_color)
+    ax.fill(angles, values, color=fill_color, linewidth=2, edgecolor=edge_color)
+    ax.plot(angles, values, color=edge_color, linewidth=2)
+
+    # メモリラベルを和風のフォント風に
     ax.set_yticks([2, 4, 6, 8, 10])
-    ax.set_yticklabels(["2", "4", "6", "8", "10"], fontsize=12, color="#8b4513")
-    ax.set_xticks(angles[:-1])  # 最後の角度はラベル付けしない
-    ax.set_xticklabels(labels, fontsize=14, fontweight="bold", color="#8b4513")
+    ax.set_yticklabels(["二", "四", "六", "八", "十"], fontsize=12, color=edge_color)
 
-    # 装飾
-    for angle, label in zip(angles[:-1], labels):
-        ax.text(angle, 11, label, horizontalalignment='center', size=14, weight='bold', color='#4b0082')
+    ax.set_xticks(angles[:-1])  # 最後の角度はラベル付けしない
+    ax.set_xticklabels(labels, fontsize=12, color=edge_color)
+
+    # 外枠のデザインを変更
+    for spine in ax.spines.values():
+        spine.set_edgecolor(edge_color)
+
+    # 多角形の外枠を追加して、古風な感じに
+    polygon = Polygon(
+        np.c_[np.cos(angles) * 10, np.sin(angles) * 10],
+        closed=True, edgecolor=edge_color, facecolor="none", linewidth=2
+    )
+    ax.add_patch(polygon)
 
     st.pyplot(fig)
 
