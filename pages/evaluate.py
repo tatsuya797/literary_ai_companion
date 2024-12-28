@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 import os
+from matplotlib.patches import Polygon
+from matplotlib.colors import to_rgba
 
 # ページの基本設定
 st.set_page_config(
