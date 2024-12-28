@@ -73,6 +73,8 @@ def hash_password(password):
 def init_db():
     conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
+
+    # USER テーブル作成
     cur.execute('''
         CREATE TABLE IF NOT EXISTS USER (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -87,17 +89,21 @@ def init_db():
             Flexibility INTEGER,
             Problem_Solving INTEGER,
             Insight INTEGER
-            )
-            
+        )
+    ''')
+
+    # BOT テーブル作成
+    cur.execute('''
         CREATE TABLE IF NOT EXISTS BOT (
             author TEXT,
             title TEXT,
-            text_content,
-            )
-        ''')
-        
+            text_content TEXT
+        )
+    ''')
+
     conn.commit()
     conn.close()
+
 
 # ユーザの新規登録
 def register_user(username, password):
