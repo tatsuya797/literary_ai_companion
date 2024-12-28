@@ -130,6 +130,18 @@ def drop_user_table():
     conn.commit()
     conn.close()
 
+# username から id を取得する関数
+def get_user_id_by_username(username):
+    """
+    USERテーブルから、指定されたusernameに対応するidを取得
+    """
+    conn = sqlite3.connect("literary_app.db")
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM USER WHERE username = ?", (username,))
+    row = cur.fetchone()
+    conn.close()
+    return row[0] if row else None
+
 # ユーザの新規登録
 def register_user(username, password):
     try:
@@ -219,12 +231,20 @@ if st.session_state["logged_in"]:
             selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
             if st.button("会話を始める", key="start_conversation"):
                 current_user = st.session_state["username"]  
-                # USERテーブルに author="芥川龍之介" と title=selected_title をUPDATE
-                store_author_and_title(current_user, "芥川龍之介", selected_title)
-                # ページ遷移
+                # USERテーブルに author=selected_bot と title=selected_title をUPDATE
+                store_author_and_title(current_user, selected_bot, selected_title)
+
+                # DBからユーザーIDを取得
+                user_id = get_user_id_by_username(current_user)
+                
+                # ページ遷移: クエリパラメータに id, username, author, title を付与
                 url = (
-                    f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/"
-                    f"akutagawa_bot?title={selected_title}"
+                    "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/"
+                    "akutagawa_bot"
+                    f"?id={user_id}"                # ① DB上のid
+                    f"&username={current_user}"     # ② ログイン中のusername
+                    f"&author={selected_bot}"      # ③ ボット（著者）
+                    f"&title={selected_title}"      # ④ 選択した作品タイトル
                 )
                 st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
         else:
