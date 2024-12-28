@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 import os
-
+from matplotlib.patches import FancyBboxPatch
 
 # ページの基本設定
 st.set_page_config(
@@ -49,7 +49,7 @@ def evaluate_creativity(summary):
     5. Insight
     Summary: "{summary}"
     Provide the scores in JSON format as:
-    {{"Relevance": 0, "Creativity": 0, "Flexibility": 0, "Problem_Solving": 0, "Insight": 0}}
+    {{"Relevance": 0, "Creativity": 0, "Flexibility": 0, "Problem-Solving": 0, "Insight": 0}}
     """
 
     try:
@@ -90,7 +90,7 @@ def update_user_scores(conversation_id, scores):
     conn.close()
 
 def plot_radar_chart(scores):
-    """古風なデザインのレーダーチャートを作成して描画する"""
+    """さらに装飾された古風なデザインのレーダーチャートを作成して描画する"""
     labels = list(scores.keys())
     values = list(scores.values())
 
@@ -100,16 +100,15 @@ def plot_radar_chart(scores):
     angles += angles[:1]  # 閉じるために最初の角度を追加
 
     # 和風の配色
-    colors = ["#8b4513", "#556b2f", "#2e8b57", "#6a5acd", "#cd5c5c"]
-
-    # 背景画像の設定
     fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={"polar": True})
     fig.patch.set_facecolor("#fff5e1")  # 背景を和風の色に設定
 
-    ax.fill(angles, values, color="gold", alpha=0.3, linewidth=2, linestyle="--")
-    ax.plot(angles, values, color="#8b0000", linewidth=3)
-    ax.set_facecolor("#fff5e1")  # レーダーチャートの背景色
+    # レーダーチャートのエリア塗りつぶし
+    ax.fill(angles, values, color="gold", alpha=0.4, linewidth=1.5, linestyle="--")
+    ax.plot(angles, values, color="#8b0000", linewidth=2, marker="o", markersize=10, markerfacecolor="crimson")
+    ax.set_facecolor("#f8e8d8")  # 内側背景を淡い和風の色に設定
 
+    # ラベルと目盛りの設定
     ax.set_yticks([2, 4, 6, 8, 10])
     ax.set_yticklabels(["2", "4", "6", "8", "10"], fontsize=12, fontweight="bold", color="#6b4226")
     ax.set_xticks(angles[:-1])
@@ -117,13 +116,22 @@ def plot_radar_chart(scores):
 
     # 装飾用の枠線
     for spine in ax.spines.values():
-        spine.set_edgecolor("#8b0000")
-        spine.set_linewidth(1.5)
+        spine.set_edgecolor("#8b4513")
+        spine.set_linewidth(2)
 
     # 中央から広がる線のスタイル
     for line in ax.yaxis.get_gridlines():
-        line.set_linestyle("dotted")
-        line.set_color("#cd5c5c")
+        line.set_linestyle("dashed")
+        line.set_color("#d2b48c")
+
+    # 和風装飾：枠を追加
+    bbox = FancyBboxPatch((-1.1, -1.1), 2.2, 2.2,
+                          boxstyle="round,pad=0.1",
+                          edgecolor="#8b4513",
+                          facecolor="none",
+                          linewidth=3,
+                          transform=ax.transAxes, clip_on=False)
+    ax.add_patch(bbox)
 
     st.pyplot(fig)
 
@@ -143,6 +151,27 @@ def show_db_contents():
     st.dataframe(df)
 
 def main():
+    st.markdown(
+        """<style>
+        .stApp {
+            font-family: 'Yu Mincho', serif;
+            background-color: #fffaf0;
+            color: #5b4636;
+        }
+        .text-box {
+            background-color: #f8f0e3;
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem;
+            font-family: 'Yu Mincho', serif;
+            color: #5b4636;
+        }
+        </style>""",
+        unsafe_allow_html=True
+    )
+
     st.title("Evaluation & DB確認ツール")
 
     st.subheader("Evaluation Page")
@@ -161,7 +190,12 @@ def main():
             summary_text = row[0]
             st.write(f"**対象レコードID**: {conversation_id}")
             st.subheader("【サマリー】")
-            st.text_area("Summary", summary_text, height=150)
+            st.markdown(
+                f"""
+                <div class="text-box">{summary_text}</div>
+                """,
+                unsafe_allow_html=True
+            )
 
             if st.button("創造性評価を実行"):
                 scores = evaluate_creativity(summary_text)
@@ -169,6 +203,7 @@ def main():
                     update_user_scores(conversation_id, scores)
 
                     st.success("創造性評価が完了し、スコアがデータベースに保存されました！")
+
                     st.write("**更新されたスコア**")
                     updated_scores_df = pd.DataFrame([scores], index=["Updated Scores"])
                     st.write(updated_scores_df)
@@ -184,7 +219,7 @@ def main():
                     "Problem_Solving": row[4],
                     "Insight": row[5]
                 }
-                
+
                 # USERテーブルの5つのスコアをDataFrameとして表示
                 st.write(pd.DataFrame([current_scores], index=["Current Scores"]))
 
