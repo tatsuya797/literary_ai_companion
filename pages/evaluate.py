@@ -143,6 +143,27 @@ def show_db_contents():
     st.dataframe(df)
 
 def main():
+    st.markdown(
+        """<style>
+        .stApp {
+            font-family: 'Yu Mincho', serif;
+            background-color: #fffaf0;
+            color: #5b4636;
+        }
+        .text-box {
+            background-color: #f8f0e3;
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem;
+            font-family: 'Yu Mincho', serif;
+            color: #5b4636;
+        }
+        </style>""",
+        unsafe_allow_html=True
+    )
+
     st.title("Evaluation & DB確認ツール")
 
     st.subheader("Evaluation Page")
@@ -161,7 +182,12 @@ def main():
             summary_text = row[0]
             st.write(f"**対象レコードID**: {conversation_id}")
             st.subheader("【サマリー】")
-            st.text_area("Summary", summary_text, height=150)
+            st.markdown(
+                f"""
+                <div class="text-box">{summary_text}</div>
+                """,
+                unsafe_allow_html=True
+            )
 
             if st.button("創造性評価を実行"):
                 scores = evaluate_creativity(summary_text)
@@ -169,6 +195,7 @@ def main():
                     update_user_scores(conversation_id, scores)
 
                     st.success("創造性評価が完了し、スコアがデータベースに保存されました！")
+
                     st.write("**更新されたスコア**")
                     updated_scores_df = pd.DataFrame([scores], index=["Updated Scores"])
                     st.write(updated_scores_df)
@@ -184,7 +211,7 @@ def main():
                     "Problem_Solving": row[4],
                     "Insight": row[5]
                 }
-                
+
                 # USERテーブルの5つのスコアをDataFrameとして表示
                 st.write(pd.DataFrame([current_scores], index=["Current Scores"]))
 
