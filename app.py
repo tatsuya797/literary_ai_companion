@@ -76,15 +76,27 @@ def init_db():
     cur.execute('''
         CREATE TABLE IF NOT EXISTS USER (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL
-        )
-    ''')
+            username TEXT,
+            password TEXT,
+            author TEXT,
+            title TEXT,
+            conversation TEXT,
+            summary TEXT,
+            Relevance INTEGER,
+            Creativity INTEGER,
+            Flexibility INTEGER,
+            Problem_Solving INTEGER,
+            Insight INTEGER
+            )
+            ''')
     cur.execute('''
         CREATE TABLE IF NOT EXISTS BOT (
-            title TEXT NOT NULL
-        )
-    ''')
+            author TEXT,
+            title TEXT,
+            text_content,
+            )
+            ''')
+
     conn.commit()
     conn.close()
 
