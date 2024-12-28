@@ -9,6 +9,7 @@ import os
 from matplotlib.patches import Polygon
 from matplotlib.colors import to_rgba
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from matplotlib.patches import FancyArrowPatch
 
 # ページの基本設定
 st.set_page_config(
@@ -92,7 +93,7 @@ def update_user_scores(conversation_id, scores):
     conn.close()
 
 def plot_radar_chart(scores):
-    """レーダーチャートを古風な感じで作成して描画する"""
+    """古風なレーダーチャートを作成して描画する"""
     labels = list(scores.keys())
     values = list(scores.values())
 
@@ -102,43 +103,23 @@ def plot_radar_chart(scores):
     angles += angles[:1]  # 閉じるために最初の角度を追加
 
     fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={"polar": True})
+    ax.fill(angles, values, color="tan", alpha=0.4)
+    ax.plot(angles, values, color="sienna", linewidth=2)
 
-    # 古風な色合いと背景の装飾
-    fill_color = to_rgba("#d4af37", alpha=0.5)  # 金色っぽい塗りつぶし
-    edge_color = "#8b4513"  # 茶色っぽい外枠
-    bg_color = "#faf3e0"  # 和紙風の背景色
+    # 古風な感じを演出する装飾
+    ax.set_facecolor("#f5f5dc")  # ベージュ色の背景
+    fig.patch.set_facecolor("#f5f5dc")  # 全体の背景色
+    ax.spines['polar'].set_visible(False)
 
-    ax.set_facecolor(bg_color)
-    ax.fill(angles, values, color=fill_color, linewidth=2, edgecolor=edge_color)
-    ax.plot(angles, values, color=edge_color, linewidth=2)
-
-    # メモリラベルを和風のフォント風に
+    # ラベルと目盛りを設定
     ax.set_yticks([2, 4, 6, 8, 10])
-    ax.set_yticklabels(["二", "四", "六", "八", "十"], fontsize=12, color=edge_color)
+    ax.set_yticklabels(["", "", "", "", ""], color="sienna")
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(labels, fontsize=12, color="sienna", fontweight="bold")
 
-    ax.set_xticks(angles[:-1])  # 最後の角度はラベル付けしない
-    ax.set_xticklabels(labels, fontsize=12, color=edge_color)
-
-    # 外枠のデザインを変更
-    for spine in ax.spines.values():
-        spine.set_edgecolor(edge_color)
-
-    # 多角形の外枠を追加して、古風な感じに
-    polygon = Polygon(
-        np.c_[np.cos(angles) * 10, np.sin(angles) * 10],
-        closed=True, edgecolor=edge_color, facecolor="none", linewidth=2
-    )
-    ax.add_patch(polygon)
-
-    # 装飾として日本的なイメージを追加（例えばイラスト風アイコン）
-    try:
-        img_path = "japanese_pattern.png"  # 和風模様の画像パス
-        img = plt.imread(img_path)
-        imagebox = OffsetImage(img, zoom=0.4, alpha=0.5)
-        ab = AnnotationBbox(imagebox, (0, 0), frameon=False, box_alignment=(0.5, 0.5))
-        ax.add_artist(ab)
-    except FileNotFoundError:
-        st.warning("装飾画像が見つかりませんでした。デフォルトのデザインを使用します。")
+    # デコレーションとして矢印を追加
+    for i, angle in enumerate(angles[:-1]):
+        ax.add_patch(FancyArrowPatch((0, 0), (angles[i], values[i]), connectionstyle="arc3,rad=0.3", arrowstyle="->", color="sienna", linewidth=1.5))
 
     st.pyplot(fig)
 
