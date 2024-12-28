@@ -243,7 +243,7 @@ def save_conversation_and_summary_to_db(
 if st.session_state["total_characters"] >= 10:
     if st.button("対話終了"):
         # DBに保存
-        conversation_json, summary_text = save_conversation_and_summary_to_db(
+        current_id,current_username,selected_author,selected_title,conversation_json, summary_text = save_conversation_and_summary_to_db(
             st.session_state["messages"],
             current_id,
             current_username,
@@ -251,7 +251,7 @@ if st.session_state["total_characters"] >= 10:
             selected_title
         )
 
-        # ここで 6 つの値をURLクエリパラメータとしてエンコード
+        # エンコードして画面遷移用URLに付与
         conversation_encoded = urllib.parse.quote(conversation_json)
         summary_encoded = urllib.parse.quote(summary_text)
 
