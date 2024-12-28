@@ -94,7 +94,8 @@ def init_db():
             title TEXT,
             text_content,
             )
-            ''')
+        ''')
+        
     conn.commit()
     conn.close()
 
