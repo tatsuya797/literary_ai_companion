@@ -40,9 +40,11 @@ page_bg_img = f"""
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
 
-# クエリパラメータを取得
+# --- 1) クエリパラメータを取得 ---
 query_params = st.experimental_get_query_params()
-selected_title = query_params.get("title", [None])[0]  # クエリパラメータ "title" を取得
+selected_title = query_params.get("title", [None])[0]  # クエリパラメータ "title"
+# 例: ログイン後のページ遷移などで、?id=◯◯&username=◯◯&title=◯◯ として渡している想定
+username = query_params.get("username", [None])[0]    # クエリパラメータ "username"
 
 # データベース接続
 def fetch_text_content(title):
@@ -211,8 +213,8 @@ def save_conversation_and_summary_to_db(messages):
     # 1) 該当レコードが存在するか確認
     cur.execute('''
         SELECT * FROM USER
-        WHERE id = ? AND username = ? AND title = ?
-    ''', (record_id, username, selected_title))
+        WHERE username = ? AND title = ?
+    ''', (username, selected_title))
     existing_row = cur.fetchone()
 
     if existing_row:
@@ -220,14 +222,14 @@ def save_conversation_and_summary_to_db(messages):
         cur.execute('''
             UPDATE USER
             SET conversation = ?, summary = ?
-            WHERE id = ? AND username = ? AND title = ?
+            WHERE username = ? AND title = ?
         ''', (conversation_json, summary_text, record_id, username, selected_title))
     else:
         # 該当無し → INSERT
         cur.execute('''
-            INSERT INTO USER (id, username, title, conversation, summary)
+            INSERT INTO USER (username, title, conversation, summary)
             VALUES (?, ?, ?, ?, ?)
-        ''', (record_id, username, selected_title, conversation_json, summary_text))
+        ''', (username, selected_title, conversation_json, summary_text))
 
     conn.commit()
     conn.close()
@@ -242,7 +244,7 @@ if st.session_state["total_characters"] >= 10:
         st.write(f"DEBUG: record_id = {record_id}")
 
         # evaluate.py へ遷移（ここでは id=record_id だけクエリパラメータに含める）
-        evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?id={record_id}"
+        evaluate_url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/evaluate?username={username}"
         st.markdown(f'<meta http-equiv="refresh" content="0; url={evaluate_url}">', unsafe_allow_html=True)
 
 
