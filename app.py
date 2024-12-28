@@ -247,9 +247,9 @@ if selected_bot == "芥川龍之介":
     else:
         st.write("作品リストを取得できませんでした。データベースを確認してください。")
 
-    
-    # 他のボットが選択された場合の処理
-    elif selected_bot in ["夏目漱石", "太宰治"]:
-        st.write(f"{selected_bot}との対話を開始する準備が整いました。")
-        if st.button("会話を始める", key="start_conversation_others"):
-            st.write(f"{selected_bot}との対話画面に遷移します。")
+
+# 他のボットが選択された場合の処理
+elif selected_bot in ["夏目漱石", "太宰治"]:
+    st.write(f"{selected_bot}との対話を開始する準備が整いました。")
+    if st.button("会話を始める", key="start_conversation_others"):
+        st.write(f"{selected_bot}との対話画面に遷移します。")
