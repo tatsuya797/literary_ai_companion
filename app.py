@@ -21,7 +21,7 @@ img_url = "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/ma
 page_bg_img = f"""
 <style>
     .stApp {{
-        background-image: url("{img_url}");  /* 和風な背景画像 */
+        background-image: url("{img_url}");
         background-size: cover;
         background-position: center;
         color: #f4f4f4;
@@ -30,7 +30,7 @@ page_bg_img = f"""
         font-size: 3rem;
         color: #ffe4b5;
         text-align: center;
-        font-family: 'Yu Mincho', serif;  /* 日本語の雰囲気があるフォント */
+        font-family: 'Yu Mincho', serif;
         margin-top: 20px;
     }}
     .subtitle {{
@@ -41,8 +41,8 @@ page_bg_img = f"""
         margin-top: -10px;
     }}
     .bot-section {{
-        margin-top: 80px;  /* ボット選択部分を下に移動 */
-        text-align: center;  /* 中央に配置 */
+        margin-top: 80px;
+        text-align: center;
         font-size: 1.2rem;
         font-family: 'Yu Mincho', serif;
     }}
@@ -111,8 +111,6 @@ def store_author_and_title(username, author_value, title_value):
     """
     conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
-
-    # 例: 現在ログイン中のユーザーをusernameで特定し、authorとtitleを上書き
     cur.execute(
         """
         UPDATE USER
@@ -124,12 +122,10 @@ def store_author_and_title(username, author_value, title_value):
     conn.commit()
     conn.close()
 
-
 def drop_user_table():
     """USERテーブルを削除"""
     conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
-    # USERテーブルを削除する
     cur.execute("DROP TABLE IF EXISTS USER")
     conn.commit()
     conn.close()
@@ -208,48 +204,34 @@ with tabs[1]:
 # ログイン後の画面
 if st.session_state["logged_in"]:
     st.markdown(f"<h3>こんにちは、{st.session_state['username']}さん！</h3>", unsafe_allow_html=True)
+
     # ボット選択と開始ボタン
     st.markdown("<div class='bot-section'>読書の対話相手を選んでください</div>", unsafe_allow_html=True)
     bot_options = ["夏目漱石", "太宰治", "芥川龍之介"]
     selected_bot = st.selectbox("ボット選択", bot_options, key="bot_selectbox")
     st.markdown("</div>", unsafe_allow_html=True)
 
-# 芥川龍之介ボットの選択に応じた処理
-if selected_bot == "芥川龍之介":
-    # データベースから作品リストを取得
-    def fetch_titles_from_db():
-        db_file = "literary_app.db"
-        conn = sqlite3.connect(db_file)
-        cur = conn.cursor()
-        cur.execute("SELECT title FROM BOT")
-        rows = cur.fetchall()
-        conn.close()
-        return [row[0] for row in rows]
+    # 芥川龍之介ボットの選択に応じた処理
+    if selected_bot == "芥川龍之介":
+        # タイトルリストを取得
+        titles = fetch_titles_from_db()
+        if titles:
+            selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
+            if st.button("会話を始める", key="start_conversation"):
+                current_user = st.session_state["username"]  
+                # USERテーブルに author="芥川龍之介" と title=selected_title をUPDATE
+                store_author_and_title(current_user, "芥川龍之介", selected_title)
+                # ページ遷移
+                url = (
+                    f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/"
+                    f"akutagawa_bot?title={selected_title}"
+                )
+                st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
+        else:
+            st.write("作品リストを取得できませんでした。データベースを確認してください。")
 
-    # タイトルリストを取得
-    titles = fetch_titles_from_db()
-    if titles:
-        selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
-
-        if st.button("会話を始める", key="start_conversation"):
-            # 例: ログイン中ユーザー名は st.session_state["username"] に格納されている想定
-            current_user = st.session_state["username"]  
-
-            # 1) USERテーブルに author="芥川龍之介" と title=selected_title を格納 (UPDATE)
-            store_author_and_title(current_user, "芥川龍之介", selected_title)
-
-            # 2) ページ遷移
-            url = (
-                f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/"
-                f"akutagawa_bot?title={selected_title}"
-            )
-            st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
-    else:
-        st.write("作品リストを取得できませんでした。データベースを確認してください。")
-
-
-# 他のボットが選択された場合の処理
-elif selected_bot in ["夏目漱石", "太宰治"]:
-    st.write(f"{selected_bot}との対話を開始する準備が整いました。")
-    if st.button("会話を始める", key="start_conversation_others"):
-        st.write(f"{selected_bot}との対話画面に遷移します。")
+    # 他のボットが選択された場合の処理
+    elif selected_bot in ["夏目漱石", "太宰治"]:
+        st.write(f"{selected_bot}との対話を開始する準備が整いました。")
+        if st.button("会話を始める", key="start_conversation_others"):
+            st.write(f"{selected_bot}との対話画面に遷移します。")
