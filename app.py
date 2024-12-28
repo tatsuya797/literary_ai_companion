@@ -224,7 +224,8 @@ if st.session_state["logged_in"]:
                 # ページ遷移
                 url = (
                     f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/"
-                    f"akutagawa_bot?title={selected_title}"
+                    f"akutagawa_bot?username={username}"
+                    f"akutagawa_bot?id={selected_title}"
                 )
                 st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
         else:
