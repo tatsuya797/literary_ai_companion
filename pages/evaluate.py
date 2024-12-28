@@ -7,6 +7,22 @@ import numpy as np
 import json
 import os
 
+# GitHubのリポジトリにある背景画像のURL
+img_url = "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/image4.jpg"
+
+# 背景画像の設定（日本の古風な雰囲気の画像に設定）
+page_bg_img = f"""
+<style>
+    .stApp {{
+        background-image: url("{img_url}");  /* 和風な背景画像 */
+        background-size: cover;
+        background-position: center;
+        color: #f4f4f4;
+    }}
+</style>
+"""
+st.markdown(page_bg_img, unsafe_allow_html=True)
+
 # GPT-APIキーを設定
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
 
