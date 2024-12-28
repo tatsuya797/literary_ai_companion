@@ -90,7 +90,7 @@ def update_user_scores(conversation_id, scores):
     conn.close()
 
 def plot_radar_chart(scores):
-    """さらに装飾された古風なデザインのレーダーチャートを作成して描画する"""
+    """古風なデザインのレーダーチャートを作成して描画する"""
     labels = list(scores.keys())
     values = list(scores.values())
 
@@ -100,15 +100,16 @@ def plot_radar_chart(scores):
     angles += angles[:1]  # 閉じるために最初の角度を追加
 
     # 和風の配色
+    colors = ["#8b4513", "#556b2f", "#2e8b57", "#6a5acd", "#cd5c5c"]
+
+    # 背景画像の設定
     fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={"polar": True})
     fig.patch.set_facecolor("#fff5e1")  # 背景を和風の色に設定
 
-    # レーダーチャートのエリア塗りつぶし
-    ax.fill(angles, values, color="gold", alpha=0.4, linewidth=1.5, linestyle="--")
-    ax.plot(angles, values, color="#8b0000", linewidth=2, marker="o", markersize=10, markerfacecolor="crimson")
-    ax.set_facecolor("#f8e8d8")  # 内側背景を淡い和風の色に設定
+    ax.fill(angles, values, color="gold", alpha=0.3, linewidth=2, linestyle="--")
+    ax.plot(angles, values, color="#8b0000", linewidth=3)
+    ax.set_facecolor("#fff5e1")  # レーダーチャートの背景色
 
-    # ラベルと目盛りの設定
     ax.set_yticks([2, 4, 6, 8, 10])
     ax.set_yticklabels(["2", "4", "6", "8", "10"], fontsize=12, fontweight="bold", color="#6b4226")
     ax.set_xticks(angles[:-1])
@@ -116,22 +117,13 @@ def plot_radar_chart(scores):
 
     # 装飾用の枠線
     for spine in ax.spines.values():
-        spine.set_edgecolor("#8b4513")
-        spine.set_linewidth(2)
+        spine.set_edgecolor("#8b0000")
+        spine.set_linewidth(1.5)
 
     # 中央から広がる線のスタイル
     for line in ax.yaxis.get_gridlines():
-        line.set_linestyle("dashed")
-        line.set_color("#d2b48c")
-
-    # 和風装飾：枠を追加
-    bbox = FancyBboxPatch((-1.1, -1.1), 2.2, 2.2,
-                          boxstyle="round,pad=0.1",
-                          edgecolor="#8b4513",
-                          facecolor="none",
-                          linewidth=3,
-                          transform=ax.transAxes, clip_on=False)
-    ax.add_patch(bbox)
+        line.set_linestyle("dotted")
+        line.set_color("#cd5c5c")
 
     st.pyplot(fig)
 
