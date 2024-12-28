@@ -8,7 +8,7 @@ import json
 import os
 
 # GPT-APIキーを設定
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = st.secrets.OpenAIAPI.openai_api_key
 
 def evaluate_creativity(summary):
     """GPT-APIを使用して創造性評価を行い、スコアを返す"""
