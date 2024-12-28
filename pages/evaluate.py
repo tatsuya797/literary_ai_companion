@@ -165,22 +165,45 @@ def main():
     )
 
     st.title("Evaluation & DB確認ツール")
-
     st.subheader("Evaluation Page")
+    
+    # クエリの取得
     query_params = st.experimental_get_query_params()
-    conversation_id = query_params.get("id", [None])[0]
+    current_id = query_params.get("id", [""])[0]
+    current_username = query_params.get("username", [""])[0]
+    selected_author = query_params.get("author", [""])[0]
+    selected_title = query_params.get("title", [""])[0]
+    conversation = query_params.get("conversation", [""])[0]
+    summary = query_params.get("summary", [""])[0]
 
-    if conversation_id:
+    # USERテーブルに id, username, author, title, conversation, summary をINSERT
+    db_file = "literary_app.db"
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+
+    # USERテーブルを必要に応じて再定義
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS USER (
+            id TEXT,
+            username TEXT,
+            author TEXT,
+            title TEXT,
+            conversation TEXT,
+            summary TEXT
+        )
+    """)
+
+    if current_id:
         db_file = "literary_app.db"
         conn = sqlite3.connect(db_file)
         cur = conn.cursor()
-        cur.execute("SELECT summary, Relevance, Creativity, Flexibility, Problem_Solving, Insight FROM USER WHERE id = ?", (conversation_id,))
+        cur.execute("SELECT summary, Relevance, Creativity, Flexibility, Problem_Solving, Insight FROM USER WHERE id = ?", (current_id,))
         row = cur.fetchone()
         conn.close()
 
         if row:
             summary_text = row[0]
-            st.write(f"**対象レコードID**: {conversation_id}")
+            st.write(f"**対象レコードID**: {current_id}")
             st.subheader("【サマリー】")
             st.markdown(
                 f"""
@@ -192,7 +215,7 @@ def main():
             if st.button("創造性評価を実行"):
                 scores = evaluate_creativity(summary_text)
                 if scores:
-                    update_user_scores(conversation_id, scores)
+                    update_user_scores(current_id, scores)
 
                     st.success("創造性評価が完了し、スコアがデータベースに保存されました！")
 
