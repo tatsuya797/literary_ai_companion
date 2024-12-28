@@ -5,9 +5,10 @@ import openai
 import matplotlib.pyplot as plt
 import numpy as np
 import json
+import os
 
 # GPT-APIキーを設定
-openai.api_key = st.secrets.OpenAIAPI.openai_api_key
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def evaluate_creativity(summary):
     """GPT-APIを使用して創造性評価を行い、スコアを返す"""
@@ -66,11 +67,9 @@ def plot_radar_chart(scores):
     values = list(scores.values())
 
     # レーダーチャート用にデータを閉じる
-    values += values[:1]
-    labels += labels[:1]
-
-    angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False).tolist()
-    angles += angles[:1]
+    values += values[:1]  # データを循環させる
+    angles = np.linspace(0, 2 * np.pi, len(values), endpoint=False).tolist()
+    angles += angles[:1]  # 角度も循環させる
 
     fig, ax = plt.subplots(figsize=(6, 6), subplot_kw={"polar": True})
     ax.fill(angles, values, color="blue", alpha=0.25)
@@ -78,7 +77,7 @@ def plot_radar_chart(scores):
     ax.set_yticks([2, 4, 6, 8, 10])
     ax.set_yticklabels(["2", "4", "6", "8", "10"])
     ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(labels[:-1])
+    ax.set_xticklabels(labels)
 
     st.pyplot(fig)
 
