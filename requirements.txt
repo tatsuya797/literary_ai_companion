@@ -5,4 +5,3 @@ pandas
 chardet
 matplotlib
 boto3
-sqlite3
