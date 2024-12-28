@@ -163,7 +163,10 @@ def main():
                     "Problem_Solving": row[4],
                     "Insight": row[5]
                 }
-                st.write(current_scores)
+                
+                # Pandas DataFrameで表示
+                scores_df = pd.DataFrame([current_scores])
+                st.write(scores_df)
 
                 st.subheader("【レーダーチャート】")
                 plot_radar_chart(current_scores)
