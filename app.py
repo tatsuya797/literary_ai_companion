@@ -88,15 +88,13 @@ def init_db():
             Problem_Solving INTEGER,
             Insight INTEGER
             )
-            ''')
-    cur.execute('''
+            
         CREATE TABLE IF NOT EXISTS BOT (
             author TEXT,
             title TEXT,
             text_content,
             )
             ''')
-
     conn.commit()
     conn.close()
 
