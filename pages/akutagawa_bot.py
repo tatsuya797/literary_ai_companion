@@ -44,8 +44,8 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 query_params = st.experimental_get_query_params()
 record_id = query_params.get("id", [""])[0]       # id (例: DB上のユーザーID)
 username = query_params.get("username", [""])[0]  # username (ログイン中のユーザー名)
-author = query_params.get("author", [""])[0]      # author (ボット著者)
-title = query_params.get("title", [""])[0]        # title (作品タイトル)
+selected_bot = query_params.get("author", [""])[0]      # author (ボット著者)
+selected_title = query_params.get("title", [""])[0]        # title (作品タイトル)
 
 # データベース接続
 def fetch_text_content(title):
