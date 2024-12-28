@@ -5,5 +5,4 @@ pandas
 chardet
 matplotlib
 boto3
-to_rgba
-Polygon
+sqlite3
