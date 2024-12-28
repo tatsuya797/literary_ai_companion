@@ -181,7 +181,12 @@ if st.session_state["logged_in"]:
             selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
             if st.button("会話を始める", key="start_conversation"):
                 # ページ遷移
-                url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot?title={selected_title}"
+                url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot"
+                f"?id={some_id}"
+                f"&username={username}"
+                f"&author={selected_bot}"
+                f"&title={selected_title}"
+                )
                 st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
         else:
             st.write("作品リストを取得できませんでした。データベースを確認してください。")
