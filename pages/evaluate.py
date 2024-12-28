@@ -91,7 +91,7 @@ def update_user_scores(conversation_id, scores):
     conn.close()
 
 def plot_radar_chart(scores):
-    """古風なレーダーチャートを作成して描画する"""
+    """古風なデザインのレーダーチャートを作成して描画する"""
     labels = list(scores.keys())
     values = list(scores.values())
 
@@ -100,34 +100,31 @@ def plot_radar_chart(scores):
     angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False).tolist()
     angles += angles[:1]  # 閉じるために最初の角度を追加
 
-    fig, ax = plt.subplots(figsize=(10, 10), subplot_kw={"polar": True})
-    ax.fill(angles, values, color="#ffcc99", alpha=0.7, edgecolor="darkgoldenrod", linewidth=1.5)
-    ax.plot(angles, values, color="brown", linewidth=2, linestyle="--")
+    # 和風の配色
+    colors = ["#8b4513", "#556b2f", "#2e8b57", "#6a5acd", "#cd5c5c"]
 
-    # 古風な背景とデザイン
-    ax.set_facecolor("#fff7e6")  # 明るいクリーム色の背景
-    fig.patch.set_facecolor("#fbe7c6")  # 全体の背景色
-    ax.spines['polar'].set_visible(False)
+    # 背景画像の設定
+    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={"polar": True})
+    fig.patch.set_facecolor("#fff5e1")  # 背景を和風の色に設定
 
-    # ラベルと目盛りを設定
+    ax.fill(angles, values, color="gold", alpha=0.3, linewidth=2, linestyle="--")
+    ax.plot(angles, values, color="#8b0000", linewidth=3)
+    ax.set_facecolor("#fff5e1")  # レーダーチャートの背景色
+
     ax.set_yticks([2, 4, 6, 8, 10])
-    ax.set_yticklabels(["", "", "", "", ""], color="brown")
+    ax.set_yticklabels(["2", "4", "6", "8", "10"], fontsize=12, fontweight="bold", color="#6b4226")
     ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(labels, fontsize=14, color="brown", fontweight="bold")
+    ax.set_xticklabels(labels, fontsize=14, fontweight="bold", color="#8b4513")
 
-    # 装飾としてアイコンを配置
-    icons = [
-        "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/icons/relevance.png",
-        "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/icons/creativity.png",
-        "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/icons/flexibility.png",
-        "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/icons/problem_solving.png",
-        "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/icons/insight.png",
-    ]
+    # 装飾用の枠線
+    for spine in ax.spines.values():
+        spine.set_edgecolor("#8b0000")
+        spine.set_linewidth(1.5)
 
-    for i, icon_url in enumerate(icons):
-        image = plt.imread(icon_url, format='png')
-        ab = AnnotationBbox(OffsetImage(image, zoom=0.1), (angles[i], max(values) * 0.95), frameon=False)
-        ax.add_artist(ab)
+    # 中央から広がる線のスタイル
+    for line in ax.yaxis.get_gridlines():
+        line.set_linestyle("dotted")
+        line.set_color("#cd5c5c")
 
     st.pyplot(fig)
 
