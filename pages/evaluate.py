@@ -5,10 +5,9 @@ import openai
 import matplotlib.pyplot as plt
 import numpy as np
 import json
-import os
 
 # GPT-APIキーを設定
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = st.secrets.OpenAIAPI.openai_api_key
 
 def evaluate_creativity(summary):
     """GPT-APIを使用して創造性評価を行い、スコアを返す"""
@@ -23,16 +22,16 @@ def evaluate_creativity(summary):
     Provide the scores in JSON format as:
     {{"Relevance": 0, "Creativity": 0, "Flexibility": 0, "Problem_Solving": 0, "Insight": 0}}
     """
+    
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are an evaluation assistant."},
+            {"role": "user", "content": prompt}
+        ]
+    )
 
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are an evaluation assistant."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-
         # Use json.loads to safely parse JSON response
         scores = json.loads(response['choices'][0]['message']['content'])
         # Ensure all scores are integers
@@ -67,9 +66,11 @@ def plot_radar_chart(scores):
     values = list(scores.values())
 
     # レーダーチャート用にデータを閉じる
-    values += values[:1]  # データを循環させる
-    angles = np.linspace(0, 2 * np.pi, len(values), endpoint=False).tolist()
-    angles += angles[:1]  # 角度も循環させる
+    values += values[:1]
+    labels += labels[:1]
+
+    angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False).tolist()
+    angles += angles[:1]
 
     fig, ax = plt.subplots(figsize=(6, 6), subplot_kw={"polar": True})
     ax.fill(angles, values, color="blue", alpha=0.25)
@@ -77,7 +78,7 @@ def plot_radar_chart(scores):
     ax.set_yticks([2, 4, 6, 8, 10])
     ax.set_yticklabels(["2", "4", "6", "8", "10"])
     ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(labels)
+    ax.set_xticklabels(labels[:-1])
 
     st.pyplot(fig)
 
@@ -150,17 +151,6 @@ def main():
     st.subheader("DB確認ツール")
     if st.button("DBの内容を表示"):
         show_db_contents()
-
-    # テスト用のスコアでレーダーチャートを描画
-    test_scores = {
-        "Relevance": 8,
-        "Creativity": 6,
-        "Flexibility": 7,
-        "Problem_Solving": 7,
-        "Insight": 9
-    }
-    st.subheader("【テストデータによるレーダーチャート】")
-    plot_radar_chart(test_scores)
 
 if __name__ == "__main__":
     main()
