@@ -97,10 +97,14 @@ def register_user(username, password):
         conn.commit()
         some_id = cur.lastrowid
         st.success("登録に成功しました！ログインしてください。")
+        return some_id
+
+        
     except sqlite3.IntegrityError:
         st.error("このユーザ名は既に登録されています。")
     finally:
         conn.close()
+
 
 # ユーザが存在するかどうかを確認（認証）
 def authenticate_user(username, password):
@@ -151,7 +155,7 @@ with tabs[1]:
     new_password = st.text_input("新規パスワード", type="password")
     if st.button("登録"):
         if new_username and new_password:
-            register_user(new_username, new_password)
+            some_id = register_user(new_username, new_password)
         else:
             st.error("ユーザ名とパスワードを入力してください。")
 
