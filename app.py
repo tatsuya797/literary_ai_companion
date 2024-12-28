@@ -236,9 +236,9 @@ if selected_bot == "芥川龍之介":
                 f"akutagawa_bot?title={selected_title}"
             )
             st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
-    else:
+            
+        else:
         st.write("作品リストを取得できませんでした。データベースを確認してください。")
-
     
     # 他のボットが選択された場合の処理
     elif selected_bot in ["夏目漱石", "太宰治"]:
