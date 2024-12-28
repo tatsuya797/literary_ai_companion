@@ -104,27 +104,6 @@ def init_db():
     conn.commit()
     conn.close()
 
-def store_author_and_title(username, author_value, title_value):
-    """
-    ログイン中のユーザー(username)のレコードを探して、
-    authorカラムとtitleカラムをUPDATEする
-    """
-    conn = sqlite3.connect("literary_app.db")
-    cur = conn.cursor()
-
-    # 例: 現在ログイン中のユーザーをusernameで特定し、authorとtitleを上書き
-    cur.execute(
-        """
-        UPDATE USER
-        SET author = ?, title = ?
-        WHERE username = ?
-        """,
-        (author_value, title_value, username)
-    )
-    conn.commit()
-    conn.close()
-
-
 def drop_user_table():
     """USERテーブルを削除"""
     conn = sqlite3.connect("literary_app.db")
@@ -156,10 +135,8 @@ def authenticate_user(username, password):
     conn.close()
     return user
 
-# データベースから作品リストを取得
 def fetch_titles_from_db():
-    db_file = "literary_app.db"
-    conn = sqlite3.connect(db_file)
+    conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
     cur.execute("SELECT title FROM BOT")
     rows = cur.fetchall()
@@ -217,26 +194,25 @@ if st.session_state["logged_in"]:
     st.markdown("</div>", unsafe_allow_html=True)
 
     # 芥川龍之介ボットの選択に応じた処理
-if selected_bot == "芥川龍之介":
-    # タイトルリストを取得
-    titles = fetch_titles_from_db()
-    if titles:
-        selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
-
-        if st.button("会話を始める", key="start_conversation"):
-            # 例: ログイン中ユーザー名は st.session_state["username"] に格納されている想定
-            current_user = st.session_state["username"]  
-
-            # 1) USERテーブルに author="芥川龍之介" と title=selected_title を格納 (UPDATE)
-            store_author_and_title(current_user, "芥川龍之介", selected_title)
-
-            # 2) ページ遷移
-            url = (
-                f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/"
-                f"akutagawa_bot?title={selected_title}"
-            )
-            st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
-            
+    if selected_bot == "芥川龍之介":
+        # データベースから作品リストを取得
+        def fetch_titles_from_db():
+            db_file = "literary_app.db"
+            conn = sqlite3.connect(db_file)
+            cur = conn.cursor()
+            cur.execute("SELECT title FROM BOT")
+            rows = cur.fetchall()
+            conn.close()
+            return [row[0] for row in rows]
+    
+        # タイトルリストを取得
+        titles = fetch_titles_from_db()
+        if titles:
+            selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
+            if st.button("会話を始める", key="start_conversation"):
+                # ページ遷移
+                url = f"https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/akutagawa_bot?title={selected_title}"
+                st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
         else:
             st.write("作品リストを取得できませんでした。データベースを確認してください。")
     
