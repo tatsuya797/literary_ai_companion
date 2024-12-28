@@ -8,6 +8,7 @@ import json
 import os
 from matplotlib.patches import Polygon
 from matplotlib.colors import to_rgba
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 # ページの基本設定
 st.set_page_config(
@@ -100,12 +101,12 @@ def plot_radar_chart(scores):
     angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False).tolist()
     angles += angles[:1]  # 閉じるために最初の角度を追加
 
-    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw={"polar": True})
+    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={"polar": True})
 
-    # 古風な色合い
-    fill_color = to_rgba("#b08968", alpha=0.5)
-    edge_color = "#805d3a"
-    bg_color = "#fff5e6"
+    # 古風な色合いと背景の装飾
+    fill_color = to_rgba("#d4af37", alpha=0.5)  # 金色っぽい塗りつぶし
+    edge_color = "#8b4513"  # 茶色っぽい外枠
+    bg_color = "#faf3e0"  # 和紙風の背景色
 
     ax.set_facecolor(bg_color)
     ax.fill(angles, values, color=fill_color, linewidth=2, edgecolor=edge_color)
@@ -128,6 +129,16 @@ def plot_radar_chart(scores):
         closed=True, edgecolor=edge_color, facecolor="none", linewidth=2
     )
     ax.add_patch(polygon)
+
+    # 装飾として日本的なイメージを追加（例えばイラスト風アイコン）
+    try:
+        img_path = "japanese_pattern.png"  # 和風模様の画像パス
+        img = plt.imread(img_path)
+        imagebox = OffsetImage(img, zoom=0.4, alpha=0.5)
+        ab = AnnotationBbox(imagebox, (0, 0), frameon=False, box_alignment=(0.5, 0.5))
+        ax.add_artist(ab)
+    except FileNotFoundError:
+        st.warning("装飾画像が見つかりませんでした。デフォルトのデザインを使用します。")
 
     st.pyplot(fig)
 
