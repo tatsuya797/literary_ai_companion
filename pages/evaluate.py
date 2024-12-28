@@ -5,9 +5,10 @@ import openai
 import matplotlib.pyplot as plt
 import numpy as np
 import json
+import os
 
 # GPT-APIキーを設定
-openai.api_key = st.secrets.OpenAIAPI.openai_api_key
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def evaluate_creativity(summary):
     """GPT-APIを使用して創造性評価を行い、スコアを返す"""
@@ -22,16 +23,16 @@ def evaluate_creativity(summary):
     Provide the scores in JSON format as:
     {{"Relevance": 0, "Creativity": 0, "Flexibility": 0, "Problem_Solving": 0, "Insight": 0}}
     """
-    
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are an evaluation assistant."},
-            {"role": "user", "content": prompt}
-        ]
-    )
 
     try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are an evaluation assistant."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+
         # Use json.loads to safely parse JSON response
         scores = json.loads(response['choices'][0]['message']['content'])
         # Ensure all scores are integers
@@ -66,19 +67,17 @@ def plot_radar_chart(scores):
     values = list(scores.values())
 
     # レーダーチャート用にデータを閉じる
-    values += values[:1]
-    labels += labels[:1]
-
+    values += values[:1]  # 閉じるために最初の値を追加
     angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False).tolist()
-    angles += angles[:1]
+    angles += angles[:1]  # 閉じるために最初の角度を追加
 
     fig, ax = plt.subplots(figsize=(6, 6), subplot_kw={"polar": True})
     ax.fill(angles, values, color="blue", alpha=0.25)
     ax.plot(angles, values, color="blue", linewidth=2)
     ax.set_yticks([2, 4, 6, 8, 10])
     ax.set_yticklabels(["2", "4", "6", "8", "10"])
-    ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(labels[:-1])
+    ax.set_xticks(angles[:-1])  # 最後の角度はラベル付けしない
+    ax.set_xticklabels(labels)
 
     st.pyplot(fig)
 
