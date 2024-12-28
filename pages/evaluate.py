@@ -90,7 +90,7 @@ def update_user_scores(conversation_id, scores):
     conn.commit()
     conn.close()
 
-plot_radar_chart(scores):
+def plot_radar_chart(scores):
     """古風なレーダーチャートを作成して描画する"""
     labels = list(scores.keys())
     values = list(scores.values())
