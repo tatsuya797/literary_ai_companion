@@ -7,6 +7,17 @@ import numpy as np
 import json
 import os
 
+# ページの基本設定
+st.set_page_config(
+    page_title="文学の読書コンパニオン",
+    page_icon="📚", layout="centered",
+    initial_sidebar_state="collapsed",  # サイドバーを非表示
+    menu_items={
+        "Get Help": None,
+        "Report a bug": None,
+        "About": None
+    }
+)
 # GitHubのリポジトリにある背景画像のURL
 img_url = "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/image4.jpg"
 
