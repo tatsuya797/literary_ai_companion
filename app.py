@@ -104,6 +104,14 @@ def init_db():
     conn.commit()
     conn.close()
 
+def drop_user_table():
+    """USERテーブルを削除"""
+    conn = sqlite3.connect("literary_app.db")
+    cur = conn.cursor()
+    # USERテーブルを削除する
+    cur.execute("DROP TABLE IF EXISTS USER")
+    conn.commit()
+    conn.close()
 
 # ユーザの新規登録
 def register_user(username, password):
@@ -137,6 +145,11 @@ def fetch_titles_from_db():
 
 # データベース初期化
 init_db()
+
+# DB削除ボタン
+if st.button("DB削除"):
+    drop_user_table()
+    st.success("USERテーブルを削除しました。")
 
 # セッション状態管理
 if "logged_in" not in st.session_state:
