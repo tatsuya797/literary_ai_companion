@@ -6,10 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 import os
-from matplotlib.patches import Polygon
-from matplotlib.colors import to_rgba
-from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from matplotlib.patches import FancyArrowPatch
+from matplotlib.offsetbox import AnnotationBbox, OffsetImage
 
 # ページの基本設定
 st.set_page_config(
@@ -92,7 +90,7 @@ def update_user_scores(conversation_id, scores):
     conn.commit()
     conn.close()
 
-def plot_radar_chart(scores):
+plot_radar_chart(scores):
     """古風なレーダーチャートを作成して描画する"""
     labels = list(scores.keys())
     values = list(scores.values())
@@ -102,24 +100,34 @@ def plot_radar_chart(scores):
     angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False).tolist()
     angles += angles[:1]  # 閉じるために最初の角度を追加
 
-    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={"polar": True})
-    ax.fill(angles, values, color="tan", alpha=0.4)
-    ax.plot(angles, values, color="sienna", linewidth=2)
+    fig, ax = plt.subplots(figsize=(10, 10), subplot_kw={"polar": True})
+    ax.fill(angles, values, color="#ffcc99", alpha=0.7, edgecolor="darkgoldenrod", linewidth=1.5)
+    ax.plot(angles, values, color="brown", linewidth=2, linestyle="--")
 
-    # 古風な感じを演出する装飾
-    ax.set_facecolor("#f5f5dc")  # ベージュ色の背景
-    fig.patch.set_facecolor("#f5f5dc")  # 全体の背景色
+    # 古風な背景とデザイン
+    ax.set_facecolor("#fff7e6")  # 明るいクリーム色の背景
+    fig.patch.set_facecolor("#fbe7c6")  # 全体の背景色
     ax.spines['polar'].set_visible(False)
 
     # ラベルと目盛りを設定
     ax.set_yticks([2, 4, 6, 8, 10])
-    ax.set_yticklabels(["", "", "", "", ""], color="sienna")
+    ax.set_yticklabels(["", "", "", "", ""], color="brown")
     ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(labels, fontsize=12, color="sienna", fontweight="bold")
+    ax.set_xticklabels(labels, fontsize=14, color="brown", fontweight="bold")
 
-    # デコレーションとして矢印を追加
-    for i, angle in enumerate(angles[:-1]):
-        ax.add_patch(FancyArrowPatch((0, 0), (angles[i], values[i]), connectionstyle="arc3,rad=0.3", arrowstyle="->", color="sienna", linewidth=1.5))
+    # 装飾としてアイコンを配置
+    icons = [
+        "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/icons/relevance.png",
+        "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/icons/creativity.png",
+        "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/icons/flexibility.png",
+        "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/icons/problem_solving.png",
+        "https://raw.githubusercontent.com/tatsuya797/literary_ai_companion/main/icons/insight.png",
+    ]
+
+    for i, icon_url in enumerate(icons):
+        image = plt.imread(icon_url, format='png')
+        ab = AnnotationBbox(OffsetImage(image, zoom=0.1), (angles[i], max(values) * 0.95), frameon=False)
+        ax.add_artist(ab)
 
     st.pyplot(fig)
 
