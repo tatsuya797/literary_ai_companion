@@ -95,6 +95,7 @@ def register_user(username, password):
         cur = conn.cursor()
         cur.execute("INSERT INTO USER (username, password) VALUES (?, ?)", (username, hash_password(password)))
         conn.commit()
+        some_id = cur.lastrowid
         st.success("登録に成功しました！ログインしてください。")
     except sqlite3.IntegrityError:
         st.error("このユーザ名は既に登録されています。")
