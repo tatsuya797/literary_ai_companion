@@ -8,9 +8,6 @@ import openai
 import json
 import urllib.parse
 
-author_id = '000879'  # 青空文庫の作家番号
-author_name = '芥川龍之介'  # 青空文庫の表記での作家名
-
 # ページの基本設定
 st.set_page_config(
     page_title="文学の読書コンパニオン",
@@ -183,7 +180,7 @@ def summarize_conversation(messages):
     """会話履歴を400文字にまとめた要約を作成"""
     # ここでは既に filtered_messages を受け取る前提でもよい
     summary_prompt = [
-        {"role": "system", "content": "以下の会話履歴を400文字にまとめた要約を作成してください。"},
+        {"role": "system", "content": "以下の会話履歴を400文字にまとめた要約を作成してください。また、'ユーザー'は'あなた'に、'アシスタント'は'ボット'に変換して下さい。"},
         {"role": "user", "content": json.dumps(messages, ensure_ascii=False)}
     ]
 
