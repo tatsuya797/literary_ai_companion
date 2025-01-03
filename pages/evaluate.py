@@ -41,15 +41,31 @@ openai.api_key = st.secrets.OpenAIAPI.openai_api_key
 def evaluate_creativity(summary):
     """GPT-APIを使用して創造性評価を行い、スコアを返す"""
     prompt = f"""
-    Evaluate the following summary based on the following criteria and give a score (0-10) for each:
-    1. Relevance
-    2. Creativity
-    3. Flexibility
-    4. Problem-Solving
-    5. Insight
-    Summary: "{summary}"
-    Provide the scores in JSON format as:
-    {{"Relevance": 0, "Creativity": 0, "Flexibility": 0, "Problem_Solving": 0, "Insight": 0}}
+    You are an expert evaluator specializing in assessing creativity and cognitive performance.
+    Evaluate the following summary based on the criteria below. Provide a score (0-10) for each, and include a brief explanation for each score to justify your assessment.
+
+    ### Criteria:
+    1. **Relevance**: How well does the summary align with the core idea or purpose it is meant to convey?
+    2. **Creativity**: To what extent does the summary demonstrate original or innovative thinking?
+    3. **Flexibility**: Does the summary show adaptability or the ability to approach the subject matter from multiple perspectives?
+    4. **Problem-Solving**: How effectively does the summary address challenges or provide solutions within the context it describes?
+    5. **Insight**: Does the summary reflect deep understanding, analysis, or unique perspectives about the topic?
+
+    ### Summary to Evaluate:
+    "{summary}"
+
+    ### Instructions:
+    - Assign a score from 0 (poor) to 10 (excellent) for each criterion.
+    - Provide scores in JSON format and include brief explanations for each criterion to clarify the rationale behind your evaluation.
+
+    ### Output Format:
+    {{
+      "Relevance": {{ "score": 0, "explanation": "..." }},
+      "Creativity": {{ "score": 0, "explanation": "..." }},
+      "Flexibility": {{ "score": 0, "explanation": "..." }},
+      "Problem_Solving": {{ "score": 0, "explanation": "..." }},
+      "Insight": {{ "score": 0, "explanation": "..." }}
+    }}
     """
 
     try:
