@@ -223,7 +223,7 @@ if st.session_state["logged_in"]:
     selected_bot = st.selectbox("ボット選択", bot_options, key="bot_selectbox")
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # 芥川龍之介ボットの選択に応じた処理
+    # 夏目漱石ボットの選択に応じた処理
     if selected_bot == "夏目漱石":
         # タイトルリストを取得
         titles = fetch_titles_from_db()
@@ -247,11 +247,106 @@ if st.session_state["logged_in"]:
                     f"&title={selected_title}"      # ④ 選択した作品タイトル
                 )
                 st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
-        else:
-            st.write("作品リストを取得できませんでした。データベースを確認してください。")
 
-    # 他のボットが選択された場合の処理
-    elif selected_bot in ["夏目漱石", "太宰治"]:
-        st.write(f"{selected_bot}との対話を開始する準備が整いました。")
-        if st.button("会話を始める", key="start_conversation_others"):
-            st.write(f"{selected_bot}との対話画面に遷移します。")
+    
+    # 太宰治ボットの選択に応じた処理
+    if selected_bot == "太宰治":
+        # タイトルリストを取得
+        titles = fetch_titles_from_db()
+        if titles:
+            selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
+            if st.button("会話を始める", key="start_conversation"):
+                current_user = st.session_state["username"]  
+                # USERテーブルに author=selected_bot と title=selected_title をUPDATE
+                store_author_and_title(current_user, selected_bot, selected_title)
+
+                # DBからユーザーIDを取得
+                user_id = get_user_id_by_username(current_user)
+                
+                # ページ遷移: クエリパラメータに id, username, author, title を付与
+                url = (
+                    "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/"
+                    "akutagawa_bot"
+                    f"?id={user_id}"                # ① DB上のid
+                    f"&username={current_user}"     # ② ログイン中のusername
+                    f"&author={selected_bot}"      # ③ ボット（著者）
+                    f"&title={selected_title}"      # ④ 選択した作品タイトル
+                )
+                st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
+
+    
+    # 芥川龍之介ボットの選択に応じた処理
+    if selected_bot == "芥川龍之介":
+        # タイトルリストを取得
+        titles = fetch_titles_from_db()
+        if titles:
+            selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
+            if st.button("会話を始める", key="start_conversation"):
+                current_user = st.session_state["username"]  
+                # USERテーブルに author=selected_bot と title=selected_title をUPDATE
+                store_author_and_title(current_user, selected_bot, selected_title)
+
+                # DBからユーザーIDを取得
+                user_id = get_user_id_by_username(current_user)
+                
+                # ページ遷移: クエリパラメータに id, username, author, title を付与
+                url = (
+                    "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/"
+                    "akutagawa_bot"
+                    f"?id={user_id}"                # ① DB上のid
+                    f"&username={current_user}"     # ② ログイン中のusername
+                    f"&author={selected_bot}"      # ③ ボット（著者）
+                    f"&title={selected_title}"      # ④ 選択した作品タイトル
+                )
+                st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
+
+    # 森鴎外ボットの選択に応じた処理
+    if selected_bot == "森鴎外":
+        # タイトルリストを取得
+        titles = fetch_titles_from_db()
+        if titles:
+            selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
+            if st.button("会話を始める", key="start_conversation"):
+                current_user = st.session_state["username"]  
+                # USERテーブルに author=selected_bot と title=selected_title をUPDATE
+                store_author_and_title(current_user, selected_bot, selected_title)
+
+                # DBからユーザーIDを取得
+                user_id = get_user_id_by_username(current_user)
+                
+                # ページ遷移: クエリパラメータに id, username, author, title を付与
+                url = (
+                    "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/"
+                    "akutagawa_bot"
+                    f"?id={user_id}"                # ① DB上のid
+                    f"&username={current_user}"     # ② ログイン中のusername
+                    f"&author={selected_bot}"      # ③ ボット（著者）
+                    f"&title={selected_title}"      # ④ 選択した作品タイトル
+                )
+                st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
+
+    # 宮沢賢治ボットの選択に応じた処理
+    if selected_bot == "宮沢賢治":
+        # タイトルリストを取得
+        titles = fetch_titles_from_db()
+        if titles:
+            selected_title = st.selectbox("対話したい作品を選んでください:", titles, key="title_selectbox")
+            if st.button("会話を始める", key="start_conversation"):
+                current_user = st.session_state["username"]  
+                # USERテーブルに author=selected_bot と title=selected_title をUPDATE
+                store_author_and_title(current_user, selected_bot, selected_title)
+
+                # DBからユーザーIDを取得
+                user_id = get_user_id_by_username(current_user)
+                
+                # ページ遷移: クエリパラメータに id, username, author, title を付与
+                url = (
+                    "https://literaryaicompanion-prg5zuxubou7vm6rxpqujs.streamlit.app/"
+                    "akutagawa_bot"
+                    f"?id={user_id}"                # ① DB上のid
+                    f"&username={current_user}"     # ② ログイン中のusername
+                    f"&author={selected_bot}"      # ③ ボット（著者）
+                    f"&title={selected_title}"      # ④ 選択した作品タイトル
+                )
+                st.markdown(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
+                
