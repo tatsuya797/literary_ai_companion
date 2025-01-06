@@ -39,33 +39,17 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
 
 def evaluate_creativity(summary):
-    """GPT-APIを使用して創造性評価を行い、スコアと説明を返す"""
+    """GPT-APIを使用して創造性評価を行い、スコアを返す"""
     prompt = f"""
-    You are an expert evaluator specializing in assessing creativity and cognitive performance.
-    Evaluate the following summary based on the criteria below. Provide a score (0-10) for each, and include a brief explanation for each score to justify your assessment.
-
-    ### Criteria:
-    1. **Relevance**: How well does the summary align with the core idea or purpose it is meant to convey?
-    2. **Creativity**: To what extent does the summary demonstrate original or innovative thinking?
-    3. **Flexibility**: Does the summary show adaptability or the ability to approach the subject matter from multiple perspectives?
-    4. **Problem-Solving**: How effectively does the summary address challenges or provide solutions within the context it describes?
-    5. **Insight**: Does the summary reflect deep understanding, analysis, or unique perspectives about the topic?
-
-    ### Summary to Evaluate:
-    "{summary}"
-
-    ### Instructions:
-    - Assign a score from 0 (poor) to 10 (excellent) for each criterion.
-    - Provide scores in JSON format and include brief explanations for each criterion to clarify the rationale behind your evaluation.
-
-    ### Output Format:
-    {{
-      "Relevance": {{ "score": 0, "explanation": "..." }},
-      "Creativity": {{ "score": 0, "explanation": "..." }},
-      "Flexibility": {{ "score": 0, "explanation": "..." }},
-      "Problem_Solving": {{ "score": 0, "explanation": "..." }},
-      "Insight": {{ "score": 0, "explanation": "..." }}
-    }}
+    Evaluate the following summary based on the following criteria and give a score (0-10) for each:
+    1. Relevance
+    2. Creativity
+    3. Flexibility
+    4. Problem-Solving
+    5. Insight
+    Summary: "{summary}"
+    Provide the scores in JSON format as:
+    {{"Relevance": 0, "Creativity": 0, "Flexibility": 0, "Problem_Solving": 0, "Insight": 0}}
     """
 
     try:
@@ -77,42 +61,50 @@ def evaluate_creativity(summary):
             ]
         )
 
-        # JSONレスポンスを解析
+        # Use json.loads to safely parse JSON response
         scores = json.loads(response['choices'][0]['message']['content'])
-        return scores  # スコアと説明が含まれるJSON
+        # Ensure all scores are integers
+        for key in scores:
+            scores[key] = int(scores[key])
+        return scores
     except (json.JSONDecodeError, KeyError, ValueError) as e:
         st.error(f"Error parsing GPT response: {e}")
         return None
 
-def display_scores_and_explanations(scores):
-    """スコアと説明をStreamlit画面に表示"""
-    st.subheader("【評価結果】")
-    results = []
-    for key, value in scores.items():
-        score = value['score']
-        explanation = value['explanation']
-        results.append({"Criteria": key, "Score": score, "Explanation": explanation})
+def update_user_scores(conversation_id, scores):
+    """USERテーブルに評価スコアを更新する"""
+    db_file = "literary_app.db"
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
 
-    # DataFrameとして結果を表示
-    df_results = pd.DataFrame(results)
-    st.write(df_results)
+    cur.execute(
+        """
+        UPDATE USER
+        SET Relevance = ?, Creativity = ?, Flexibility = ?, Problem_Solving = ?, Insight = ?
+        WHERE id = ?
+        """,
+        (scores["Relevance"], scores["Creativity"], scores["Flexibility"], scores["Problem_Solving"], scores["Insight"], conversation_id)
+    )
 
+    conn.commit()
+    conn.close()
 
 def plot_radar_chart(scores):
-    """レーダーチャート描画（スコアのみを使用）"""
-    labels = [key for key in scores.keys()]
-    values = [value['score'] for value in scores.values()]
+    """古風なデザインのレーダーチャートを作成して描画する"""
+    labels = list(scores.keys())
+    values = list(scores.values())
 
     # レーダーチャート用にデータを閉じる
-    values += values[:1]  # 最初の値を追加して閉じる
+    values += values[:1]  # 閉じるために最初の値を追加
     angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False).tolist()
-    angles += angles[:1]
+    angles += angles[:1]  # 閉じるために最初の角度を追加
 
-    # 和風配色
+    # 和風の配色
     colors = ["#8b4513", "#556b2f", "#2e8b57", "#6a5acd", "#cd5c5c"]
 
+    # 背景画像の設定
     fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={"polar": True})
-    fig.patch.set_facecolor("#fff5e1")  # 背景色
+    fig.patch.set_facecolor("#fff5e1")  # 背景を和風の色に設定
 
     ax.fill(angles, values, color="gold", alpha=0.3, linewidth=2, linestyle="--")
     ax.plot(angles, values, color="#8b0000", linewidth=3)
@@ -123,9 +115,55 @@ def plot_radar_chart(scores):
     ax.set_xticks(angles[:-1])
     ax.set_xticklabels(labels, fontsize=14, fontweight="bold", color="#8b4513")
 
+    # 装飾用の枠線
+    for spine in ax.spines.values():
+        spine.set_edgecolor("#8b0000")
+        spine.set_linewidth(1.5)
+
+    # 中央から広がる線のスタイル
+    for line in ax.yaxis.get_gridlines():
+        line.set_linestyle("dotted")
+        line.set_color("#cd5c5c")
+
     st.pyplot(fig)
 
+def show_db_contents():
+    """USERテーブルの全レコードをSELECTして表示"""
+    db_file = "literary_app.db"
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM USER")
+    rows = cur.fetchall()
+    column_names = [description[0] for description in cur.description]
+    conn.close()
+
+    st.write("### USERテーブル内容（全カラム表示）")
+    df = pd.DataFrame(rows, columns=column_names)
+    st.dataframe(df)
+
 def main():
+    st.markdown(
+        """<style>
+        .stApp {
+            font-family: 'Yu Mincho', serif;
+            background-color: #fffaf0;
+            color: #5b4636;
+        }
+        .text-box {
+            background-color: #f8f0e3;
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem;
+            font-family: 'Yu Mincho', serif;
+            color: #5b4636;
+        }
+        </style>""",
+        unsafe_allow_html=True
+    )
+
     st.title("Evaluation & DB確認ツール")
 
     st.subheader("Evaluation Page")
@@ -145,28 +183,44 @@ def main():
             st.write(f"**対象レコードID**: {conversation_id}")
             st.subheader("【サマリー】")
             st.markdown(
-                f"""<div class="text-box">{summary_text}</div>""",
+                f"""
+                <div class="text-box">{summary_text}</div>
+                """,
                 unsafe_allow_html=True
             )
 
             if st.button("創造性評価を実行"):
                 scores = evaluate_creativity(summary_text)
                 if scores:
-                    update_user_scores(conversation_id, {key: value['score'] for key, value in scores.items()})
+                    update_user_scores(conversation_id, scores)
 
-                    st.success("創造性評価が完了し、スコアと説明がデータベースに保存されました！")
+                    st.success("創造性評価が完了し、スコアがデータベースに保存されました！")
 
-                    # スコアと説明を表示
-                    display_scores_and_explanations(scores)
+                    st.write("**更新されたスコア**")
+                    updated_scores_df = pd.DataFrame([scores], index=["Updated Scores"])
+                    st.write(updated_scores_df)
 
                     st.subheader("【レーダーチャート】")
                     plot_radar_chart(scores)
             else:
-                st.write("評価を実行してください。")
+                st.write("**現在のスコア**")
+                current_scores = {
+                    "Relevance": row[1],
+                    "Creativity": row[2],
+                    "Flexibility": row[3],
+                    "Problem_Solving": row[4],
+                    "Insight": row[5]
+                }
+
+                # USERテーブルの5つのスコアをDataFrameとして表示
+                st.write(pd.DataFrame([current_scores], index=["Current Scores"]))
+
+                st.subheader("【レーダーチャート】")
+                plot_radar_chart(current_scores)
         else:
-            st.error("該当するレコードが見つかりません。")
+            st.write("該当するレコードが見つかりません。")
     else:
-        st.error("IDが指定されていません。クエリパラメータ ?id=○○ を付与してください。")
+        st.write("IDが指定されていません。クエリパラメータ ?id=○○ を付与してください。")
 
     st.write("---")
 
