@@ -87,15 +87,17 @@ def evaluate_creativity(summary):
 def display_scores_and_explanations(scores):
     """スコアと説明をStreamlit画面に表示"""
     st.subheader("【評価結果】")
+    st.write("Scores Data:", scores)  # デバッグ用にスコアを表示
     results = []
     for key, value in scores.items():
-        score = value['score']
-        explanation = value['explanation']
+        score = value.get('score', 'N/A')  # エラー回避のためデフォルト値を設定
+        explanation = value.get('explanation', 'No explanation provided')
         results.append({"Criteria": key, "Score": score, "Explanation": explanation})
 
     # DataFrameとして結果を表示
     df_results = pd.DataFrame(results)
     st.write(df_results)
+
 
 def plot_radar_chart(scores):
     """レーダーチャート描画（スコアのみを使用）"""
