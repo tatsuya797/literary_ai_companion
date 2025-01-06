@@ -224,7 +224,7 @@ if st.session_state["logged_in"]:
     st.markdown("</div>", unsafe_allow_html=True)
 
     # 芥川龍之介ボットの選択に応じた処理
-    if selected_bot == "芥川龍之介":
+    if selected_bot == selected_bot:
         # タイトルリストを取得
         titles = fetch_titles_from_db()
         if titles:
