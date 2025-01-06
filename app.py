@@ -167,7 +167,7 @@ def authenticate_user(username, password):
 def fetch_titles_from_db():
     conn = sqlite3.connect("literary_app.db")
     cur = conn.cursor()
-    cur.execute("SELECT title FROM BOT")
+    cur.execute("SELECT title FROM BOT WHERE bot_name = ?", (selected_bot,))
     rows = cur.fetchall()
     conn.close()
     return [row[0] for row in rows]
