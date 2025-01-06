@@ -219,12 +219,12 @@ if st.session_state["logged_in"]:
 
     # ボット選択と開始ボタン
     st.markdown("<div class='bot-section'>読書の対話相手を選んでください</div>", unsafe_allow_html=True)
-    bot_options = ["夏目漱石", "太宰治", "芥川龍之介"]
+    bot_options = ["夏目漱石", "太宰治", "芥川龍之介", "森鴎外", "宮沢賢治"]
     selected_bot = st.selectbox("ボット選択", bot_options, key="bot_selectbox")
     st.markdown("</div>", unsafe_allow_html=True)
 
     # 芥川龍之介ボットの選択に応じた処理
-    if selected_bot == "芥川龍之介":
+    if selected_bot == selected_bot:
         # タイトルリストを取得
         titles = fetch_titles_from_db()
         if titles:
