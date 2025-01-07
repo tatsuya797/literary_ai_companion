@@ -122,26 +122,26 @@ def display_scores_and_explanations(scores):
     st.write(df_results)
 
 def plot_radar_chart(scores):
-    """古風なデザインのレーダーチャートを作成して描画する"""
+    """レーダーチャートを描画（スコアのみ使用）"""
+    # スコアのみを抽出
     labels = list(scores.keys())
-    values = list(scores.values())
+    values = [scores[key]['score'] for key in labels]  # スコアを抽出
 
     # レーダーチャート用にデータを閉じる
-    values += values[:1]  # 閉じるために最初の値を追加
+    values += values[:1]  # 最初の値を追加して閉じる
     angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False).tolist()
-    angles += angles[:1]  # 閉じるために最初の角度を追加
+    angles += angles[:1]  # 最初の角度を追加して閉じる
 
     # 和風の配色
-    colors = ["#8b4513", "#556b2f", "#2e8b57", "#6a5acd", "#cd5c5c"]
-
-    # 背景画像の設定
     fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={"polar": True})
-    fig.patch.set_facecolor("#fff5e1")  # 背景を和風の色に設定
+    fig.patch.set_facecolor("#fff5e1")  # 背景色
 
+    # レーダーチャートの塗りつぶしと線の設定
     ax.fill(angles, values, color="gold", alpha=0.3, linewidth=2, linestyle="--")
     ax.plot(angles, values, color="#8b0000", linewidth=3)
-    ax.set_facecolor("#fff5e1")  # レーダーチャートの背景色
 
+    # 軸と背景色の設定
+    ax.set_facecolor("#fff5e1")
     ax.set_yticks([2, 4, 6, 8, 10])
     ax.set_yticklabels(["2", "4", "6", "8", "10"], fontsize=12, fontweight="bold", color="#6b4226")
     ax.set_xticks(angles[:-1])
@@ -158,6 +158,7 @@ def plot_radar_chart(scores):
         line.set_color("#cd5c5c")
 
     st.pyplot(fig)
+
 
 def show_db_contents():
     """USERテーブルの全レコードをSELECTして表示"""
