@@ -58,7 +58,7 @@ def evaluate_creativity(summary):
     - Assign a score from 0 (poor) to 10 (excellent) for each criterion.
     - Provide scores in JSON format and include brief explanations for each criterion to clarify the rationale behind your evaluation.
 
-    ### Output Format(return only JSON):
+    ### Output Format (return only JSON):
     {{
       "Relevance": {{ "score": 0, "explanation": "..." }},
       "Creativity": {{ "score": 0, "explanation": "..." }},
@@ -77,15 +77,18 @@ def evaluate_creativity(summary):
             ]
         )
 
-        # Use json.loads to safely parse JSON response
+        # GPTのレスポンスをJSONとして解析
         scores = json.loads(response['choices'][0]['message']['content'])
-        # Ensure all scores are integers
-        for key in scores:
-            scores[key] = int(scores[key])
+
+        # スコアのみを抽出して整数値に変換し、辞書形式で返す
+        for key, value in scores.items():
+            value['score'] = int(value['score'])  # スコアを整数化
+
         return scores
     except (json.JSONDecodeError, KeyError, ValueError) as e:
         st.error(f"Error parsing GPT response: {e}")
         return None
+
 
 def update_user_scores(conversation_id, scores):
     """USERテーブルに評価スコアを更新する"""
