@@ -118,7 +118,9 @@ def translate_to_japanese(text):
                 {"role": "user", "content": text}
             ]
         )
-        return response['choices'][0]['message']['content'].strip()
+        translation = response['choices'][0]['message']['content'].strip()
+        st.write(f"【翻訳結果】: {translation}")  # デバッグ用に翻訳結果を表示
+        return translation
     except Exception as e:
         st.error(f"Translation error: {e}")
         return text  # 翻訳が失敗した場合は元のテキストを返す
@@ -137,7 +139,16 @@ def display_scores_and_explanations(scores):
         st.markdown(f"### {key} (スコア: {score}/10)")
         st.markdown(
             f"""
-            <div style="background-color:#f8f0e3; padding:10px; border-radius:10px; border: 2px solid #d4af37; margin-bottom:15px;">
+            <div style="
+                background-color:#f8f0e3; 
+                padding:15px; 
+                border-radius:10px; 
+                border: 2px solid #d4af37; 
+                margin-bottom:15px;
+                font-size: 1.1rem;
+                line-height: 1.5;
+                color: #5b4636;
+            ">
                 {translated_explanation}
             </div>
             """,
@@ -269,4 +280,5 @@ def main():
         show_db_contents()
 
 if __name__ == "__main__":
+    main()
     main()
