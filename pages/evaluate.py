@@ -119,7 +119,6 @@ def translate_to_japanese(text):
             ]
         )
         translation = response['choices'][0]['message']['content'].strip()
-        st.write(f"【翻訳結果】: {translation}")  # デバッグ用に翻訳結果を表示
         return translation
     except Exception as e:
         st.error(f"Translation error: {e}")
