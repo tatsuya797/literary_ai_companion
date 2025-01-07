@@ -58,7 +58,7 @@ def evaluate_creativity(summary):
     - Assign a score from 0 (poor) to 10 (excellent) for each criterion.
     - Provide scores in JSON format and include brief explanations for each criterion to clarify the rationale behind your evaluation.
 
-    ### Output Format:
+    ### Output Format(return only JSON):
     {{
       "Relevance": {{ "score": 0, "explanation": "..." }},
       "Creativity": {{ "score": 0, "explanation": "..." }},
