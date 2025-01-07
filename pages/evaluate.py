@@ -76,13 +76,11 @@ def evaluate_creativity(summary):
                 {"role": "user", "content": prompt}
             ]
         )
-
-        # JSONレスポンスを解析
+        st.write("GPT Response:", response['choices'][0]['message']['content'])  # レスポンスを確認
         scores = json.loads(response['choices'][0]['message']['content'])
-        return scores  # スコアと説明が含まれるJSON
-    except (json.JSONDecodeError, KeyError, ValueError) as e:
+    except Exception as e:
         st.error(f"Error parsing GPT response: {e}")
-        return None
+
 
 def display_scores_and_explanations(scores):
     """スコアと説明をStreamlit画面に表示"""
