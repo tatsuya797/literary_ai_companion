@@ -108,18 +108,41 @@ def update_user_scores(conversation_id, scores):
     conn.commit()
     conn.close()
 
+def translate_to_japanese(text):
+    """英語の説明を日本語に翻訳"""
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "Translate the following text into Japanese."},
+                {"role": "user", "content": text}
+            ]
+        )
+        return response['choices'][0]['message']['content'].strip()
+    except Exception as e:
+        st.error(f"Translation error: {e}")
+        return text  # 翻訳が失敗した場合は元のテキストを返す
+
 def display_scores_and_explanations(scores):
-    """スコアと説明をStreamlit画面に表示"""
+    """スコアと説明をStreamlit画面に表示（説明は日本語翻訳）"""
     st.subheader("【評価結果】")
-    results = []
     for key, value in scores.items():
         score = value['score']
         explanation = value['explanation']
-        results.append({"Criteria": key, "Score": score, "Explanation": explanation})
 
-    # DataFrameとして結果を表示
-    df_results = pd.DataFrame(results)
-    st.write(df_results)
+        # 説明を日本語に翻訳
+        translated_explanation = translate_to_japanese(explanation)
+
+        # スコアと説明を表示
+        st.markdown(f"### {key} (スコア: {score}/10)")
+        st.markdown(
+            f"""
+            <div style="background-color:#f8f0e3; padding:10px; border-radius:10px; border: 2px solid #d4af37; margin-bottom:15px;">
+                {translated_explanation}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 def plot_radar_chart(scores):
     """レーダーチャートを描画（スコアのみ使用）"""
@@ -227,7 +250,7 @@ def main():
 
                     st.success("創造性評価が完了し、スコアと説明がデータベースに保存されました！")
 
-                    # スコアと説明を表示
+                    # スコアと説明を表示（日本語翻訳含む）
                     display_scores_and_explanations(scores)
 
                     st.subheader("【レーダーチャート】")
