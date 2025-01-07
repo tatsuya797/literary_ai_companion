@@ -150,6 +150,24 @@ def show_db_contents():
     df = pd.DataFrame(rows, columns=column_names)
     st.dataframe(df)
 
+def update_user_scores(conversation_id, scores):
+    """USERテーブルに評価スコアを更新する"""
+    db_file = "literary_app.db"
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        UPDATE USER
+        SET Relevance = ?, Creativity = ?, Flexibility = ?, Problem_Solving = ?, Insight = ?
+        WHERE id = ?
+        """,
+        (scores["Relevance"], scores["Creativity"], scores["Flexibility"], scores["Problem_Solving"], scores["Insight"], conversation_id)
+    )
+
+    conn.commit()
+    conn.close()
+
 def main():
     st.markdown(
         """<style>
