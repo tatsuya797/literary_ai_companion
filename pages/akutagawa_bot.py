@@ -180,7 +180,7 @@ def summarize_conversation(messages):
     """会話履歴を400文字にまとめた要約を作成"""
     # ここでは既に filtered_messages を受け取る前提でもよい
     summary_prompt = [
-        {"role": "system", "content": "以下の会話履歴を400文字にまとめた要約を作成してください。また、'ユーザー'という文字列は'あなた'に変換し、さらに'アシスタント'という文字列は'ボット'に変換して出力して下さい。"},
+        {"role": "system", "content": "以下の会話履歴を400文字にまとめた要約を作成してください。"},
         {"role": "user", "content": json.dumps(messages, ensure_ascii=False)}
     ]
 
